@@ -16,15 +16,16 @@ final class Version20240729190900 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $clientsTable = $schema->createTable('client');
+        $clientsTable = $schema->createTable('clients');
         $clientsTable->addColumn('id', 'ulid');
         $clientsTable->addColumn('name', 'string');
         $clientsTable->addColumn('currency', 'string', ['length' => 3, 'notnull' => false]);
         $clientsTable->setPrimaryKey(['id']);
 
-        $projectsTable = $schema->createTable('project');
+        $projectsTable = $schema->createTable('projects');
         $projectsTable->addColumn('id', 'ulid');
         $projectsTable->addColumn('client_id', 'ulid');
+        $clientsTable->addColumn('name', 'string');
         $projectsTable->addColumn('hourly_rate', 'float', ['notnull' => false]);
         $projectsTable->setPrimaryKey(['id']);
         $projectsTable->addForeignKeyConstraint('client', ['client_id'], ['id']);

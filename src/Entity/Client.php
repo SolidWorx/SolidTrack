@@ -7,12 +7,14 @@ use App\Repository\ClientRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Stringable;
 use Symfony\Bridge\Doctrine\Types\UlidType;
 use Symfony\Component\Uid\Ulid;
 
 #[ORM\Entity(repositoryClass: ClientRepository::class)]
+#[ORM\Table(name: 'clients')]
 #[ApiResource]
-class Client
+class Client implements Stringable
 {
     #[ORM\Id]
     #[ORM\Column(type: UlidType::NAME, unique: true)]
@@ -94,5 +96,10 @@ class Client
         }
 
         return $this;
+    }
+
+    public function __toString()
+    {
+        return $this->name ?? '';
     }
 }

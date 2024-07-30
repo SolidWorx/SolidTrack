@@ -1,0 +1,28 @@
+{% extends 'layouts/base.html.twig' %}
+
+{% block title%}{{ 'New Client'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="container-xl d-flex flex-column justify-content-center">
+        {{ form_start(form) }}
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">{{ 'Create new Client'|trans }}</h2>
+            </div>
+            <div class="card-body">
+                {{ form_widget(form) }}
+            </div>
+            <div class="card-footer d-flex">
+                <a href="{{ path('app_client_index') }}" class="btn btn-link link-warning">
+                    {{ ux_icon('tabler:arrow-back') }}
+                    {{ 'Cancel'|trans }}
+                </a>
+                <button class="btn btn-primary ms-auto">
+                    {{ ux_icon('tabler:device-floppy') }}
+                    {{ button_label|default('Save') }}
+                </button>
+            </div>
+        </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

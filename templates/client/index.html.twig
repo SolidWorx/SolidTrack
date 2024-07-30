@@ -1,0 +1,69 @@
+{% extends 'layouts/base.html.twig' %}
+
+{% block title %}{{ 'Clients'|trans }}{% endblock %}
+
+ {% block page_header %}
+     <div class="page-header d-print-none">
+         <div class="container-xl">
+             <div class="row g-2 align-items-center">
+                 <div class="col">
+                     <h2 class="page-title">
+                         {{ 'Clients'|trans }}
+                     </h2>
+                 </div>
+
+                 <div class="col-auto ms-auto d-print-none">
+                     <div class="btn-list">
+                         <a href="{{ url('app_client_new') }}" class="btn btn-primary d-none d-sm-inline-block">
+                             {{ ux_icon('tabler:plus') }}
+                             {{ 'Create new client'|trans }}
+                         </a>
+                         <a href="#" class="btn btn-primary d-sm-none btn-icon" aria-label="Create new location">
+                             {{ ux_icon('tabler:plus') }}
+                         </a>
+                     </div>
+                 </div>
+             </div>
+         </div>
+     </div>
+ {% endblock page_header %}
+
+{% block body %}
+    <div class="container-xl d-flex flex-column justify-content-center">
+        <div class="table-responsive">
+            <div class="card">
+                <table class="table table-vcenter card-table">
+                    <thead>
+                    <tr>
+                        <th>{{ 'Name'|trans }}</th>
+                        <th>{{ 'Currency'|trans }}</th>
+                        <th>{{ 'Projects'|trans }}</th>
+                        <th>{{ 'Actions'|trans }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for client in clients %}
+                        <tr>
+                            <td>{{ client.name }}</td>
+                            <td>{{ client.currency }}</td>
+                            <td>
+                                {{ client.projects|length }}
+                            </td>
+                            <td>
+                                <a href="{{ path('app_client_edit', {'id': client.id}) }}">
+                                    {{ ux_icon('tabler:pencil', {width: '16px', height: '16px'}) }}
+                                    {{ 'Edit'|trans }}
+                                </a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="4">{{ 'No records found'|trans }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

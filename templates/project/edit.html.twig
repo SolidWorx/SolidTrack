@@ -1,0 +1,31 @@
+{% extends 'layouts/base.html.twig' %}
+
+{% block title %}{{ 'Edit :project'|trans({':project': project}) }}{% endblock %}
+
+{% block body %}
+<div class="container-xl d-flex flex-column justify-content-center">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">{{ 'Edit :project'|trans({':project': project}) }}</h2>
+            <div class="card-actions">
+                {{ include('project/_delete_form.html.twig') }}
+            </div>
+        </div>
+        <div class="card-body">
+            {{ form_start(form, {'attr': {'id': 'form_' ~ form.vars.name}}) }}
+                {{ form_widget(form) }}
+            {{ form_end(form) }}
+        </div>
+        <div class="card-footer d-flex">
+            <a href="{{ path('app_project_index') }}" class="btn btn-link link-warning">
+                {{ ux_icon('tabler:arrow-back') }}
+                {{ 'Cancel'|trans }}
+            </a>
+            <button class="btn btn-primary ms-auto" type="submit" form="{{ 'form_' ~ form.vars.name }}">
+                {{ ux_icon('tabler:device-floppy') }}
+                {{ button_label|default('Save') }}
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

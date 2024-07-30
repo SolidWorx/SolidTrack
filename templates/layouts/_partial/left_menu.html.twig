@@ -164,12 +164,28 @@
             <div class="collapse navbar-collapse" id="sidebar-menu">
                 <ul class="navbar-nav pt-lg-3">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url('dashboard') }}">
+                        <a class="nav-link{{ app.request.attributes.get('_route') is same as('dashboard') ? ' active' }}" href="{{ url('dashboard') }}">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
                                 {{ ux_icon('tabler:home') }}
                             </span>
                             <span class="nav-link-title">
-                                Dashboard
+                                {{ 'Dashboard'|trans }}
+                            </span>
+                        </a>
+                        <a class="nav-link{{ app.request.attributes.get('_route') is same as('app_client_index') ? ' active' }}" href="{{ url('app_client_index') }}">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                {{ ux_icon('tabler:users-group') }}
+                            </span>
+                            <span class="nav-link-title">
+                                {{ 'Clients'|trans }}
+                            </span>
+                        </a>
+                        <a class="nav-link{{ app.request.attributes.get('_route') is same as('app_project_index') ? ' active' }}" href="{{ url('app_project_index') }}">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                {{ ux_icon('tabler:mist') }}
+                            </span>
+                            <span class="nav-link-title">
+                                {{ 'Projects'|trans }}
                             </span>
                         </a>
                     </li>

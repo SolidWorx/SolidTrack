@@ -4,6 +4,7 @@
     "@babel/preset-env": "^7.16.0",
     "@symfony/webpack-encore": "^5.0.0",
     "@symfony/ux-turbo": "file:vendor/symfony/ux-turbo/assets",
+    "@symfony/ux-autocomplete": "file:vendor/symfony/ux-autocomplete/assets",
     "core-js": "^3.23.0",
     "regenerator-runtime": "^0.14.1",
     "sass": "^1.69.5",
