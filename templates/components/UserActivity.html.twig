@@ -1,0 +1,53 @@
+<div {{ attributes }}>
+    {% for date, trackers in userActivity %}
+        <div class="card mt-4">
+            <div class="card-header">
+                <h3 class="card-title">{{ date }}</h3>
+                <div class="card-actions pr-4">
+                    <small class="text-secondary">
+                        {{ 'Total:'|trans }}
+                    </small>
+                    <b>
+                        <time>
+                            {{ format_interval(trackers.total, true) }}
+                        </time>
+                    </b>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="divide-y">
+
+                    {% for tracker in trackers.entries %}
+                        <div>
+                            <div class="row">
+                                <div class="col-{{ tracker.project is not empty ? '8' : '8' }}">
+                                    {{ tracker.description }}
+                                    {% if tracker.project is not empty %}
+                                        <div>
+                                            <small class="text-secondary">
+                                                {{ tracker.project.client }} ({{ tracker.project }})
+                                            </small>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-2">
+                                    {{ tracker.dateStart.format('H:i A') }}
+                                    {% if tracker.duration.totalMinutes >= 1 %}
+                                         - {{ tracker.dateEnd.format('H:i A') }}
+                                    {% endif %}
+                                </div>
+                                <div class="col">
+                                    <h3 class="m-0 p-0">
+                                        <time>
+                                            {{ format_interval(tracker.duration, true) }}
+                                        </time>
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>

@@ -29,41 +29,39 @@
  {% endblock page_header %}
 
 {% block body %}
-    <div class="container-xl d-flex flex-column justify-content-center">
-        <div class="table-responsive">
-            <div class="card">
-                <table class="table table-vcenter card-table">
-                    <thead>
+    <div class="table-responsive">
+        <div class="card">
+            <table class="table table-vcenter card-table">
+                <thead>
+                <tr>
+                    <th>{{ 'Name'|trans }}</th>
+                    <th>{{ 'Currency'|trans }}</th>
+                    <th>{{ 'Projects'|trans }}</th>
+                    <th>{{ 'Actions'|trans }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for client in clients %}
                     <tr>
-                        <th>{{ 'Name'|trans }}</th>
-                        <th>{{ 'Currency'|trans }}</th>
-                        <th>{{ 'Projects'|trans }}</th>
-                        <th>{{ 'Actions'|trans }}</th>
+                        <td>{{ client.name }}</td>
+                        <td>{{ client.currency }}</td>
+                        <td>
+                            {{ client.projects|length }}
+                        </td>
+                        <td>
+                            <a href="{{ path('app_client_edit', {'id': client.id}) }}">
+                                {{ ux_icon('tabler:pencil', {width: '16px', height: '16px'}) }}
+                                {{ 'Edit'|trans }}
+                            </a>
+                        </td>
                     </tr>
-                    </thead>
-                    <tbody>
-                    {% for client in clients %}
-                        <tr>
-                            <td>{{ client.name }}</td>
-                            <td>{{ client.currency }}</td>
-                            <td>
-                                {{ client.projects|length }}
-                            </td>
-                            <td>
-                                <a href="{{ path('app_client_edit', {'id': client.id}) }}">
-                                    {{ ux_icon('tabler:pencil', {width: '16px', height: '16px'}) }}
-                                    {{ 'Edit'|trans }}
-                                </a>
-                            </td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="4">{{ 'No records found'|trans }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                {% else %}
+                    <tr>
+                        <td colspan="4">{{ 'No records found'|trans }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 {% endblock %}

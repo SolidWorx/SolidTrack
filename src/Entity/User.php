@@ -11,14 +11,16 @@ use Symfony\Component\Uid\Ulid;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
-#[ORM\Table(name: 'users')]
+#[ORM\Table(name: self::TABLE_NAME)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    public const TABLE_NAME = 'users';
+
     #[ORM\Id]
     #[ORM\Column(type: UlidType::NAME, unique: true)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(class: 'doctrine.ulid_generator')]
-    private ?Ulid $id = null;
+    private readonly Ulid $id;
 
     #[ORM\Column(length: 180)]
     private ?string $email = null;

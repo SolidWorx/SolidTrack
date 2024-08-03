@@ -29,39 +29,37 @@
  {% endblock page_header %}
 
 {% block body %}
-    <div class="container-xl d-flex flex-column justify-content-center">
-        <div class="table-responsive">
-            <div class="card">
-                <table class="table table-vcenter card-table">
-                    <thead>
+    <div class="table-responsive">
+        <div class="card">
+            <table class="table table-vcenter card-table">
+                <thead>
+                <tr>
+                    <th>{{ 'Name'|trans }}</th>
+                    <th>{{ 'Client'|trans }}</th>
+                    <th>{{ 'Hourly Rate'|trans }}</th>
+                    <th>{{ 'Actions'|trans }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for project in projects %}
                     <tr>
-                        <th>{{ 'Name'|trans }}</th>
-                        <th>{{ 'Client'|trans }}</th>
-                        <th>{{ 'Hourly Rate'|trans }}</th>
-                        <th>{{ 'Actions'|trans }}</th>
+                        <td>{{ project.name }}</td>
+                        <td>{{ project.client }}</td>
+                        <td>{{ project.hourlyRate|default(0) }} {{ project.client.currency }}</td>
+                        <td>
+                            <a href="{{ path('app_project_edit', {'id': project.id}) }}">
+                                {{ ux_icon('tabler:pencil', {width: '16px', height: '16px'}) }}
+                                {{ 'Edit'|trans }}
+                            </a>
+                        </td>
                     </tr>
-                    </thead>
-                    <tbody>
-                    {% for project in projects %}
-                        <tr>
-                            <td>{{ project.name }}</td>
-                            <td>{{ project.client }}</td>
-                            <td>{{ project.hourlyRate|default(0) }} {{ project.client.currency }}</td>
-                            <td>
-                                <a href="{{ path('app_project_edit', {'id': project.id}) }}">
-                                    {{ ux_icon('tabler:pencil', {width: '16px', height: '16px'}) }}
-                                    {{ 'Edit'|trans }}
-                                </a>
-                            </td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="3">{{ 'No records found'|trans }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                {% else %}
+                    <tr>
+                        <td colspan="3">{{ 'No records found'|trans }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 {% endblock %}

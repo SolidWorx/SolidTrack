@@ -12,15 +12,17 @@ use Symfony\Bridge\Doctrine\Types\UlidType;
 use Symfony\Component\Uid\Ulid;
 
 #[ORM\Entity(repositoryClass: ClientRepository::class)]
-#[ORM\Table(name: 'clients')]
+#[ORM\Table(name: self::TABLE_NAME)]
 #[ApiResource]
 class Client implements Stringable
 {
+    public const TABLE_NAME = 'clients';
+
     #[ORM\Id]
     #[ORM\Column(type: UlidType::NAME, unique: true)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(class: 'doctrine.ulid_generator')]
-    private ?Ulid $id = null;
+    private Ulid $id;
 
     #[ORM\Column(length: 255)]
     private ?string $name = null;
