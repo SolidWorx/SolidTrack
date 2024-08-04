@@ -1,7 +1,7 @@
 <div {{ attributes }}>
     {% for date, trackers in userActivity %}
         <div class="card mt-4">
-            <div class="card-header">
+            <div class="card-header py-2">
                 <h3 class="card-title">{{ date }}</h3>
                 <div class="card-actions pr-4">
                     <small class="text-secondary">
@@ -16,7 +16,6 @@
             </div>
             <div class="card-body">
                 <div class="divide-y">
-
                     {% for tracker in trackers.entries %}
                         <div>
                             <div class="row">

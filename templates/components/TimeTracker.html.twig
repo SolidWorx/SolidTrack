@@ -5,23 +5,26 @@
             'data-live-action-param': 'startTracker'
         }
     }) }}
-    <div class="card">
-        <div class="card-body">
+    <div class="card p-0 shadow-lg mb-5 rounded">
+        <div class="card-body p-0">
             <div class="row">
-                <div class="col-8">
-                    {{ form_widget(form.description) }}
+                <div class="col-7">
+                    {{ form_widget(form.description, {'attr': {'class': 'border-0 form-control-lg'}}) }}
                 </div>
-                <div class="col-2">
-                    {{ form_widget(form.project) }}
+                <div class="col-3">
+                    {{ form_widget(form.project, {'attr': {'class': 'border-0 form-control-lg'}}) }}
                 </div>
                 <div class="col d-flex align-items-center">
                     <h2 class="m-0 p-0">
                         <time>00:00:00</time>
                     </h2>
                     &nbsp;&nbsp;&nbsp;&nbsp;
-                    <button type="submit" class="btn-link" >
+                    <button type="submit" class="btn-link" data-bs-toggle="tooltip" title="{{ 'Start Tracker'|trans }}">
                         {{ ux_icon('tabler:player-play-filled', {width: '32px', height: '32px', class: 'text-success'}) }}
                     </button>
+                    <a href="#" data-bs-toggle="tooltip" title="{{ 'Add Time'|trans }}">
+                        {{ ux_icon('tabler:clock-plus') }}
+                    </a>
                 </div>
             </div>
         </div>
@@ -30,7 +33,7 @@
 
     {% if activeTrackers|length > 0 %}
         <div class="card mt-4">
-            <div class="card-header p-2">
+            <div class="card-header py-2">
                 <h3 class="card-title">{{ 'Active Trackers' }}</h3>
             </div>
             <div class="card-body">
@@ -47,14 +50,17 @@
                                         <small class="text-secondary">{{ tracker.project.client }}</small>
                                     </div>
                                 {% endif %}
-                                <div class="col d-flex align-items-center" {{ stimulus_controller('time-tracker')}} data-time-tracker-time-value="{{ tracker.dateStart.timestamp * 1000 }}">
-                                    <h2 class="m-0 p-0"{{ stimulus_target('time-tracker', 'timer') }}>
-                                        <time>00:00:00</time>
-                                    </h2>
-                                    &nbsp;&nbsp;&nbsp;&nbsp;
-                                    <a href="#" data-action="live#action:prevent" data-live-action-param="stopTimer" data-live-id-param="{{ tracker.id }}">
-                                        {{ ux_icon('tabler:player-stop-filled', {width: '32px', height: '32px', class: 'text-danger'}) }}
-                                    </a>
+                                <div class="col d-flex align-items-center" {{ stimulus_controller('time-tracker')}} data-time-tracker-time-value="{{ tracker.dateStart.timeStampMs }}">
+                                    <div class="col">
+                                        <h2 class="m-0 p-0"{{ stimulus_target('time-tracker', 'timer') }}>
+                                            <time>00:00:00</time>
+                                        </h2>
+                                    </div>
+                                    <div class="col">
+                                        <a href="#" data-action="live#action:prevent" data-live-action-param="stopTimer" data-live-id-param="{{ tracker.id }}">
+                                            {{ ux_icon('tabler:player-stop-filled', {width: '32px', height: '32px', class: 'text-danger'}) }}
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>

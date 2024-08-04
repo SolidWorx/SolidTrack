@@ -48,7 +48,12 @@ class TimeEntry implements Stringable
 
     #[ORM\Column(enumType: TimeEntryType::class)]
     private ?TimeEntryType $entryType = null;
+
     private CarbonInterval $duration;
+
+    #[ORM\ManyToOne(inversedBy: 'timeEntries')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
 
     public function getId(): ?Ulid
     {
@@ -147,5 +152,17 @@ class TimeEntry implements Stringable
     public function getDuration(): CarbonInterval
     {
         return $this->duration ??= CarbonInterval::diff($this->dateStart, $this->dateEnd);
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+
+        return $this;
     }
 }

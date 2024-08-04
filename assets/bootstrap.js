@@ -1,3 +1,6 @@
+import 'bootstrap';
+import '@tabler/core';
+import '@tabler/core/dist/libs/tom-select/dist/js/tom-select.complete';
 import { startStimulusApp } from '@symfony/stimulus-bridge';
 
 export const app = startStimulusApp(require.context(

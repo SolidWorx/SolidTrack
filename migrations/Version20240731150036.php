@@ -35,6 +35,6 @@ final class Version20240731150036 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        $schema->dropTable('time_entries');
+        $schema->dropTable(TimeEntry::TABLE_NAME);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Twig\Components;
 
 use App\Entity\TimeEntry;
+use App\Entity\User;
 use App\Enum\TimeEntryStatus;
 use App\Enum\TimeEntryType;
 use App\Form\TimeTrackerType;
@@ -11,10 +12,13 @@ use Carbon\CarbonImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\FormInterface;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
 use Symfony\UX\LiveComponent\Attribute\LiveArg;
+use Symfony\UX\LiveComponent\Attribute\LiveProp;
+use Symfony\UX\LiveComponent\ComponentToolsTrait;
 use Symfony\UX\LiveComponent\ComponentWithFormTrait;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
 use Symfony\UX\TwigComponent\Attribute\ExposeInTemplate;
@@ -24,10 +28,15 @@ final class TimeTracker extends AbstractController
 {
     use DefaultActionTrait;
     use ComponentWithFormTrait;
+    use ComponentToolsTrait;
+
+    #[LiveProp(writable: true, updateFromParent: true)]
+    public ?User $user = null;
 
     public function __construct(
         private readonly TimeEntryRepository $timeEntryRepository,
         private readonly ClockInterface $clock,
+        private readonly Security $security,
     ) {
     }
 
@@ -39,7 +48,9 @@ final class TimeTracker extends AbstractController
     #[ExposeInTemplate]
     public function activeTrackers(): iterable
     {
-        return $this->timeEntryRepository->findActiveTrackers();
+        $user = $this->user ?? $this->security->getUser() ?? throw new \LogicException('No user provided');
+
+        return $this->timeEntryRepository->findActiveTrackersForUser($user);
     }
 
     #[LiveAction]
@@ -50,6 +61,8 @@ final class TimeTracker extends AbstractController
 
         $entityManager->persist($entry);
         $entityManager->flush();
+
+        $this->emit('timer-stopped');
     }
 
     #[LiveAction]
@@ -67,11 +80,14 @@ final class TimeTracker extends AbstractController
         $entry->setDateStart(CarbonImmutable::instance($this->clock->now()))
             ->setStatus(TimeEntryStatus::TRACKING)
             ->setEntryType(TimeEntryType::TRACKING)
+            ->setUser($this->security->getUser())
         ;
 
         $entityManager->persist($entry);
         $entityManager->flush();
 
         $this->resetForm();
+
+        $this->emit('timer-started');
     }
 }
