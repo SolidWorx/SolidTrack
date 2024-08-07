@@ -1,0 +1,75 @@
+{% extends 'layouts/base.html.twig' %}
+
+{% block title %}{{ 'Clients'|trans }}{% endblock %}
+
+{% block page_header %}
+    <div class="page-header">
+        <div class="container-xl">
+
+            <div class="row align-items-center">
+                <div class="col">
+                    <div class="page-pretitle">
+                        Reports
+                    </div>
+                    <h2 class="page-title">
+                        Activities
+                    </h2>
+                </div>
+                <div class="col-auto ms-auto">
+                    <div class="btn-list">
+                        <a href="#" class="btn" data-bs-toggle="modal" data-bs-target="#modal-report">
+                            {{ ux_icon('tabler:clock-plus', {'width': '20', 'height': '20'}) }}&nbsp;Add Time
+                        </a>
+                        <a href="#" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#modal-report" aria-label="Create new report">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body %}
+    {{ render_chart(chart, {'data-controller': 'activity'}) }}
+
+    {#<div class="table-responsive">
+        <div class="card">
+            <table class="table table-vcenter card-table">
+                <thead>
+                <tr>
+                    <th>{{ 'Name'|trans }}</th>
+                    <th>{{ 'Currency'|trans }}</th>
+                    <th>{{ 'Projects'|trans }}</th>
+                    <th>{{ 'Actions'|trans }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for client in clients %}
+                    <tr>
+                        <td>{{ client.name }}</td>
+                        <td>{{ client.currency }}</td>
+                        <td>
+                            {{ client.projects|length }}
+                        </td>
+                        <td>
+                            <a href="{{ path('app_client_edit', {'id': client.id}) }}">
+                                {{ ux_icon('tabler:pencil', {width: '16px', height: '16px'}) }}
+                                {{ 'Edit'|trans }}
+                            </a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="4">{{ 'No records found'|trans }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>#}
+{% endblock %}

@@ -40,23 +40,16 @@ class TimeEntryRepository extends ServiceEntityRepository
     /**
      * @return iterable<TimeEntry>
      */
-    public function findCompleteTrackers(?User $user = null): iterable
+    public function findAllCompleteTrackers(): iterable
     {
         $lastWeek = CarbonPeriod::create('now', CarbonInterval::days(-1), 7);
 
-        $qb = $this->createQueryBuilder('t')
+        return $this->createQueryBuilder('t')
             ->where('t.status = :status')
             ->andWhere('t.dateStart BETWEEN :start AND :end')
             ->setParameter('status', TimeEntryStatus::COMPLETED)
             ->setParameter('start', $lastWeek->getIncludedEndDate()->startOfDay())
-            ->setParameter('end', $lastWeek->getStartDate()->endOfDay());
-
-        if ($user instanceof UserInterface) {
-            $qb->andWhere('t.user = :user')
-                ->setParameter('user', $user->getId(), UlidType::NAME);
-        }
-
-        return $qb
+            ->setParameter('end', $lastWeek->getStartDate()->endOfDay())
             ->orderBy('t.dateEnd', 'DESC')
             ->getQuery()
             ->getResult();
@@ -80,5 +73,11 @@ class TimeEntryRepository extends ServiceEntityRepository
             ->orderBy('t.dateEnd', 'DESC')
             ->getQuery()
             ->getResult();
+    }
+
+    public function remove(TimeEntry $entry): void
+    {
+        $this->getEntityManager()->remove($entry);
+        $this->getEntityManager()->flush();
     }
 }

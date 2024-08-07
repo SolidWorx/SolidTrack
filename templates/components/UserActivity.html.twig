@@ -1,52 +1,65 @@
 <div {{ attributes }}>
-    {% for date, trackers in userActivity %}
-        <div class="card mt-4">
-            <div class="card-header py-2">
-                <h3 class="card-title">{{ date }}</h3>
-                <div class="card-actions pr-4">
-                    <small class="text-secondary">
-                        {{ 'Total:'|trans }}
-                    </small>
-                    <b>
-                        <time>
-                            {{ format_interval(trackers.total, true) }}
-                        </time>
-                    </b>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="divide-y">
-                    {% for tracker in trackers.entries %}
+    <div class="card">
+        <div class="card-header py-2">
+            <h3 class="card-title">{{ 'Recent Activity'|trans }}</h3>
+        </div>
+        <div class="list-group list-group-flush overflow-auto list-group-hoverable">
+            {% for date, trackers in userActivity %}
+                <div class="list-group-header sticky-top">
+                    <div class="d-flex justify-content-between">
                         <div>
-                            <div class="row">
-                                <div class="col-{{ tracker.project is not empty ? '8' : '8' }}">
+                            {{ date }}
+                        </div>
+                        <div>
+                            <small class="text-secondary">
+                                {{ 'Total:'|trans }}
+                            </small>
+                            <time>
+                                {{ format_interval(trackers.total, true) }}
+                            </time>
+                        </div>
+                    </div>
+                </div>
+                {% for tracker in trackers.entries %}
+                    <div class="list-group-item">
+                        <div class="row align-items-center">
+                            <div class="col-7">
+                                <span class="text-body d-block">
                                     {{ tracker.description }}
                                     {% if tracker.project is not empty %}
-                                        <div>
-                                            <small class="text-secondary">
-                                                {{ tracker.project.client }} ({{ tracker.project }})
-                                            </small>
-                                        </div>
+                                        <br />
+                                        <small class="text-secondary mt-n1">
+                                            {{ tracker.project.client }} ({{ tracker.project }})
+                                        </small>
                                     {% endif %}
-                                </div>
-                                <div class="col-2">
-                                    {{ tracker.dateStart.format('H:i A') }}
-                                    {% if tracker.duration.totalMinutes >= 1 %}
-                                         - {{ tracker.dateEnd.format('H:i A') }}
-                                    {% endif %}
-                                </div>
-                                <div class="col">
-                                    <h3 class="m-0 p-0">
-                                        <time>
-                                            {{ format_interval(tracker.duration, true) }}
-                                        </time>
-                                    </h3>
-                                </div>
+                                </span>
+                            </div>
+                            <div class="col-2 text-center">
+                                {{ tracker.dateStart.format('H:i A') }}
+                                {#{% if tracker.duration.totalMinutes >= 1 %}
+                                     <br />-<br /> {{ tracker.dateEnd.format('H:i A') }}
+                                {% endif %}#}
+                            </div>
+                            <div class="col">
+                                <h3 class="m-0 p-0">
+                                    <time>
+                                        {{ format_interval(tracker.duration, true) }}
+                                    </time>
+                                </h3>
+                            </div>
+                            <div class="col-auto">
+                                <a href="#" class="list-group-item-actions text-danger"
+                                   data-action="live#action:prevent"
+                                   data-live-action-param="removeItem"
+                                   data-live-id-param="{{ tracker.id }}"
+                                >
+                                    {{ ux_icon('tabler:trash', {'width': '16', 'height': '16'}) }}
+                                </a>
                             </div>
                         </div>
-                    {% endfor %}
-                </div>
-            </div>
+                    </div>
+                {% endfor %}
+            {% endfor %}
         </div>
-    {% endfor %}
+    </div>
 </div>

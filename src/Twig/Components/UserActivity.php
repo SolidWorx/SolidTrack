@@ -2,12 +2,15 @@
 
 namespace App\Twig\Components;
 
+use App\Entity\TimeEntry;
 use App\Entity\User;
 use App\Repository\TimeEntryRepository;
 use Carbon\CarbonInterval;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
+use Symfony\UX\LiveComponent\Attribute\LiveAction;
+use Symfony\UX\LiveComponent\Attribute\LiveArg;
 use Symfony\UX\LiveComponent\Attribute\LiveListener;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
@@ -32,7 +35,7 @@ final class UserActivity extends AbstractController
     {
         $groups = [];
 
-        foreach ($this->timeEntryRepository->findCompleteTrackers($this->user) as $tracker) {
+        foreach ($this->timeEntryRepository->findCompleteTrackersForUser($this->user) as $tracker) {
             $group = match (true) {
                 $tracker->getDateStart()?->isToday() => $this->translator->trans('Today'),
                 $tracker->getDateStart()?->isYesterday() => $this->translator->trans('Yesterday'),
@@ -49,5 +52,11 @@ final class UserActivity extends AbstractController
         }
 
         return yield from $groups;
+    }
+
+    #[LiveAction]
+    public function removeItem(#[LiveArg('id')] TimeEntry $entry): void
+    {
+        $this->timeEntryRepository->remove($entry);
     }
 }

@@ -6,6 +6,7 @@
     "@symfony/ux-turbo": "file:vendor/symfony/ux-turbo/assets",
     "@symfony/ux-autocomplete": "file:vendor/symfony/ux-autocomplete/assets",
     "@symfony/ux-live-component": "file:vendor/symfony/ux-live-component/assets",
+    "@symfony/ux-chartjs": "file:vendor/symfony/ux-chartjs/assets",
     "core-js": "^3.23.0",
     "regenerator-runtime": "^0.14.1",
     "sass": "^1.69.5",
