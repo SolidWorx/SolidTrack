@@ -33,6 +33,8 @@ class ProjectController extends AbstractController
             $entityManager->persist($project);
             $entityManager->flush();
 
+            $this->addFlash('success', 'Project added successfully');
+
             return $this->redirectToRoute('app_project_index', [], Response::HTTP_SEE_OTHER);
         }
 

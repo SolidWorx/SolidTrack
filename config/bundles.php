@@ -22,4 +22,6 @@ return [
     Symfony\UX\TwigComponent\TwigComponentBundle::class => ['all' => true],
     Symfony\UX\LiveComponent\LiveComponentBundle::class => ['all' => true],
     Symfony\UX\Chartjs\ChartjsBundle::class => ['all' => true],
+    SolidWorx\Platform\PlatformBundle\SolidWorxPlatformBundle::class => ['all' => true],
+    SolidWorx\Platform\UiBundle\SolidWorxPlatformUiBundle::class => ['all' => true],
 ];

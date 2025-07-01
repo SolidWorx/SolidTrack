@@ -8,22 +8,21 @@ use App\Enum\TimeEntryStatus;
 use App\Enum\TimeEntryType;
 use Carbon\CarbonInterval;
 use Carbon\CarbonPeriod;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use SolidWorx\Platform\PlatformBundle\Repository\EntityRepository;
 use Symfony\Bridge\Doctrine\Types\UlidType;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * @extends ServiceEntityRepository<TimeEntry>
+ * @extends EntityRepository<TimeEntry>
  */
-class TimeEntryRepository extends ServiceEntityRepository
+class TimeEntryRepository extends EntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, TimeEntry::class);
     }
 
-    public function findActiveTrackersForUser(User $user): iterable
+    public function findActiveTrackersForUser(User $user): ?TimeEntry
     {
         return $this->createQueryBuilder('t')
             ->where('t.status = :status')
@@ -33,8 +32,9 @@ class TimeEntryRepository extends ServiceEntityRepository
             ->setParameter('entryType', TimeEntryType::TRACKING)
             ->setParameter('user', $user->getId(), UlidType::NAME)
             ->orderBy('t.dateStart', 'DESC')
+            ->setMaxResults(1)
             ->getQuery()
-            ->getResult();
+            ->getOneOrNullResult();
     }
 
     /**
@@ -58,19 +58,20 @@ class TimeEntryRepository extends ServiceEntityRepository
     /**
      * @return iterable<TimeEntry>
      */
-    public function findCompleteTrackersForUser(User $user): iterable
+    public function findCompleteTrackersForUser(User $user, int $limit = 8): iterable
     {
-        $lastWeek = CarbonPeriod::create('now', CarbonInterval::days(-1), 7);
+        // $lastWeek = CarbonPeriod::create('now', CarbonInterval::days(-1), 7);
 
         return $this->createQueryBuilder('t')
             ->where('t.status = :status')
-            ->andWhere('t.dateStart BETWEEN :start AND :end')
+            // ->andWhere('t.dateStart BETWEEN :start AND :end')
             ->andWhere('t.user = :user')
             ->setParameter('status', TimeEntryStatus::COMPLETED)
-            ->setParameter('start', $lastWeek->getIncludedEndDate()->startOfDay())
-            ->setParameter('end', $lastWeek->getStartDate()->endOfDay())
+            // ->setParameter('start', $lastWeek->getIncludedEndDate()->startOfDay())
+            // ->setParameter('end', $lastWeek->getStartDate()->endOfDay())
             ->setParameter('user', $user->getId(), UlidType::NAME)
             ->orderBy('t.dateEnd', 'DESC')
+            ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
     }

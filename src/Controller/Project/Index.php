@@ -3,7 +3,6 @@
 namespace App\Controller\Project;
 
 use App\Repository\ProjectRepository;
-use App\Strings\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -17,7 +16,7 @@ final class Index extends AbstractController
 
     public function __invoke(): Response
     {
-        return $this->render(Template::PROJECT(__CLASS__), [
+        return $this->render('project/index.html.twig', [
             'projects' => $this->projectRepository->findAll(),
         ]);
     }

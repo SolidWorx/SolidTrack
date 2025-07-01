@@ -15,13 +15,14 @@ use Symfony\UX\LiveComponent\Attribute\LiveListener;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
 use Symfony\UX\TwigComponent\Attribute\ExposeInTemplate;
+use function func_get_args;
 
 #[AsLiveComponent]
 final class UserActivity extends AbstractController
 {
     use DefaultActionTrait;
 
-    #[LiveProp(writable: true, updateFromParent: true)]
+    #[LiveProp(writable: true, dehydrateWith: 'dehydrateUser', updateFromParent: true)]
     public User $user;
 
     public function __construct(
@@ -58,5 +59,10 @@ final class UserActivity extends AbstractController
     public function removeItem(#[LiveArg('id')] TimeEntry $entry): void
     {
         $this->timeEntryRepository->remove($entry);
+    }
+
+    public function dehydrateUser(User $user): User
+    {
+        return $user;
     }
 }

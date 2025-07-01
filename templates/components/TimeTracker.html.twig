@@ -31,40 +31,38 @@
     </div>
     {{ form_end(form) }}
 
-    {% if activeTrackers|length > 0 %}
+    {% if activeTracker is not empty %}
         <div class="card mt-4">
             <div class="card-header py-2">
                 <h3 class="card-title">{{ 'Active Trackers' }}</h3>
             </div>
             <div class="card-body">
                 <div class="divide-y">
-                    {% for tracker in activeTrackers %}
-                        <div>
-                            <div class="row">
-                                <div class="col-{{ tracker.project is not empty ? '8' : '10' }}">
-                                    {{ tracker.description }}
+                    <div>
+                        <div class="row">
+                            <div class="col-{{ activeTracker.project is not empty ? '8' : '10' }}">
+                                {{ activeTracker.description }}
+                            </div>
+                            {% if activeTracker.project is not empty %}
+                                <div class="col-2">
+                                    {{ tracker.project }}<br />
+                                    <small class="text-secondary">{{ activeTracker.project.client }}</small>
                                 </div>
-                                {% if tracker.project is not empty %}
-                                    <div class="col-2">
-                                        {{ tracker.project }}<br />
-                                        <small class="text-secondary">{{ tracker.project.client }}</small>
-                                    </div>
-                                {% endif %}
-                                <div class="col d-flex align-items-center" {{ stimulus_controller('time-tracker')}} data-time-tracker-time-value="{{ tracker.dateStart.timeStampMs }}">
-                                    <div class="col">
-                                        <h2 class="m-0 p-0"{{ stimulus_target('time-tracker', 'timer') }}>
-                                            <time>00:00:00</time>
-                                        </h2>
-                                    </div>
-                                    <div class="col">
-                                        <a href="#" data-action="live#action:prevent" data-live-action-param="stopTimer" data-live-id-param="{{ tracker.id }}">
-                                            {{ ux_icon('tabler:player-stop-filled', {width: '32px', height: '32px', class: 'text-danger'}) }}
-                                        </a>
-                                    </div>
+                            {% endif %}
+                            <div class="col d-flex align-items-center" {{ stimulus_controller('time-tracker')}} data-time-tracker-time-value="{{ activeTracker.dateStart.timeStampMs }}">
+                                <div class="col">
+                                    <h2 class="m-0 p-0"{{ stimulus_target('time-tracker', 'timer') }}>
+                                        <time>00:00:00</time>
+                                    </h2>
+                                </div>
+                                <div class="col">
+                                    <a href="#" data-action="live#action:prevent" data-live-action-param="stopTimer" data-live-id-param="{{ activeTracker.id }}">
+                                        {{ ux_icon('tabler:player-stop-filled', {width: '32px', height: '32px', class: 'text-danger'}) }}
+                                    </a>
                                 </div>
                             </div>
                         </div>
-                    {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>

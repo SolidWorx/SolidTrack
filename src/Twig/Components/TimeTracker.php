@@ -46,7 +46,7 @@ final class TimeTracker extends AbstractController
     }
 
     #[ExposeInTemplate]
-    public function activeTrackers(): iterable
+    public function activeTracker(): ?TimeEntry
     {
         $user = $this->user ?? $this->security->getUser() ?? throw new \LogicException('No user provided');
 
@@ -68,6 +68,11 @@ final class TimeTracker extends AbstractController
     #[LiveAction]
     public function startTracker(EntityManagerInterface $entityManager): void
     {
+        if ($this->activeTracker() instanceof TimeEntry) {
+            $this->addFlash('error', 'There is already an active tracker');;
+            return;
+        }
+
         $this->submitForm();
 
         /** @var TimeEntry $entry */

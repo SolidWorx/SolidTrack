@@ -34,14 +34,12 @@
     {% include 'layouts/_partial/top_nav.html.twig' %}
 
     <div class="page-wrapper">
-
-        {# show flash messages #}
         {% for label, messages in app.flashes %}
             <div class="container-xl mt-4">
                 {% for message in messages %}
-                    <div class="alert alert-{{ label }} alert-dismissible">
+                    <twig:Ui:Alert type="{{ label }}" dismissable>
                         {{ message|trans }}
-                    </div>
+                    </twig:Ui:Alert>
                 {% endfor %}
             </div>
         {% endfor %}
@@ -57,8 +55,8 @@
                 <div class="row text-center align-items-center flex-row-reverse">
                     <div class="col-lg-auto ms-lg-auto">
                         <ul class="list-inline list-inline-dots mb-0">
-                            {#<li class="list-inline-item"><a href="https://tabler.io/docs" target="_blank" class="link-secondary" rel="noopener">Documentation</a></li>#}
-                            {#<li class="list-inline-item"><a href="./license.html" class="link-secondary">License</a></li>#}
+                            <li class="list-inline-item"><a href="https://tabler.io/docs" target="_blank" class="link-secondary" rel="noopener">Documentation</a></li>
+                            <li class="list-inline-item"><a href="./license.html" class="link-secondary">License</a></li>
                             <li class="list-inline-item">
 
                                 <a href="https://github.com/SolidWorx/SoldTrack" target="_blank" class="link-secondary" rel="noopener">
