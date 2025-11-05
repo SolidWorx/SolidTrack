@@ -50,7 +50,6 @@
         "symfony/uid": "^7.2",
         "symfony/ux-autocomplete": "^2.18",
         "symfony/ux-chartjs": "^2.18",
-        "symfony/ux-icons": "^2.18",
         "symfony/ux-live-component": "^2.18",
         "symfony/ux-turbo": "^2.13",
         "symfony/ux-twig-component": "^2.18",

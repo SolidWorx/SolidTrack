@@ -35,7 +35,7 @@ class TimeEntry implements Stringable
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private ?CarbonImmutable $dateStart = null;
 
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['secondPrecision' => true])]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?CarbonImmutable $dateEnd = null;
 
     #[ORM\Column]

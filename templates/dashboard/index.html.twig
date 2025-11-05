@@ -34,10 +34,10 @@
 {% block body %}
     <twig:TimeTracker />
     <div class="row mt-4">
-        <div class="col-6">
-            <twig:UserActivity :user="app.user" />
+        <div class="col-12">
+            <twig:UserActivity />
         </div>
-        <div class="col-6">
+        {#<div class="col-6">
             <div class="row row-cards">
                 <div class="col-sm-12 col-lg-6">
                     <div class="card card-sm">
@@ -124,6 +124,6 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div>#}
     </div>
 {% endblock body %}

@@ -29,6 +29,10 @@ export default class extends Controller {
     }
 
     update() {
+        if (this.timeValue === 0) {
+            return;
+        }
+
         const currentTime = new Date().getTime(); // get current time in milliseconds
         const elapsedTime = currentTime - this.timeValue; // calculate elapsed time in milliseconds
         const seconds = Math.floor(elapsedTime / this.MILLIS_PER_SECOND) % 60; // calculate seconds

@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Repository\TimeEntryRepository;
 use Carbon\CarbonInterval;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Uid\Ulid;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
@@ -15,15 +16,11 @@ use Symfony\UX\LiveComponent\Attribute\LiveListener;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
 use Symfony\UX\TwigComponent\Attribute\ExposeInTemplate;
-use function func_get_args;
 
 #[AsLiveComponent]
 final class UserActivity extends AbstractController
 {
     use DefaultActionTrait;
-
-    #[LiveProp(writable: true, dehydrateWith: 'dehydrateUser', updateFromParent: true)]
-    public User $user;
 
     public function __construct(
         private readonly TimeEntryRepository $timeEntryRepository,
@@ -36,7 +33,9 @@ final class UserActivity extends AbstractController
     {
         $groups = [];
 
-        foreach ($this->timeEntryRepository->findCompleteTrackersForUser($this->user) as $tracker) {
+        /** @var User $user */
+        $user = $this->getUser();
+        foreach ($this->timeEntryRepository->findCompleteTrackersForUser($user) as $tracker) {
             $group = match (true) {
                 $tracker->getDateStart()?->isToday() => $this->translator->trans('Today'),
                 $tracker->getDateStart()?->isYesterday() => $this->translator->trans('Yesterday'),
@@ -59,10 +58,5 @@ final class UserActivity extends AbstractController
     public function removeItem(#[LiveArg('id')] TimeEntry $entry): void
     {
         $this->timeEntryRepository->remove($entry);
-    }
-
-    public function dehydrateUser(User $user): User
-    {
-        return $user;
     }
 }

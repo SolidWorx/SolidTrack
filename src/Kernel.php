@@ -12,14 +12,12 @@
 namespace App;
 
 use Carbon\CarbonInterval;
+use SolidWorx\Platform\PlatformBundle\Kernel as BaseKernel;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
-use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 
 final class Kernel extends BaseKernel
 {
     public const APP_VERSION = '0.1.0-dev';
-
-    use MicroKernelTrait;
 
     public function boot(): void
     {

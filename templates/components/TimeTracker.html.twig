@@ -14,24 +14,30 @@
                 <div class="col-3">
                     {{ form_widget(form.project, {'attr': {'class': 'border-0 form-control-lg'}}) }}
                 </div>
-                <div class="col d-flex align-items-center">
-                    <h2 class="m-0 p-0">
-                        <time>00:00:00</time>
+                <div class="col d-flex align-items-center" {{ stimulus_controller('time-tracker', {'time': activeTracker.dateStart.timeStampMs|default(0)}) }}>
+                    <h2 class="m-0 p-0" {{ stimulus_target('time-tracker', 'timer') }}>
+                        <time>
+                            00:00:00
+                        </time>
                     </h2>
-                    &nbsp;&nbsp;&nbsp;&nbsp;
-                    <button type="submit" class="btn-link" data-bs-toggle="tooltip" title="{{ 'Start Tracker'|trans }}">
-                        {{ ux_icon('tabler:player-play-filled', {width: '32px', height: '32px', class: 'text-success'}) }}
-                    </button>
-                    <a href="#" data-bs-toggle="tooltip" title="{{ 'Add Time'|trans }}">
-                        {{ ux_icon('tabler:clock-plus') }}
-                    </a>
+
+                    {% if activeTracker %}
+                        <a href="#" data-action="live#action:prevent" data-live-action-param="stopTimer" data-live-id-param="{{ activeTracker.id }}">
+                            {{ ux_icon('tabler:player-stop-filled', {width: '32px', height: '32px', class: 'text-danger'}) }}
+                        </a>
+                    {% else %}
+                        <button type="submit" class="btn-link" data-bs-toggle="tooltip" title="{{ 'Start Tracker'|trans }}">
+                            {{ ux_icon('tabler:player-play-filled', {width: '32px', height: '32px', class: 'text-success'}) }}
+                        </button>
+                    {% endif %}
+
                 </div>
             </div>
         </div>
     </div>
     {{ form_end(form) }}
 
-    {% if activeTracker is not empty %}
+    {#{% if activeTracker is not empty %}
         <div class="card mt-4">
             <div class="card-header py-2">
                 <h3 class="card-title">{{ 'Active Trackers' }}</h3>
@@ -66,5 +72,5 @@
                 </div>
             </div>
         </div>
-    {% endif %}
+    {% endif %}#}
 </div>

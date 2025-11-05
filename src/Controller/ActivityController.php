@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
 use App\Repository\TimeEntryRepository;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
@@ -35,7 +36,9 @@ final class ActivityController extends AbstractController
             null,
         );
 
-        foreach ($this->repository->findCompleteTrackersForUser($this->getUser()) as $entry) {
+        /** @var User $user */
+        $user = $this->getUser();
+        foreach ($this->repository->findCompleteTrackersForUser($user) as $entry) {
             $group = $entry->getDateStart()?->format('D d M Y');
 
             $groups[$group] ??= CarbonInterval::create();

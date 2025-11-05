@@ -56,11 +56,14 @@ final class TimeTracker extends AbstractController
     #[LiveAction]
     public function stopTimer(#[LiveArg('id')] TimeEntry $entry, EntityManagerInterface $entityManager): void
     {
-        $entry->setDateEnd(CarbonImmutable::instance($this->clock->now()))
+        $entry
+            ->setDateEnd(CarbonImmutable::instance($this->clock->now()))
             ->setStatus(TimeEntryStatus::COMPLETED);
 
         $entityManager->persist($entry);
         $entityManager->flush();
+
+        $this->resetForm();
 
         $this->emit('timer-stopped');
     }
@@ -90,8 +93,6 @@ final class TimeTracker extends AbstractController
 
         $entityManager->persist($entry);
         $entityManager->flush();
-
-        $this->resetForm();
 
         $this->emit('timer-started');
     }
