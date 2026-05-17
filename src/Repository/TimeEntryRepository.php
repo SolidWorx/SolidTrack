@@ -1,5 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of SolidTrack project.
+ *
+ * (c) Pierre du Plessis <open-source@solidworx.co>
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace App\Repository;
 
 use App\Entity\TimeEntry;
@@ -11,12 +22,11 @@ use Carbon\CarbonPeriod;
 use Doctrine\Persistence\ManagerRegistry;
 use SolidWorx\Platform\PlatformBundle\Repository\EntityRepository;
 use Symfony\Bridge\Doctrine\Types\UlidType;
-use Symfony\Component\Uid\Ulid;
 
 /**
  * @extends EntityRepository<TimeEntry>
  */
-class TimeEntryRepository extends EntityRepository
+final class TimeEntryRepository extends EntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -61,25 +71,14 @@ class TimeEntryRepository extends EntityRepository
      */
     public function findCompleteTrackersForUser(User $user, int $limit = 8): iterable
     {
-        // $lastWeek = CarbonPeriod::create('now', CarbonInterval::days(-1), 7);
-
         return $this->createQueryBuilder('t')
             ->where('t.status = :status')
-            // ->andWhere('t.dateStart BETWEEN :start AND :end')
             ->andWhere('t.user = :user')
             ->setParameter('status', TimeEntryStatus::COMPLETED)
-            // ->setParameter('start', $lastWeek->getIncludedEndDate()->startOfDay())
-            // ->setParameter('end', $lastWeek->getStartDate()->endOfDay())
             ->setParameter('user', $user->getId(), UlidType::NAME)
             ->orderBy('t.dateEnd', 'DESC')
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
-    }
-
-    public function remove(TimeEntry $entry): void
-    {
-        $this->getEntityManager()->remove($entry);
-        $this->getEntityManager()->flush();
     }
 }

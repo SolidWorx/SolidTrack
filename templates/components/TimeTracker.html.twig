@@ -1,76 +1,48 @@
-<div {{ attributes }}>
+{% set initial_elapsed = entry
+    ? entry.dateStart.diffAsCarbonInterval('now', true).cascade().format('%H:%I:%S')
+    : '00:00:00'
+%}
+<div {{ attributes.defaults({id: 'time-tracker'}) }}>
     {{ form_start(form, {
         attr: {
             'data-action': 'live#action:prevent',
-            'data-live-action-param': 'startTracker'
-        }
+            'data-live-action-param': 'startTracker',
+        },
     }) }}
-    <div class="card p-0 shadow-lg mb-5 rounded">
-        <div class="card-body p-0">
-            <div class="row">
-                <div class="col-7">
-                    {{ form_widget(form.description, {'attr': {'class': 'border-0 form-control-lg'}}) }}
-                </div>
-                <div class="col-3">
-                    {{ form_widget(form.project, {'attr': {'class': 'border-0 form-control-lg'}}) }}
-                </div>
-                <div class="col d-flex align-items-center" {{ stimulus_controller('time-tracker', {'time': activeTracker.dateStart.timeStampMs|default(0)}) }}>
-                    <h2 class="m-0 p-0" {{ stimulus_target('time-tracker', 'timer') }}>
-                        <time>
-                            00:00:00
-                        </time>
-                    </h2>
+        <div class="card p-0 shadow-lg mb-5 rounded">
+            <div class="card-body p-0">
+                <div class="row" id="time-tracker-fields">
+                    <div class="col-7">
+                        {{ form_widget(form.description, {'attr': {'class': 'border-0 form-control-lg'}}) }}
+                    </div>
+                    <div class="col-3" data-live-ignore
+                         {{ stimulus_controller('time-tracker-form') }}
+                         data-action="time-tracker:cleared@window->time-tracker-form#clear">
+                        {{ form_widget(form.project, {'attr': {'class': 'border-0 form-control-lg'}}) }}
+                    </div>
+                    <div class="col d-flex align-items-center" id="time-tracker-display" {{ stimulus_controller('time-tracker', {'time': entry.dateStart.timestampMs|default(0)}) }}>
+                        <h2 class="m-0 p-0 me-2" {{ stimulus_target('time-tracker', 'timer') }} data-live-ignore>
+                            <time>{{ initial_elapsed }}</time>
+                        </h2>
 
-                    {% if activeTracker %}
-                        <a href="#" data-action="live#action:prevent" data-live-action-param="stopTimer" data-live-id-param="{{ activeTracker.id }}">
-                            {{ ux_icon('tabler:player-stop-filled', {width: '32px', height: '32px', class: 'text-danger'}) }}
-                        </a>
-                    {% else %}
-                        <button type="submit" class="btn-link" data-bs-toggle="tooltip" title="{{ 'Start Tracker'|trans }}">
+                        <button id="time-tracker-start" type="submit"
+                                class="btn-link p-0 border-0 bg-transparent{% if entry %} d-none{% endif %}"
+                                aria-label="{{ 'Start Tracker'|trans }}"
+                                title="{{ 'Start Tracker'|trans }}">
                             {{ ux_icon('tabler:player-play-filled', {width: '32px', height: '32px', class: 'text-success'}) }}
                         </button>
-                    {% endif %}
 
-                </div>
-            </div>
-        </div>
-    </div>
-    {{ form_end(form) }}
-
-    {#{% if activeTracker is not empty %}
-        <div class="card mt-4">
-            <div class="card-header py-2">
-                <h3 class="card-title">{{ 'Active Trackers' }}</h3>
-            </div>
-            <div class="card-body">
-                <div class="divide-y">
-                    <div>
-                        <div class="row">
-                            <div class="col-{{ activeTracker.project is not empty ? '8' : '10' }}">
-                                {{ activeTracker.description }}
-                            </div>
-                            {% if activeTracker.project is not empty %}
-                                <div class="col-2">
-                                    {{ tracker.project }}<br />
-                                    <small class="text-secondary">{{ activeTracker.project.client }}</small>
-                                </div>
-                            {% endif %}
-                            <div class="col d-flex align-items-center" {{ stimulus_controller('time-tracker')}} data-time-tracker-time-value="{{ activeTracker.dateStart.timeStampMs }}">
-                                <div class="col">
-                                    <h2 class="m-0 p-0"{{ stimulus_target('time-tracker', 'timer') }}>
-                                        <time>00:00:00</time>
-                                    </h2>
-                                </div>
-                                <div class="col">
-                                    <a href="#" data-action="live#action:prevent" data-live-action-param="stopTimer" data-live-id-param="{{ activeTracker.id }}">
-                                        {{ ux_icon('tabler:player-stop-filled', {width: '32px', height: '32px', class: 'text-danger'}) }}
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+                        <button id="time-tracker-stop" type="button"
+                                class="btn-link p-0 border-0 bg-transparent{% if not entry %} d-none{% endif %}"
+                                aria-label="{{ 'Stop Tracker'|trans }}"
+                                title="{{ 'Stop Tracker'|trans }}"
+                                data-action="live#action:prevent"
+                                data-live-action-param="stopTimer">
+                            {{ ux_icon('tabler:player-stop-filled', {width: '32px', height: '32px', class: 'text-danger'}) }}
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
-    {% endif %}#}
+    {{ form_end(form) }}
 </div>

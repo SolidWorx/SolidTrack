@@ -1,43 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of SolidTrack project.
+ *
+ * (c) Pierre du Plessis <open-source@solidworx.co>
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace App\Repository;
 
 use App\Entity\Client;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use SolidWorx\Platform\PlatformBundle\Repository\EntityRepository;
 
 /**
- * @extends ServiceEntityRepository<Client>
+ * @extends EntityRepository<Client>
  */
-class ClientRepository extends ServiceEntityRepository
+final class ClientRepository extends EntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Client::class);
     }
-
-    //    /**
-    //     * @return Client[] Returns an array of Client objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('c.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?Client
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
 }

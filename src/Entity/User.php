@@ -1,41 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of SolidTrack project.
+ *
+ * (c) Pierre du Plessis <open-source@solidworx.co>
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace App\Entity;
 
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\IdGenerator\UlidGenerator;
-use Symfony\Bridge\Doctrine\Types\UlidType;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Uid\Ulid;
+use SolidWorx\Platform\PlatformBundle\Model\User as PlatformUser;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[ORM\Table(name: self::TABLE_NAME)]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+class User extends PlatformUser
 {
-    public const TABLE_NAME = 'users';
-
-    #[ORM\Id]
-    #[ORM\Column(type: UlidType::NAME, unique: true)]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: UlidGenerator::class)]
-    private readonly Ulid $id;
-
-    #[ORM\Column(length: 180)]
-    private ?string $email = null;
-
-    /**
-     * @var list<string> The user roles
-     */
-    #[ORM\Column]
-    private array $roles = [];
-
-    #[ORM\Column]
-    private ?string $password = null;
+    public const string TABLE_NAME = 'users';
 
     /**
      * @var Collection<int, TimeEntry>
@@ -45,82 +33,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct()
     {
+        parent::__construct();
+
         $this->timeEntries = new ArrayCollection();
-    }
-
-    public function getId(): ?Ulid
-    {
-        return $this->id;
-    }
-
-    public function getEmail(): ?string
-    {
-        return $this->email;
-    }
-
-    public function setEmail(string $email): static
-    {
-        $this->email = $email;
-
-        return $this;
-    }
-
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
-    public function getUserIdentifier(): string
-    {
-        return (string) $this->email;
-    }
-
-    /**
-     * @see UserInterface
-     *
-     * @return list<string>
-     */
-    public function getRoles(): array
-    {
-        $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
-
-        return array_unique($roles);
-    }
-
-    /**
-     * @param list<string> $roles
-     */
-    public function setRoles(array $roles): static
-    {
-        $this->roles = $roles;
-
-        return $this;
-    }
-
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
-    public function getPassword(): string
-    {
-        return $this->password;
-    }
-
-    public function setPassword(string $password): static
-    {
-        $this->password = $password;
-
-        return $this;
-    }
-
-    /**
-     * @see UserInterface
-     */
-    public function eraseCredentials(): void
-    {
-        // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
     }
 
     /**
@@ -133,7 +48,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function addTimeEntry(TimeEntry $timeEntry): static
     {
-        if (!$this->timeEntries->contains($timeEntry)) {
+        if (! $this->timeEntries->contains($timeEntry)) {
             $this->timeEntries->add($timeEntry);
             $timeEntry->setUser($this);
         }
@@ -143,11 +58,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function removeTimeEntry(TimeEntry $timeEntry): static
     {
-        if ($this->timeEntries->removeElement($timeEntry)) {
-            // set the owning side to null (unless already changed)
-            if ($timeEntry->getUser() === $this) {
-                $timeEntry->setUser(null);
-            }
+        if ($this->timeEntries->removeElement($timeEntry) && $timeEntry->getUser() === $this) {
+            $timeEntry->setUser(null);
         }
 
         return $this;

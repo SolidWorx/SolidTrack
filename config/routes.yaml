@@ -3,3 +3,8 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+# Logout is intercepted by the security firewall (see config/packages/security.yaml).
+app_logout:
+    path: /logout
+    methods: [GET]

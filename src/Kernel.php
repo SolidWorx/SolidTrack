@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of {PROJECT_NAME} project.
+ * This file is part of SolidTrack project.
  *
  * (c) Pierre du Plessis <open-source@solidworx.co>
  *
@@ -13,7 +13,6 @@ namespace App;
 
 use Carbon\CarbonInterval;
 use SolidWorx\Platform\PlatformBundle\Kernel as BaseKernel;
-use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 
 final class Kernel extends BaseKernel
 {

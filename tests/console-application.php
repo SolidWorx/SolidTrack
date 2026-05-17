@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of {PROJECT_NAME} project.
+ * This file is part of SolidTrack project.
  *
  * (c) Pierre du Plessis <open-source@solidworx.co>
  *

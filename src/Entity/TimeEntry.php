@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of SolidTrack project.
+ *
+ * (c) Pierre du Plessis <open-source@solidworx.co>
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
@@ -8,7 +17,6 @@ use App\Enum\TimeEntryType;
 use App\Repository\TimeEntryRepository;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterval;
-use DateInterval;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Stringable;
@@ -41,7 +49,7 @@ class TimeEntry implements Stringable
     #[ORM\Column]
     private bool $billable = true;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $description = null;
 
     #[ORM\Column(enumType: TimeEntryStatus::class)]
@@ -50,7 +58,7 @@ class TimeEntry implements Stringable
     #[ORM\Column(enumType: TimeEntryType::class)]
     private ?TimeEntryType $entryType = null;
 
-    private CarbonInterval $duration;
+    private ?CarbonInterval $duration = null;
 
     #[ORM\ManyToOne(inversedBy: 'timeEntries')]
     #[ORM\JoinColumn(nullable: false)]
@@ -114,7 +122,7 @@ class TimeEntry implements Stringable
         return $this->description;
     }
 
-    public function setDescription(string $description): static
+    public function setDescription(?string $description): static
     {
         $this->description = $description;
 
@@ -150,8 +158,12 @@ class TimeEntry implements Stringable
         return $this;
     }
 
-    public function getDuration(): CarbonInterval
+    public function getDuration(): ?CarbonInterval
     {
+        if ($this->dateStart === null || $this->dateEnd === null) {
+            return null;
+        }
+
         return $this->duration ??= CarbonInterval::diff($this->dateStart, $this->dateEnd);
     }
 

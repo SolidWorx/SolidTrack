@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is part of {PROJECT_NAME} project.
+ * This file is part of SolidTrack project.
  *
  * (c) Pierre du Plessis <open-source@solidworx.co>
  *
@@ -63,7 +63,7 @@ return static function (ECSConfig $ecsConfig): void {
     ]);
 
     $header = <<<'EOF'
-This file is part of {PROJECT_NAME} project.
+This file is part of SolidTrack project.
 
 (c) Pierre du Plessis <open-source@solidworx.co>
 

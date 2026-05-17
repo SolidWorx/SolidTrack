@@ -1,43 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of SolidTrack project.
+ *
+ * (c) Pierre du Plessis <open-source@solidworx.co>
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace App\Repository;
 
 use App\Entity\Project;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use SolidWorx\Platform\PlatformBundle\Repository\EntityRepository;
 
 /**
- * @extends ServiceEntityRepository<Project>
+ * @extends EntityRepository<Project>
  */
-class ProjectRepository extends ServiceEntityRepository
+final class ProjectRepository extends EntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Project::class);
     }
-
-    //    /**
-    //     * @return Project[] Returns an array of Project objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('p.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?Project
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
 }

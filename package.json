@@ -1,22 +1,36 @@
 {
   "devDependencies": {
-    "@babel/core": "^7.17.0",
-    "@babel/preset-env": "^7.16.0",
+    "@babel/preset-env": "^7.29.5",
+    "@codecov/webpack-plugin": "^1.9.1",
+    "@eslint/js": "^10.0.1",
+    "@hotwired/stimulus": "^3.2.2",
     "@solidworx/platform": "file:vendor/solidworx/platform/assets",
-    "@symfony/webpack-encore": "^5.0.0",
-    "@symfony/ux-turbo": "file:vendor/symfony/ux-turbo/assets",
+    "@symfony/stimulus-bundle": "file:vendor/symfony/stimulus-bundle/assets",
     "@symfony/ux-autocomplete": "file:vendor/symfony/ux-autocomplete/assets",
-    "@symfony/ux-live-component": "file:vendor/symfony/ux-live-component/assets",
     "@symfony/ux-chartjs": "file:vendor/symfony/ux-chartjs/assets",
-    "core-js": "^3.23.0",
-    "regenerator-runtime": "^0.14.1",
-    "sass": "^1.69.5",
-    "sass-loader": "^16.0.0",
-    "ts-loader": "^9.0.0",
-    "typescript": "^5.3.3",
-    "webpack": "^5.101.3",
-    "webpack-cli": "^5.1.4",
-    "webpack-notifier": "^1.15.0"
+    "@symfony/ux-live-component": "file:vendor/symfony/ux-live-component/assets",
+    "@symfony/webpack-encore": "^5.3.1",
+    "@types/bootstrap": "^5.2.10",
+    "@types/jquery": "^3.5.34",
+    "bootstrap": "^5.3.8",
+    "chart.js": "^4.5.1",
+    "cloudinary": "^2.10.0",
+    "eslint": "^9.39.4",
+    "eslint-webpack-plugin": "^5.0.3",
+    "postcss": "^8.5.14",
+    "postcss-scss": "^4.0.9",
+    "sass": "^1.99.0",
+    "sass-loader": "^16.0.8",
+    "stylelint": "^16.26.1",
+    "stylelint-config-recommended": "^17.0.0",
+    "stylelint-config-standard-scss": "^16.0.0",
+    "stylelint-scss": "^6.14.0",
+    "tom-select": "^2.6.1",
+    "ts-loader": "^9.5.7",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.59.3",
+    "webpack": "^5.106.2",
+    "webpack-cli": "^6.0.1"
   },
   "license": "UNLICENSED",
   "private": true,
@@ -27,11 +41,19 @@
     "build": "encore production --progress"
   },
   "dependencies": {
+    "@stimulus-components/checkbox-select-all": "^6.1.0",
+    "@stimulus-components/clipboard": "^5.0.0",
+    "@stimulus-components/password-visibility": "^3.0.0",
     "@symfony/stimulus-bridge": "^4.0.1",
-    "@hotwired/stimulus": "^3.2.2"
+    "@tabler/core": "^1.4.0",
+    "caniuse-lite": "^1.0.30001793",
+    "intl-messageformat": "^10.7.18",
+    "jquery": "^3.7.1",
+    "@popperjs/core": "^2.11.8",
+    "regenerator-runtime": "^0.14.1"
   },
-  "trustedDependencies": [
-    "core-js",
-    "core-js-pure"
-  ]
+  "name": "solidtrack",
+  "peerDependencies": {
+    "typescript": "^5"
+  }
 }

@@ -1,5 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of SolidTrack project.
+ *
+ * (c) Pierre du Plessis <open-source@solidworx.co>
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace App\Twig\Components;
 
 use App\Entity\TimeEntry;
@@ -9,19 +20,19 @@ use App\Enum\TimeEntryType;
 use App\Form\TimeTrackerType;
 use App\Repository\TimeEntryRepository;
 use Carbon\CarbonImmutable;
-use Doctrine\ORM\EntityManagerInterface;
+use LogicException;
+use Override;
 use Psr\Clock\ClockInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\FormInterface;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
-use Symfony\UX\LiveComponent\Attribute\LiveArg;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
+use Symfony\UX\LiveComponent\Attribute\PreReRender;
 use Symfony\UX\LiveComponent\ComponentToolsTrait;
 use Symfony\UX\LiveComponent\ComponentWithFormTrait;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
-use Symfony\UX\TwigComponent\Attribute\ExposeInTemplate;
 
 #[AsLiveComponent]
 final class TimeTracker extends AbstractController
@@ -30,8 +41,15 @@ final class TimeTracker extends AbstractController
     use ComponentWithFormTrait;
     use ComponentToolsTrait;
 
-    #[LiveProp(writable: true, updateFromParent: true)]
-    public ?User $user = null;
+    /**
+     * The currently running tracker (or null when nothing is being tracked).
+     *
+     * Held as a LiveProp so the entire component's behaviour pivots on a single
+     * piece of state: actions mutate it, the template branches on it, and the
+     * form is bound to it (just like editing any other Doctrine entity).
+     */
+    #[LiveProp]
+    public ?TimeEntry $entry = null;
 
     public function __construct(
         private readonly TimeEntryRepository $timeEntryRepository,
@@ -40,39 +58,38 @@ final class TimeTracker extends AbstractController
     ) {
     }
 
+    #[Override]
     protected function instantiateForm(): FormInterface
     {
-        return $this->createForm(TimeTrackerType::class);
+        // Lazy-load the active tracker here (rather than in #[PostMount]) so the
+        // entity is populated BEFORE the trait's own initializeForm() PostMount
+        // calls extractFormValues() — otherwise the form view is built against a
+        // null entity and `formValues` snapshots empty values, which the trait's
+        // submitFormOnRender then re-applies, wiping the entity on every render.
+        $this->entry ??= $this->timeEntryRepository->findActiveTrackersForUser($this->currentUser());
+
+        return $this->createForm(TimeTrackerType::class, $this->entry);
     }
 
-    #[ExposeInTemplate]
-    public function activeTracker(): ?TimeEntry
+    /**
+     * After the trait's submitFormOnRender hook has bound the latest form values
+     * onto $this->entry, flush them to the DB. This is what makes "type a
+     * description while tracking → it's saved automatically" work.
+     */
+    #[PreReRender(priority: -100)]
+    public function persistOnRender(): void
     {
-        $user = $this->user ?? $this->security->getUser() ?? throw new \LogicException('No user provided');
+        if ($this->entry?->getId() === null) {
+            return;
+        }
 
-        return $this->timeEntryRepository->findActiveTrackersForUser($user);
+        $this->timeEntryRepository->save($this->entry);
     }
 
     #[LiveAction]
-    public function stopTimer(#[LiveArg('id')] TimeEntry $entry, EntityManagerInterface $entityManager): void
+    public function startTracker(): void
     {
-        $entry
-            ->setDateEnd(CarbonImmutable::instance($this->clock->now()))
-            ->setStatus(TimeEntryStatus::COMPLETED);
-
-        $entityManager->persist($entry);
-        $entityManager->flush();
-
-        $this->resetForm();
-
-        $this->emit('timer-stopped');
-    }
-
-    #[LiveAction]
-    public function startTracker(EntityManagerInterface $entityManager): void
-    {
-        if ($this->activeTracker() instanceof TimeEntry) {
-            $this->addFlash('error', 'There is already an active tracker');;
+        if ($this->entry !== null) {
             return;
         }
 
@@ -80,20 +97,52 @@ final class TimeTracker extends AbstractController
 
         /** @var TimeEntry $entry */
         $entry = $this->getForm()->getData();
-
-        if ($entry->getDescription() === '' || $entry->getDescription() === null) {
-            $entry->setDescription('Empty Task');
-        }
-
-        $entry->setDateStart(CarbonImmutable::instance($this->clock->now()))
+        $entry
+            ->setDateStart(CarbonImmutable::instance($this->clock->now()))
             ->setStatus(TimeEntryStatus::TRACKING)
             ->setEntryType(TimeEntryType::TRACKING)
-            ->setUser($this->security->getUser())
+            ->setUser($this->currentUser())
         ;
 
-        $entityManager->persist($entry);
-        $entityManager->flush();
+        $this->timeEntryRepository->save($entry);
+        $this->entry = $entry;
+    }
 
-        $this->emit('timer-started');
+    #[LiveAction]
+    public function stopTimer(): void
+    {
+        if ($this->entry === null) {
+            return;
+        }
+
+        // Capture any final edits sitting in formValues before we close the entry.
+        $this->submitForm();
+
+        $this->entry
+            ->setDateEnd(CarbonImmutable::instance($this->clock->now()))
+            ->setStatus(TimeEntryStatus::COMPLETED);
+
+        $this->timeEntryRepository->save($this->entry);
+
+        $this->entry = null;
+        $this->resetForm();
+
+        // The project column lives behind `data-live-ignore` (so TomSelect survives
+        // re-renders mid-tracking), which means the morph won't visually clear it
+        // when we null out the entry. Fire a browser event the field's Stimulus
+        // controller listens for and resets TomSelect directly.
+        $this->dispatchBrowserEvent('time-tracker:cleared');
+
+        $this->emit('timer-stopped');
+    }
+
+    private function currentUser(): User
+    {
+        $user = $this->security->getUser();
+        if (! $user instanceof User) {
+            throw new LogicException('TimeTracker requires an authenticated User.');
+        }
+
+        return $user;
     }
 }

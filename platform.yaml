@@ -1,2 +1,21 @@
+# yaml-language-server: $schema=./platform-schema.json
 platform:
-    name: SolidTrack
+  name: 'SolidTrack'
+  version: '0.1.0-dev'
+
+  security:
+    two_factor:
+      enabled: false
+
+  doctrine:
+    types:
+      enable_utc_date: true
+
+  models:
+    user: App\Entity\User
+
+ui:
+  icon_pack: tabler
+  templates:
+    base: 'layouts/base.html.twig'
+    login: '@Ui/Security/login.html.twig'

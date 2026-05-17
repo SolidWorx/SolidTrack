@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of SolidTrack project.
+ *
+ * (c) Pierre du Plessis <open-source@solidworx.co>
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
@@ -95,7 +104,7 @@ class Project implements Stringable
 
     public function addTimeEntry(TimeEntry $timeEntry): static
     {
-        if (!$this->timeEntries->contains($timeEntry)) {
+        if (! $this->timeEntries->contains($timeEntry)) {
             $this->timeEntries->add($timeEntry);
             $timeEntry->setProject($this);
         }

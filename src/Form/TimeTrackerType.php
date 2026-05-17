@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of SolidTrack project.
+ *
+ * (c) Pierre du Plessis <open-source@solidworx.co>
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace App\Form;
 
 use App\Entity\Project;
@@ -12,7 +21,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TimeTrackerType extends AbstractType
 {
-    public function __construct(private readonly TranslatorInterface $translator) {}
+    public function __construct(
+        private readonly TranslatorInterface $translator
+    ) {
+    }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -47,6 +59,11 @@ class TimeTrackerType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => TimeEntry::class,
+            // This form is driven by a LiveComponent, which has its own CSRF
+            // protection at the action level. Form-level CSRF would also reject
+            // submitForm() calls triggered by non-submit interactions (e.g. the
+            // stop button is an <a>, not a form submit).
+            'csrf_protection' => false,
         ]);
     }
 }

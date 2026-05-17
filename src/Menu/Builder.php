@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of SolidTrack project.
+ *
+ * (c) Pierre du Plessis <open-source@solidworx.co>
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace App\Menu;
 
 use Knp\Menu\MenuItem;
@@ -14,33 +23,33 @@ final class Builder
         $menu->addChild(
             'Dashboard',
             Options::create()
-            ->route('dashboard')
-            ->icon('home')
-            ->build()
+                ->route('dashboard')
+                ->icon('home')
+                ->build()
         );
 
         $menu->addChild(
             'Activities',
             Options::create()
-            ->route('app_activity_index')
-            ->icon('chart-infographic')
-            ->build()
+                ->route('app_activity_index')
+                ->icon('chart-infographic')
+                ->build()
         );
 
         $menu->addChild(
             'Clients',
             Options::create()
-            ->route('app_client_index')
-            ->icon('users-group')
-            ->build()
+                ->route('app_client_index')
+                ->icon('users-group')
+                ->build()
         );
 
         $menu->addChild(
             'Projects',
             Options::create()
-            ->route('app_project_index')
-            ->icon('mist')
-            ->build()
+                ->route('app_project_index')
+                ->icon('mist')
+                ->build()
         );
     }
 }

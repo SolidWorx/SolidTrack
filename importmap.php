@@ -35,7 +35,7 @@ return [
         'version' => '3.9.1',
     ],
     'bootstrap' => [
-        'version' => '4.6.2',
+        'version' => '5.3.8',
     ],
     'jquery' => [
         'version' => '3.6.0',
@@ -44,7 +44,20 @@ return [
         'version' => '1.16.1',
     ],
     'bootstrap/dist/css/bootstrap.min.css' => [
-        'version' => '4.6.2',
+        'version' => '5.3.8',
         'type' => 'css',
+    ],
+    '@symfony/stimulus-bridge' => [
+        'version' => '4.0.1',
+    ],
+    '@tabler/core' => [
+        'version' => '1.4.0',
+    ],
+    '@tabler/core/dist/css/tabler.min.css' => [
+        'version' => '1.4.0',
+        'type' => 'css',
+    ],
+    '@popperjs/core' => [
+        'version' => '2.11.8',
     ],
 ];
