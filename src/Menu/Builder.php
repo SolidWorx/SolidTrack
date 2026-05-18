@@ -29,10 +29,10 @@ final class Builder
         );
 
         $menu->addChild(
-            'Activities',
+            'Reports',
             Options::create()
-                ->route('app_activity_index')
-                ->icon('chart-infographic')
+                ->route('app_report_index')
+                ->icon('report-analytics')
                 ->build()
         );
 

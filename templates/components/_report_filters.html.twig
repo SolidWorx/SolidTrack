@@ -1,0 +1,90 @@
+{% set projectKey = clientId != '' ? clientId : 'all' %}
+<div class="st-card" style="margin-bottom: 18px;">
+    <div class="st-card-body" style="padding: 16px 18px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; align-items: end;">
+            <div>
+                <label class="form-label" for="report-from">{{ 'From'|trans }}</label>
+                <input type="date" id="report-from" class="form-control" value="{{ from }}" data-model="from">
+            </div>
+            <div>
+                <label class="form-label" for="report-to">{{ 'To'|trans }}</label>
+                <input type="date" id="report-to" class="form-control" value="{{ to }}" data-model="to">
+            </div>
+            <div>
+                <label class="form-label" for="report-client">{{ 'Client'|trans }}</label>
+                <select id="report-client" class="form-select" data-model="clientId">
+                    <option value="">{{ 'All clients'|trans }}</option>
+                    {% for client in filterOptions.clients %}
+                        {% set cid = client.id ~ '' %}
+                        <option value="{{ cid }}" {{ clientId == cid ? 'selected' : '' }}>{{ client.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div id="report-project-wrap-{{ projectKey }}">
+                <label class="form-label" for="report-project">{{ 'Project'|trans }}</label>
+                {% set projectsByClient = {} %}
+                {% for project in filterOptions.projects %}
+                    {% set clientName = project.client ? project.client.name : ('(No client)'|trans) %}
+                    {% set group = projectsByClient[clientName] ?? [] %}
+                    {% set group = group|merge([project]) %}
+                    {% set projectsByClient = projectsByClient|merge({(clientName): group}) %}
+                {% endfor %}
+                <select id="report-project"
+                        class="form-select"
+                        data-model="projectId"
+                        data-symfony--ux-autocomplete--autocomplete-options-as-html-value="1">
+                    <option value="">{{ 'All projects'|trans }}</option>
+                    {% for clientName, projects in projectsByClient %}
+                        <optgroup label="{{ clientName }}">
+                            {% for project in projects %}
+                                {% set pid = project.id ~ '' %}
+                                {% set optionLabel = '<span class="d-inline-block rounded-circle me-2" style="width: 10px; height: 10px; background-color: ' ~ project.color ~ ';"></span>' ~ project.name %}
+                                <option value="{{ pid }}" {{ projectId == pid ? 'selected' : '' }}>{{ optionLabel }}</option>
+                            {% endfor %}
+                        </optgroup>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="form-label" for="report-billable">{{ 'Billable'|trans }}</label>
+                <select id="report-billable" class="form-select" data-model="billable">
+                    <option value="">{{ 'All'|trans }}</option>
+                    <option value="1" {{ billable == '1' ? 'selected' : '' }}>{{ 'Billable only'|trans }}</option>
+                    <option value="0" {{ billable == '0' ? 'selected' : '' }}>{{ 'Non-billable only'|trans }}</option>
+                </select>
+            </div>
+            {% if showGroupBy ?? false %}
+                <div>
+                    <label class="form-label" for="report-groupby">{{ 'Group by'|trans }}</label>
+                    <select id="report-groupby" class="form-select" data-model="groupBy">
+                        {% for opt in filterOptions.groupByOptions %}
+                            <option value="{{ opt.value }}" {{ groupBy == opt.value ? 'selected' : '' }}>{{ opt.label|trans }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            {% endif %}
+        </div>
+
+        {% if filterOptions.tags is not empty %}
+            <div style="margin-top: 12px;">
+                <label class="form-label">{{ 'Tags'|trans }}</label>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for tag in filterOptions.tags %}
+                        {% set tid = tag.id ~ '' %}
+                        {% set active = tid in tagIds %}
+                        <label class="badge"
+                               style="cursor: pointer; user-select: none; background-color: {{ active ? tag.color : 'transparent' }}; color: {{ active ? '#fff' : tag.color }}; border: 1px solid {{ tag.color }}; padding: 6px 10px;">
+                            <input type="checkbox"
+                                   value="{{ tid }}"
+                                   data-model="tagIds"
+                                   {{ active ? 'checked' : '' }}
+                                   style="display: none;">
+                            {{ ux_icon('tabler:tag', {width: '12px', height: '12px'}) }}
+                            {{ tag.name }}
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>

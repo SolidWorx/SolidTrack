@@ -1,0 +1,40 @@
+{% extends 'layouts/base.html.twig' %}
+
+{% block title %}{{ 'Reports'|trans }}{% endblock %}
+
+{% block page_header %}
+    <div class="page-header">
+        <div class="container-xl">
+            <section class="st-pagehead">
+                <div>
+                    <div class="page-pretitle">{{ 'Reports'|trans }}</div>
+                    <h1 class="st-pagehead-title">
+                        {{ reportType.value == 'detailed' ? 'Detailed report'|trans : 'Summary report'|trans }}
+                    </h1>
+                </div>
+                <div class="st-pagehead-actions">
+                    <div class="btn-group" role="group" aria-label="{{ 'Report type'|trans }}">
+                        <a href="{{ path('app_report_index', app.request.query.all|merge({'type': 'summary'})) }}"
+                           class="btn {{ reportType.value == 'summary' ? 'btn-primary' : 'btn-outline-secondary' }}">
+                            {{ ux_icon('tabler:chart-bar', {'width': '14', 'height': '14'}) }}
+                            {{ 'Summary'|trans }}
+                        </a>
+                        <a href="{{ path('app_report_index', app.request.query.all|merge({'type': 'detailed'})) }}"
+                           class="btn {{ reportType.value == 'detailed' ? 'btn-primary' : 'btn-outline-secondary' }}">
+                            {{ ux_icon('tabler:list-details', {'width': '14', 'height': '14'}) }}
+                            {{ 'Detailed'|trans }}
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    {% if reportType.value == 'detailed' %}
+        <twig:ReportDetailed />
+    {% else %}
+        <twig:ReportSummary />
+    {% endif %}
+{% endblock %}

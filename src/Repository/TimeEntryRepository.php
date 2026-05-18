@@ -17,9 +17,11 @@ use App\Entity\TimeEntry;
 use App\Entity\User;
 use App\Enum\TimeEntryStatus;
 use App\Enum\TimeEntryType;
+use App\Report\ReportFilter;
 use Carbon\CarbonInterval;
 use Carbon\CarbonPeriod;
 use DateTimeInterface;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use SolidWorx\Platform\PlatformBundle\Repository\EntityRepository;
 use Symfony\Bridge\Doctrine\Types\UlidType;
@@ -100,5 +102,67 @@ final class TimeEntryRepository extends EntityRepository
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * @return list<TimeEntry>
+     */
+    public function findForReport(User $user, ReportFilter $filter, ?int $page = null, int $perPage = 50): array
+    {
+        $qb = $this->reportQueryBuilder($user, $filter)
+            ->addSelect('p')
+            ->leftJoin('t.tags', 't_tags')
+            ->addSelect('t_tags')
+            ->orderBy('t.dateStart', 'DESC');
+
+        if ($page !== null) {
+            $qb->setFirstResult(($page - 1) * $perPage)
+                ->setMaxResults($perPage);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function countForReport(User $user, ReportFilter $filter): int
+    {
+        return (int) $this->reportQueryBuilder($user, $filter)
+            ->select('COUNT(DISTINCT t.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    private function reportQueryBuilder(User $user, ReportFilter $filter): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('t')
+            ->leftJoin('t.project', 'p')
+            ->where('t.status = :status')
+            ->andWhere('t.user = :user')
+            ->andWhere('t.dateStart BETWEEN :from AND :to')
+            ->setParameter('status', TimeEntryStatus::COMPLETED)
+            ->setParameter('user', $user->getId(), UlidType::NAME)
+            ->setParameter('from', $filter->from)
+            ->setParameter('to', $filter->to);
+
+        if ($filter->projectId !== null) {
+            $qb->andWhere('t.project = :projectId')
+                ->setParameter('projectId', $filter->projectId, UlidType::NAME);
+        }
+
+        if ($filter->clientId !== null) {
+            $qb->andWhere('p.client = :clientId')
+                ->setParameter('clientId', $filter->clientId, UlidType::NAME);
+        }
+
+        if ($filter->tagIds !== []) {
+            $qb->andWhere('EXISTS (SELECT 1 FROM ' . TimeEntry::class . ' t2 JOIN t2.tags tg WHERE t2 = t AND tg.id IN (:tagIds))')
+                ->setParameter('tagIds', $filter->tagIds);
+        }
+
+        if ($filter->billable !== null) {
+            $qb->andWhere('t.billable = :billable')
+                ->setParameter('billable', $filter->billable);
+        }
+
+        return $qb;
     }
 }

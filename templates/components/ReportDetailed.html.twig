@@ -1,0 +1,113 @@
+<div {{ attributes }}>
+    {% include 'components/_report_filters.html.twig' with {showGroupBy: false} %}
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 18px;">
+        <div class="st-card">
+            <div class="st-card-body" style="padding: 16px 18px;">
+                <div class="st-card-sub">{{ 'Entries'|trans }}</div>
+                <div style="font-size: 22px; font-weight: 600;">{{ totals.count }}</div>
+            </div>
+        </div>
+        <div class="st-card">
+            <div class="st-card-body" style="padding: 16px 18px;">
+                <div class="st-card-sub">{{ 'Total time'|trans }}</div>
+                <div style="font-size: 22px; font-weight: 600;"><time>{{ format_interval(totals.total, true) }}</time></div>
+            </div>
+        </div>
+        <div class="st-card">
+            <div class="st-card-body" style="padding: 16px 18px;">
+                <div class="st-card-sub">{{ 'Billable'|trans }}</div>
+                <div style="font-size: 22px; font-weight: 600; color: var(--st-primary, #4f46e5);">
+                    <time>{{ format_interval(totals.billable, true) }}</time>
+                </div>
+            </div>
+        </div>
+        <div class="st-card">
+            <div class="st-card-body" style="padding: 16px 18px;">
+                <div class="st-card-sub">{{ 'Amount'|trans }}</div>
+                <div style="font-size: 22px; font-weight: 600;">${{ totals.amount|number_format(2, '.', ',') }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="st-card">
+        <div class="table-responsive">
+            <table class="table table-vcenter card-table">
+                <thead>
+                    <tr>
+                        <th>{{ 'Date'|trans }}</th>
+                        <th>{{ 'Project'|trans }}</th>
+                        <th>{{ 'Description'|trans }}</th>
+                        <th>{{ 'Tags'|trans }}</th>
+                        <th>{{ 'Start'|trans }}</th>
+                        <th>{{ 'End'|trans }}</th>
+                        <th style="text-align: right;">{{ 'Duration'|trans }}</th>
+                        <th style="text-align: center;">$</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in entries %}
+                        <tr>
+                            <td>{{ entry.dateStart ? entry.dateStart.format('M j, Y') : '—' }}</td>
+                            <td>
+                                {% if entry.project %}
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: {{ entry.project.color }};"></span>
+                                        <span>{{ entry.project.name }}</span>
+                                        {% if entry.project.client %}
+                                            <span class="text-muted">· {{ entry.project.client.name }}</span>
+                                        {% endif %}
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ entry.description ?: ('(no description)'|trans) }}</td>
+                            <td>{% include 'components/_tag_chips.html.twig' with {tags: entry.tags} %}</td>
+                            <td>{{ entry.dateStart ? entry.dateStart.format('H:i') : '—' }}</td>
+                            <td>{{ entry.dateEnd ? entry.dateEnd.format('H:i') : '—' }}</td>
+                            <td style="text-align: right;">
+                                <time>{{ entry.duration ? format_interval(entry.duration, true) : '—' }}</time>
+                            </td>
+                            <td style="text-align: center;">
+                                {% if entry.billable %}
+                                    {{ ux_icon('tabler:currency-dollar', {'width': '16', 'height': '16'}) }}
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 24px; color: var(--st-text-muted, #6b7280);">
+                                {{ 'No time entries match the selected filters.'|trans }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if totals.pages > 1 %}
+            <div class="d-flex align-items-center justify-content-between" style="padding: 12px 18px;">
+                <div class="text-muted">
+                    {{ 'Page %page% of %pages%'|trans({'%page%': page, '%pages%': totals.pages}) }}
+                </div>
+                <div class="btn-list">
+                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                            {{ live_action('previousPage') }}
+                            {{ page <= 1 ? 'disabled' : '' }}>
+                        {{ ux_icon('tabler:chevron-left', {'width': '14', 'height': '14'}) }}
+                        {{ 'Previous'|trans }}
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                            {{ live_action('nextPage') }}
+                            {{ page >= totals.pages ? 'disabled' : '' }}>
+                        {{ 'Next'|trans }}
+                        {{ ux_icon('tabler:chevron-right', {'width': '14', 'height': '14'}) }}
+                    </button>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
