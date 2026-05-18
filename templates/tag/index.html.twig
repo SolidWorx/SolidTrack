@@ -1,0 +1,71 @@
+{% extends 'layouts/base.html.twig' %}
+
+{% block title %}{{ 'Tags'|trans }}{% endblock %}
+
+{% block page_header %}
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <h2 class="page-title">
+                        {{ 'Tags'|trans }}
+                    </h2>
+                </div>
+
+                <div class="col-auto ms-auto d-print-none">
+                    <div class="btn-list">
+                        <a href="{{ url('app_tag_new') }}" class="btn btn-primary d-none d-sm-inline-block">
+                            {{ ux_icon('tabler:text-plus') }}
+                            {{ 'Create new tag'|trans }}
+                        </a>
+                        <a href="{{ url('app_tag_new') }}" class="btn btn-primary d-sm-none btn-icon" aria-label="{{ 'Create new tag'|trans }}">
+                            {{ ux_icon('tabler:plus') }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock page_header %}
+
+{% block content %}
+    <div class="table-responsive">
+        <div class="card">
+            <table class="table table-vcenter card-table">
+                <thead>
+                <tr>
+                    <th style="width: 60px;">{{ 'Color'|trans }}</th>
+                    <th>{{ 'Name'|trans }}</th>
+                    <th class="text-end">{{ 'Actions'|trans }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for tag in tags %}
+                    <tr>
+                        <td>
+                            <span class="badge" style="background-color: {{ tag.color }}; width: 28px; height: 18px; display: inline-block;" aria-label="{{ tag.color }}"></span>
+                        </td>
+                        <td>
+                            <span class="badge" style="background-color: {{ tag.color }}; color: #fff;">
+                                {{ ux_icon('tabler:tag', {width: '12px', height: '12px'}) }}
+                                {{ tag.name }}
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <a href="{{ path('app_tag_edit', {'id': tag.id}) }}" class="me-3">
+                                {{ ux_icon('tabler:pencil', {width: '16px', height: '16px'}) }}
+                                {{ 'Edit'|trans }}
+                            </a>
+                            {{ include('tag/_delete_form.html.twig', {tag: tag, inline: true}) }}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="3">{{ 'No records found'|trans }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

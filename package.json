@@ -41,6 +41,7 @@
     "build": "encore production --progress"
   },
   "dependencies": {
+    "@simonwep/pickr": "^1.9.1",
     "@stimulus-components/checkbox-select-all": "^6.1.0",
     "@stimulus-components/clipboard": "^5.0.0",
     "@stimulus-components/password-visibility": "^3.0.0",

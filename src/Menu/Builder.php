@@ -51,5 +51,13 @@ final class Builder
                 ->icon('mist')
                 ->build()
         );
+
+        $menu->addChild(
+            'Tags',
+            Options::create()
+                ->route('app_tag_index')
+                ->icon('tag')
+                ->build()
+        );
     }
 }

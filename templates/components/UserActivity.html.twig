@@ -33,6 +33,7 @@
                                         </small>
                                     {% endif %}
                                 </span>
+                                {{ include('components/_tag_chips.html.twig', {tags: tracker.tags}, with_context = false) }}
                             </div>
                             <div class="col-2 text-center">
                                 {{ tracker.dateStart.format('H:i A') }}

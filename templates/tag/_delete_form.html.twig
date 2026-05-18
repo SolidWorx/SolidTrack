@@ -1,0 +1,7 @@
+<form method="delete" action="{{ path('app_tag_delete', {'id': tag.id}) }}" onsubmit="return confirm('{{ 'Are you sure you want to delete this tag?'|trans }}');" class="d-inline">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ tag.id) }}">
+    <button class="btn btn-link text-danger p-0">
+        {{ ux_icon('tabler:trash', {width: '16px', height: '16px'}) }}
+        {{ 'Delete'|trans }}
+    </button>
+</form>

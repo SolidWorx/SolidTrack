@@ -20,6 +20,11 @@
                          data-action="time-tracker:cleared@window->time-tracker-form#clear">
                         {{ form_widget(form.project, {'attr': {'class': 'border-0 form-control-lg'}}) }}
                     </div>
+                    <div class="col-3" data-live-ignore
+                         {{ stimulus_controller('time-tracker-form') }}
+                         data-action="time-tracker:cleared@window->time-tracker-form#clear">
+                        {{ form_widget(form.tags, {'attr': {'class': 'border-0 form-control-lg'}}) }}
+                    </div>
                     <div class="col d-flex align-items-center" id="time-tracker-display" {{ stimulus_controller('time-tracker', {'time': entry.dateStart.timestampMs|default(0)}) }}>
                         <h2 class="m-0 p-0 me-2" {{ stimulus_target('time-tracker', 'timer') }} data-live-ignore>
                             <time>{{ initial_elapsed }}</time>

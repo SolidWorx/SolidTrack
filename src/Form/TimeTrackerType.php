@@ -12,6 +12,7 @@
 namespace App\Form;
 
 use App\Entity\Project;
+use App\Entity\Tag;
 use App\Entity\TimeEntry;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -52,6 +53,20 @@ class TimeTrackerType extends AbstractType
                     'autocomplete' => true,
                     'placeholder' => $this->translator->trans('Select a project'),
                     'required' => false,
+                ]
+            )
+            ->add(
+                'tags',
+                EntityType::class,
+                [
+                    'class' => Tag::class,
+                    'choice_label' => 'name',
+                    'multiple' => true,
+                    'expanded' => false,
+                    'required' => false,
+                    'autocomplete' => true,
+                    'placeholder' => $this->translator->trans('Add tags...'),
+                    'label' => false,
                 ]
             )
             ->add(
