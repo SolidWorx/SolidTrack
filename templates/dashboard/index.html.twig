@@ -39,8 +39,14 @@
         </div>
     </div>
     <div class="row mt-4">
-        <div class="col-12">
+        <div class="col-lg-8">
             <twig:UserActivity />
+        </div>
+        <div class="col-lg-4">
+            <div class="d-flex flex-column gap-3">
+                <twig:WeeklyChart />
+                <twig:TopProjects />
+            </div>
         </div>
         {#<div class="col-6">
             <div class="row row-cards">
