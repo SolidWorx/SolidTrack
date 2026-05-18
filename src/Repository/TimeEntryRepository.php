@@ -19,6 +19,7 @@ use App\Enum\TimeEntryStatus;
 use App\Enum\TimeEntryType;
 use Carbon\CarbonInterval;
 use Carbon\CarbonPeriod;
+use DateTimeInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use SolidWorx\Platform\PlatformBundle\Repository\EntityRepository;
 use Symfony\Bridge\Doctrine\Types\UlidType;
@@ -62,6 +63,25 @@ final class TimeEntryRepository extends EntityRepository
             ->setParameter('start', $lastWeek->getIncludedEndDate()->startOfDay())
             ->setParameter('end', $lastWeek->getStartDate()->endOfDay())
             ->orderBy('t.dateEnd', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return iterable<TimeEntry>
+     */
+    public function findCompletedTrackersForUserInRange(User $user, DateTimeInterface $start, DateTimeInterface $end): iterable
+    {
+        return $this->createQueryBuilder('t')
+            ->leftJoin('t.project', 'p')
+            ->addSelect('p')
+            ->where('t.status = :status')
+            ->andWhere('t.user = :user')
+            ->andWhere('t.dateStart BETWEEN :start AND :end')
+            ->setParameter('status', TimeEntryStatus::COMPLETED)
+            ->setParameter('user', $user->getId(), UlidType::NAME)
+            ->setParameter('start', $start)
+            ->setParameter('end', $end)
             ->getQuery()
             ->getResult();
     }

@@ -21,12 +21,14 @@ use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
 use Symfony\UX\LiveComponent\Attribute\LiveArg;
 use Symfony\UX\LiveComponent\Attribute\LiveListener;
+use Symfony\UX\LiveComponent\ComponentToolsTrait;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
 use Symfony\UX\TwigComponent\Attribute\ExposeInTemplate;
 
 #[AsLiveComponent]
 final class UserActivity extends AbstractController
 {
+    use ComponentToolsTrait;
     use DefaultActionTrait;
 
     public function __construct(
@@ -71,6 +73,7 @@ final class UserActivity extends AbstractController
     public function removeItem(#[LiveArg('id')] TimeEntry $entry): void
     {
         $this->timeEntryRepository->remove($entry);
+        $this->emit('entry-updated');
     }
 
     #[LiveAction]
@@ -78,5 +81,6 @@ final class UserActivity extends AbstractController
     {
         $entry->setBillable(! $entry->isBillable());
         $this->timeEntryRepository->save($entry);
+        $this->emit('entry-updated');
     }
 }

@@ -1,0 +1,96 @@
+<div {{ attributes }}>
+    <div class="row row-cards">
+        <div class="col-sm-6 col-lg-3">
+            <div class="card card-sm">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <span class="bg-blue text-white avatar">
+                                {{ ux_icon('tabler:clock', {'width': '24', 'height': '24'}) }}
+                            </span>
+                        </div>
+                        <div class="col">
+                            <div class="font-weight-medium">
+                                <time>{{ format_interval(stats.today_total, true) }}</time>
+                            </div>
+                            <div class="text-secondary">
+                                {{ 'Tracked today'|trans }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card card-sm">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <span class="bg-primary text-white avatar">
+                                {{ ux_icon('tabler:calendar-week', {'width': '24', 'height': '24'}) }}
+                            </span>
+                        </div>
+                        <div class="col">
+                            <div class="font-weight-medium">
+                                <time>{{ format_interval(stats.week_total, true) }}</time>
+                            </div>
+                            <div class="text-secondary">
+                                {{ 'Tracked this week'|trans }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card card-sm">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <span class="bg-success text-white avatar">
+                                {{ ux_icon('tabler:currency-dollar', {'width': '24', 'height': '24'}) }}
+                            </span>
+                        </div>
+                        <div class="col">
+                            <div class="font-weight-medium">
+                                <time>{{ format_interval(stats.week_billable, true) }}</time>
+                            </div>
+                            <div class="text-secondary">
+                                {{ 'Billable this week'|trans }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card card-sm">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <span class="bg-yellow text-white avatar">
+                                {{ ux_icon('tabler:coin', {'width': '24', 'height': '24'}) }}
+                            </span>
+                        </div>
+                        <div class="col">
+                            {% if stats.week_earnings is empty %}
+                                <div class="font-weight-medium">
+                                    {{ '—'|trans }}
+                                </div>
+                            {% else %}
+                                {% for currency, amount in stats.week_earnings %}
+                                    <div class="font-weight-medium">
+                                        {{ amount|format_currency(currency) }}
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                            <div class="text-secondary">
+                                {{ 'Estimated earnings this week'|trans }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
