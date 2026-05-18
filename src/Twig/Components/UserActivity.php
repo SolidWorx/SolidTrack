@@ -72,4 +72,11 @@ final class UserActivity extends AbstractController
     {
         $this->timeEntryRepository->remove($entry);
     }
+
+    #[LiveAction]
+    public function toggleBillable(#[LiveArg('id')] TimeEntry $entry): void
+    {
+        $entry->setBillable(! $entry->isBillable());
+        $this->timeEntryRepository->save($entry);
+    }
 }

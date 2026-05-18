@@ -35,4 +35,5 @@ phpstan.neon
 /public/build/
 npm-debug.log
 yarn-error.log
+/public/static
 ###< symfony/webpack-encore-bundle ###

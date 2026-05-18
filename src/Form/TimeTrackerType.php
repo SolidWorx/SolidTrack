@@ -15,6 +15,7 @@ use App\Entity\Project;
 use App\Entity\TimeEntry;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -51,6 +52,14 @@ class TimeTrackerType extends AbstractType
                     'autocomplete' => true,
                     'placeholder' => $this->translator->trans('Select a project'),
                     'required' => false,
+                ]
+            )
+            ->add(
+                'billable',
+                CheckboxType::class,
+                [
+                    'required' => false,
+                    'label' => false,
                 ]
             );
     }

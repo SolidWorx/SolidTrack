@@ -47,7 +47,15 @@
                                     </time>
                                 </h3>
                             </div>
-                            <div class="col-auto">
+                            <div class="col-auto d-flex align-items-center gap-2">
+                                <button type="button"
+                                        class="btn btn-link p-0 text-{{ tracker.billable ? 'success' : 'secondary' }}"
+                                        {{ live_action('toggleBillable', {id: tracker.id}) }}
+                                        title="{{ (tracker.billable ? 'Billable (click to mark non-billable)' : 'Non-billable (click to mark billable)')|trans }}"
+                                        aria-label="{{ (tracker.billable ? 'Billable' : 'Non-billable')|trans }}"
+                                >
+                                    {{ ux_icon(tracker.billable ? 'tabler:currency-dollar' : 'tabler:currency-dollar-off', {'width': '16', 'height': '16'}) }}
+                                </button>
                                 <a href="#" class="list-group-item-actions text-danger"
                                    data-action="live#action:prevent"
                                    data-live-action-param="removeItem"

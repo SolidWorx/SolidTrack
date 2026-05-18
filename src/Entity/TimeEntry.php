@@ -105,7 +105,7 @@ class TimeEntry implements Stringable
         return $this;
     }
 
-    public function isBillable(): ?bool
+    public function isBillable(): bool
     {
         return $this->billable;
     }
