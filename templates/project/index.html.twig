@@ -43,7 +43,10 @@
                 <tbody>
                 {% for project in projects %}
                     <tr>
-                        <td>{{ project.name }}</td>
+                        <td>
+                            <span class="d-inline-block rounded-circle align-middle me-2" style="width: 10px; height: 10px; background-color: {{ project.color }};" aria-label="{{ project.color }}"></span>
+                            {{ project.name }}
+                        </td>
                         <td>{{ project.client }}</td>
                         <td>{{ project.hourlyRate|default(0) }} {{ project.client.currency }}</td>
                         <td>

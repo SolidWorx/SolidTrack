@@ -20,6 +20,7 @@ use Stringable;
 use Symfony\Bridge\Doctrine\IdGenerator\UlidGenerator;
 use Symfony\Bridge\Doctrine\Types\UlidType;
 use Symfony\Component\Uid\Ulid;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
 #[ORM\Table(name: self::TABLE_NAME)]
@@ -27,6 +28,8 @@ use Symfony\Component\Uid\Ulid;
 class Project implements Stringable
 {
     public const TABLE_NAME = 'projects';
+
+    public const DEFAULT_COLOR = '#206bc4';
 
     #[ORM\Id]
     #[ORM\Column(type: UlidType::NAME, unique: true)]
@@ -43,6 +46,11 @@ class Project implements Stringable
 
     #[ORM\Column(nullable: true)]
     private ?float $hourlyRate = null;
+
+    #[ORM\Column(length: 7)]
+    #[Assert\NotBlank]
+    #[Assert\CssColor(formats: Assert\CssColor::HEX_LONG)]
+    private string $color = self::DEFAULT_COLOR;
 
     /**
      * @var Collection<int, TimeEntry>
@@ -92,6 +100,18 @@ class Project implements Stringable
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getColor(): string
+    {
+        return $this->color;
+    }
+
+    public function setColor(string $color): static
+    {
+        $this->color = $color;
+
+        return $this;
     }
 
     /**

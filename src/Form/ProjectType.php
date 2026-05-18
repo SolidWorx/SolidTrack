@@ -15,6 +15,7 @@ use App\Entity\Client;
 use App\Entity\Project;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ColorType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -30,6 +31,12 @@ class ProjectType extends AbstractType
                 'autocomplete' => true,
             ])
             ->add('hourlyRate', null, ['attr' => ['placeholder' => 'Workspace Default']])
+            ->add('color', ColorType::class, [
+                'attr' => [
+                    'data-controller' => 'color-picker',
+                    'data-color-picker-default-value' => Project::DEFAULT_COLOR,
+                ],
+            ])
         ;
     }
 

@@ -29,6 +29,7 @@
                                     {% if tracker.project is not empty %}
                                         <br />
                                         <small class="text-secondary mt-n1">
+                                            <span class="d-inline-block rounded-circle align-middle me-1" style="width: 8px; height: 8px; background-color: {{ tracker.project.color }};" aria-label="{{ tracker.project.color }}"></span>
                                             {{ tracker.project.client }} ({{ tracker.project }})
                                         </small>
                                     {% endif %}

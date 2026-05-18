@@ -46,8 +46,11 @@ class TimeTrackerType extends AbstractType
                 EntityType::class,
                 [
                     'class' => Project::class,
-                    //'choice_label' => static fn (Project $project) => sprintf('%s<br><small>(%s)</small>', $project->getName(), $project->getClient()?->getName()),
-                    'choice_label' => 'name',
+                    'choice_label' => static fn (Project $project) => sprintf(
+                        '<span class="d-inline-block rounded-circle me-2" style="width: 10px; height: 10px; background-color: %s;"></span>%s',
+                        htmlspecialchars($project->getColor(), \ENT_QUOTES),
+                        htmlspecialchars($project->getName(), \ENT_QUOTES),
+                    ),
                     'group_by' => static fn (Project $project) => $project->getClient()?->getName(),
                     'options_as_html' => true,
                     'autocomplete' => true,
