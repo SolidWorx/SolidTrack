@@ -1,0 +1,36 @@
+<div {{ attributes }}>
+    <div class="st-card">
+        <div class="st-card-head">
+            <h3 class="st-card-title">{{ 'Billable split'|trans }}</h3>
+            <span style="font-size: 11px; color: var(--st-text-muted);">{{ 'This week'|trans }}</span>
+        </div>
+        <div class="st-card-body">
+            <div class="st-billsplit">
+                <div class="st-billsplit-bar" role="progressbar"
+                     aria-valuenow="{{ split.billablePct }}" aria-valuemin="0" aria-valuemax="100"
+                     aria-label="{{ 'Billable share'|trans }}">
+                    <div class="fill" style="width: {{ split.billablePct }}%;"></div>
+                </div>
+
+                <div class="st-billsplit-legend">
+                    <div class="st-billsplit-item">
+                        <div class="st-billsplit-head">
+                            <span class="sw" style="background: var(--st-secondary);"></span>
+                            <span class="lbl">{{ 'Billable'|trans }}</span>
+                            <span class="pct">{{ split.billablePct }}%</span>
+                        </div>
+                        <div class="st-billsplit-value"><time>{{ format_interval(split.billable, true) }}</time></div>
+                    </div>
+                    <div class="st-billsplit-item">
+                        <div class="st-billsplit-head">
+                            <span class="sw" style="background: var(--st-gray-100); border: 1px solid var(--st-border-light);"></span>
+                            <span class="lbl">{{ 'Non-billable'|trans }}</span>
+                            <span class="pct">{{ 100 - split.billablePct }}%</span>
+                        </div>
+                        <div class="st-billsplit-value muted"><time>{{ format_interval(split.nonBillable, true) }}</time></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -2,64 +2,75 @@
     ? entry.dateStart.diffAsCarbonInterval('now', true).cascade().format('%H:%I:%S')
     : '00:00:00'
 %}
+{% set is_running = entry is not null %}
+{% set is_billable = form.billable.vars.checked %}
+{% set tag_count = form.tags.vars.value is iterable ? form.tags.vars.value|length : 0 %}
+
 <div {{ attributes.defaults({id: 'time-tracker'}) }}>
     {{ form_start(form, {
         attr: {
             'data-action': 'live#action:prevent',
             'data-live-action-param': 'startTracker',
+            'class': 'st-timer',
+            'data-running': is_running ? '1' : '0',
         },
     }) }}
-        <div class="card p-0 shadow-lg mb-5 rounded">
-            <div class="card-body p-0">
-                <div class="row" id="time-tracker-fields">
-                    <div class="col-7">
-                        {{ form_widget(form.description, {'attr': {'class': 'border-0 form-control-lg'}}) }}
-                    </div>
-                    <div class="col-3" data-live-ignore
-                         {{ stimulus_controller('time-tracker-form') }}
-                         data-action="time-tracker:cleared@window->time-tracker-form#clear">
-                        {{ form_widget(form.project, {'attr': {'class': 'border-0 form-control-lg'}}) }}
-                    </div>
-                    <div class="col-3" data-live-ignore
-                         {{ stimulus_controller('time-tracker-form') }}
-                         data-action="time-tracker:cleared@window->time-tracker-form#clear">
-                        {{ form_widget(form.tags, {'attr': {'class': 'border-0 form-control-lg'}}) }}
-                    </div>
-                    <div class="col d-flex align-items-center" id="time-tracker-display" {{ stimulus_controller('time-tracker', {'time': entry.dateStart.timestampMs|default(0)}) }}>
-                        <h2 class="m-0 p-0 me-2" {{ stimulus_target('time-tracker', 'timer') }} data-live-ignore>
-                            <time>{{ initial_elapsed }}</time>
-                        </h2>
 
-                        {% set is_billable = form.billable.vars.checked %}
-                        <div class="form-check form-switch p-0 m-0 me-2 d-flex align-items-center">
-                            {{ form_widget(form.billable, {'attr': {'class': 'd-none'}}) }}
-                            <label for="{{ form.billable.vars.id }}"
-                                   class="m-0 p-0 border-0 bg-transparent text-{{ is_billable ? 'success' : 'muted' }}"
-                                   style="cursor: pointer;"
-                                   title="{{ (is_billable ? 'Billable' : 'Non-billable')|trans }}"
-                                   aria-label="{{ (is_billable ? 'Billable' : 'Non-billable')|trans }}">
-                                {{ ux_icon(is_billable ? 'tabler:currency-dollar' : 'tabler:currency-dollar-off', {width: '24px', height: '24px'}) }}
-                            </label>
-                        </div>
+        {{ form_widget(form.description, {'attr': {'class': 'st-timer-desc', 'placeholder': 'What are you working on?'|trans}}) }}
 
-                        <button id="time-tracker-start" type="submit"
-                                class="btn-link p-0 border-0 bg-transparent{% if entry %} d-none{% endif %}"
-                                aria-label="{{ 'Start Tracker'|trans }}"
-                                title="{{ 'Start Tracker'|trans }}">
-                            {{ ux_icon('tabler:player-play-filled', {width: '32px', height: '32px', class: 'text-success'}) }}
-                        </button>
-
-                        <button id="time-tracker-stop" type="button"
-                                class="btn-link p-0 border-0 bg-transparent{% if not entry %} d-none{% endif %}"
-                                aria-label="{{ 'Stop Tracker'|trans }}"
-                                title="{{ 'Stop Tracker'|trans }}"
-                                data-action="live#action:prevent"
-                                data-live-action-param="stopTimer">
-                            {{ ux_icon('tabler:player-stop-filled', {width: '32px', height: '32px', class: 'text-danger'}) }}
-                        </button>
-                    </div>
-                </div>
-            </div>
+        <div class="st-timer-cell project"
+             data-live-ignore
+             {{ stimulus_controller('time-tracker-form') }}
+             data-action="time-tracker:cleared@window->time-tracker-form#clear">
+            {{ form_widget(form.project) }}
         </div>
+
+        <div class="st-timer-cell tags"
+             data-live-ignore
+             {{ stimulus_controller('time-tracker-form') }}
+             data-action="time-tracker:cleared@window->time-tracker-form#clear">
+            <span class="ic">{{ ux_icon('tabler:tag', {'width': '18', 'height': '18'}) }}</span>
+            {{ form_widget(form.tags) }}
+            {% if tag_count > 0 %}
+                <span class="count">{{ tag_count }}</span>
+            {% endif %}
+        </div>
+
+        <label for="{{ form.billable.vars.id }}"
+               class="st-timer-cell billable{% if is_billable %} on{% endif %}"
+               title="{{ (is_billable ? 'Billable' : 'Not billable')|trans }}">
+            {{ form_widget(form.billable, {'attr': {'class': 'd-none'}}) }}
+            $
+        </label>
+
+        <div class="st-timer-display"
+             id="time-tracker-display"
+             {{ stimulus_controller('time-tracker', {'time': entry.dateStart.timestampMs|default(0)}) }}>
+            {% if is_running %}<span class="live-dot"></span>{% endif %}
+            <span {{ stimulus_target('time-tracker', 'timer') }} data-live-ignore>{{ initial_elapsed }}</span>
+        </div>
+
+        {% if is_running %}
+            <button type="button"
+                    id="time-tracker-stop"
+                    class="st-timer-start running"
+                    aria-label="{{ 'Stop Tracker'|trans }}"
+                    title="{{ 'Stop Tracker'|trans }}"
+                    data-action="live#action:prevent"
+                    data-live-action-param="stopTimer">
+                <span class="ic">{{ ux_icon('tabler:player-stop-filled', {'width': '16', 'height': '16'}) }}</span>
+                {{ 'Stop'|trans }}
+            </button>
+        {% else %}
+            <button type="submit"
+                    id="time-tracker-start"
+                    class="st-timer-start"
+                    aria-label="{{ 'Start Tracker'|trans }}"
+                    title="{{ 'Start Tracker'|trans }}">
+                <span class="ic">{{ ux_icon('tabler:player-play-filled', {'width': '16', 'height': '16'}) }}</span>
+                {{ 'Start'|trans }}
+            </button>
+        {% endif %}
+
     {{ form_end(form) }}
 </div>

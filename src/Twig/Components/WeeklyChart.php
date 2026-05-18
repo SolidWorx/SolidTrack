@@ -70,7 +70,11 @@ final class WeeklyChart extends AbstractController
     {
         [$start, $end] = $this->range();
 
-        return $start->format('M j') . ' – ' . $end->format('M j, Y');
+        if ($start->month === $end->month) {
+            return $start->format('M j') . ' – ' . $end->format('j');
+        }
+
+        return $start->format('M j') . ' – ' . $end->format('M j');
     }
 
     /**
@@ -147,15 +151,17 @@ final class WeeklyChart extends AbstractController
             'datasets' => [
                 [
                     'label' => 'Billable',
-                    'backgroundColor' => '#2fb344',
-                    'borderColor' => '#2fb344',
+                    'backgroundColor' => '#4f46e5',
+                    'borderColor' => '#4f46e5',
+                    'borderRadius' => 4,
                     'data' => $billable,
                     'stack' => 'time',
                 ],
                 [
                     'label' => 'Non-billable',
-                    'backgroundColor' => '#a8aeb7',
-                    'borderColor' => '#a8aeb7',
+                    'backgroundColor' => 'rgba(245, 158, 11, 0.4)',
+                    'borderColor' => 'rgba(245, 158, 11, 0.4)',
+                    'borderRadius' => 4,
                     'data' => $nonBillable,
                     'stack' => 'time',
                 ],
@@ -166,16 +172,21 @@ final class WeeklyChart extends AbstractController
             'responsive' => true,
             'maintainAspectRatio' => false,
             'plugins' => [
-                'legend' => ['position' => 'bottom'],
+                'legend' => ['display' => false],
                 'tooltip' => ['mode' => 'index', 'intersect' => false],
             ],
             'scales' => [
-                'x' => ['stacked' => true, 'grid' => ['display' => false]],
+                'x' => [
+                    'stacked' => true,
+                    'grid' => ['display' => false],
+                    'ticks' => ['color' => '#6b7280', 'font' => ['size' => 11]],
+                ],
                 'y' => [
                     'stacked' => true,
                     'beginAtZero' => true,
-                    'ticks' => ['precision' => 0],
-                    'title' => ['display' => true, 'text' => 'Hours'],
+                    'border' => ['display' => false],
+                    'grid' => ['color' => '#f3f4f6'],
+                    'ticks' => ['precision' => 0, 'color' => '#9ca3af', 'font' => ['size' => 11]],
                 ],
             ],
         ]);

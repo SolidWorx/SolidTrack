@@ -1,96 +1,57 @@
-<div {{ attributes }}>
-    <div class="row row-cards">
-        <div class="col-sm-6 col-lg-3">
-            <div class="card card-sm">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <span class="bg-blue text-white avatar">
-                                {{ ux_icon('tabler:clock', {'width': '24', 'height': '24'}) }}
-                            </span>
-                        </div>
-                        <div class="col">
-                            <div class="font-weight-medium">
-                                <time>{{ format_interval(stats.today_total, true) }}</time>
-                            </div>
-                            <div class="text-secondary">
-                                {{ 'Tracked today'|trans }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+{% set today_hours = stats.today_total.totalHours %}
+{% set week_hours = stats.week_total.totalHours %}
+{% set billable_hours = stats.week_billable.totalHours %}
+{% set week_goal = 40 %}
+{% set week_pct = week_hours > 0 ? (week_hours / week_goal * 100)|round : 0 %}
+{% set billable_pct = week_hours > 0 ? (billable_hours / week_hours * 100)|round : 0 %}
+
+<div {{ attributes.defaults({class: 'st-tiles'}) }}
+     style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;">
+
+    <div class="st-tile">
+        <span class="l">{{ 'Today'|trans }}</span>
+        <div class="v"><time>{{ format_interval(stats.today_total, true) }}</time></div>
+        <span class="delta">{{ 'Tracked today'|trans }}</span>
+    </div>
+
+    <div class="st-tile">
+        <span class="l">{{ 'This week'|trans }}</span>
+        <div class="v">
+            <time>{{ format_interval(stats.week_total, true) }}</time>
+            <span class="unit">/ {{ week_goal }}h</span>
         </div>
-        <div class="col-sm-6 col-lg-3">
-            <div class="card card-sm">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <span class="bg-primary text-white avatar">
-                                {{ ux_icon('tabler:calendar-week', {'width': '24', 'height': '24'}) }}
-                            </span>
-                        </div>
-                        <div class="col">
-                            <div class="font-weight-medium">
-                                <time>{{ format_interval(stats.week_total, true) }}</time>
-                            </div>
-                            <div class="text-secondary">
-                                {{ 'Tracked this week'|trans }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-lg-3">
-            <div class="card card-sm">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <span class="bg-success text-white avatar">
-                                {{ ux_icon('tabler:currency-dollar', {'width': '24', 'height': '24'}) }}
-                            </span>
-                        </div>
-                        <div class="col">
-                            <div class="font-weight-medium">
-                                <time>{{ format_interval(stats.week_billable, true) }}</time>
-                            </div>
-                            <div class="text-secondary">
-                                {{ 'Billable this week'|trans }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-lg-3">
-            <div class="card card-sm">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <span class="bg-yellow text-white avatar">
-                                {{ ux_icon('tabler:coin', {'width': '24', 'height': '24'}) }}
-                            </span>
-                        </div>
-                        <div class="col">
-                            {% if stats.week_earnings is empty %}
-                                <div class="font-weight-medium">
-                                    {{ '—'|trans }}
-                                </div>
-                            {% else %}
-                                {% for currency, amount in stats.week_earnings %}
-                                    <div class="font-weight-medium">
-                                        {{ amount|format_currency(currency) }}
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
-                            <div class="text-secondary">
-                                {{ 'Estimated earnings this week'|trans }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="progress-track" role="progressbar"
+             aria-valuenow="{{ week_pct }}" aria-valuemin="0" aria-valuemax="100"
+             aria-label="{{ 'Weekly progress'|trans }}">
+            <div style="width: {{ min(week_pct, 100) }}%;"></div>
         </div>
     </div>
+
+    <div class="st-tile">
+        <span class="l">{{ 'Billable'|trans }}</span>
+        <div class="v"><time>{{ format_interval(stats.week_billable, true) }}</time></div>
+        <span class="delta {{ billable_pct >= 50 ? 'up' : '' }}">
+            {{ billable_pct }}% {{ 'of tracked'|trans }}
+        </span>
+    </div>
+
+    <div class="st-tile">
+        <span class="l">{{ 'Earnings · estimate'|trans }}</span>
+        {% if stats.week_earnings is empty %}
+            <div class="v" style="color: var(--st-text-muted);">—</div>
+            <span class="delta">{{ 'No billable rate set'|trans }}</span>
+        {% else %}
+            {% set first = true %}
+            {% for currency, amount in stats.week_earnings %}
+                {% if first %}
+                    <div class="v" style="color: var(--st-primary);">{{ amount|format_currency(currency) }}</div>
+                    {% set first = false %}
+                {% else %}
+                    <span class="delta">+ {{ amount|format_currency(currency) }}</span>
+                {% endif %}
+            {% endfor %}
+            <span class="delta">{{ 'This week'|trans }}</span>
+        {% endif %}
+    </div>
+
 </div>

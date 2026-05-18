@@ -1,46 +1,43 @@
 <div {{ attributes }}>
-    <div class="card">
-        <div class="card-header py-2">
-            <h3 class="card-title">{{ 'Top Projects'|trans }}</h3>
-            <div class="card-actions">
-                <small class="text-secondary">
-                    {{ 'Total:'|trans }} <time>{{ format_interval(topProjects.total, true) }}</time>
-                </small>
-            </div>
-        </div>
-        <div class="list-group list-group-flush">
-            {% for row in topProjects.projects %}
-                <div class="list-group-item">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <span class="d-inline-block rounded-circle align-middle"
-                                  style="width: 12px; height: 12px; background-color: {{ row.project.color }};"
-                                  aria-label="{{ row.project.color }}"></span>
-                        </div>
-                        <div class="col text-truncate">
-                            <span class="text-body d-block text-truncate">{{ row.project.name }}</span>
-                            <small class="text-secondary">{{ row.project.client }}</small>
-                        </div>
-                        <div class="col-auto text-end">
-                            <div class="font-weight-medium"><time>{{ format_interval(row.duration, true) }}</time></div>
-                            <small class="text-secondary">{{ row.percent|number_format(0) }}%</small>
-                        </div>
-                    </div>
-                    <div class="progress progress-sm mt-2">
-                        <div class="progress-bar"
-                             style="width: {{ row.percent }}%; background-color: {{ row.project.color }};"
-                             role="progressbar"
-                             aria-valuenow="{{ row.percent|number_format(0) }}"
-                             aria-valuemin="0"
-                             aria-valuemax="100"
-                             aria-label="{{ row.project.name }} share"></div>
-                    </div>
+    <div class="st-card">
+        <div class="st-card-head">
+            <div>
+                <h3 class="st-card-title">{{ 'Top projects'|trans }}</h3>
+                <div class="st-card-sub">
+                    {{ 'This week'|trans }} ·
+                    <time>{{ format_interval(topProjects.total, true) }}</time> {{ 'tracked'|trans }}
                 </div>
-            {% else %}
-                <div class="list-group-item text-secondary text-center py-4">
+            </div>
+            <a href="#" class="st-card-link">{{ 'View all'|trans }}</a>
+        </div>
+        <div class="st-card-body">
+            {% if topProjects.projects is empty %}
+                <div style="padding: 12px 0; color: var(--st-text-muted); font-size: 13px; text-align: center;">
                     {{ 'No tracked time this week.'|trans }}
                 </div>
-            {% endfor %}
+            {% else %}
+                <div class="st-project-bars">
+                    {% for row in topProjects.projects %}
+                        <div>
+                            <div class="row-head">
+                                <div class="name">
+                                    <span class="st-pdot" style="background: {{ row.project.color }};"></span>
+                                    <span>{{ row.project.name }}</span>
+                                </div>
+                                <span class="st-time" style="font-size: 13px;">
+                                    <time>{{ format_interval(row.duration, true) }}</time>
+                                </span>
+                            </div>
+                            <div class="track" role="progressbar"
+                                 aria-valuenow="{{ row.percent|number_format(0) }}"
+                                 aria-valuemin="0" aria-valuemax="100"
+                                 aria-label="{{ row.project.name }} share">
+                                <div style="width: {{ row.percent }}%; background: {{ row.project.color }};"></div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>

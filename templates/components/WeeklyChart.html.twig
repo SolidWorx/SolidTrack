@@ -1,44 +1,57 @@
 <div {{ attributes }}>
-    <div class="card">
-        <div class="card-header py-2">
-            <h3 class="card-title">{{ 'This Week'|trans }}</h3>
-            <div class="card-actions btn-list">
+    <div class="st-card">
+        <div class="st-card-head">
+            <div>
+                <h3 class="st-card-title">{{ 'Weekly activity'|trans }}</h3>
+                <div class="st-card-sub"><time>{{ format_interval(totals.total, true) }}</time> {{ 'tracked'|trans }}</div>
+            </div>
+            <div class="st-weeknav">
                 <button type="button"
-                        class="btn btn-sm btn-icon"
+                        class="nav"
                         {{ live_action('previousWeek') }}
                         aria-label="{{ 'Previous week'|trans }}"
                         title="{{ 'Previous week'|trans }}">
-                    {{ ux_icon('tabler:chevron-left', {'width': '16', 'height': '16'}) }}
+                    {{ ux_icon('tabler:chevron-left', {'width': '14', 'height': '14'}) }}
                 </button>
                 <button type="button"
-                        class="btn btn-sm"
+                        class="label"
                         {{ live_action('currentWeek') }}
                         {{ weekOffset == 0 ? 'disabled' : '' }}
-                        title="{{ 'Jump to current week'|trans }}">
-                    {{ rangeLabel }}
+                        title="{{ weekOffset == 0 ? 'This week'|trans : 'Jump to current week'|trans }}">
+                    {{ weekOffset == 0 ? 'This week'|trans : rangeLabel }}
                 </button>
                 <button type="button"
-                        class="btn btn-sm btn-icon"
+                        class="nav"
                         {{ live_action('nextWeek') }}
                         aria-label="{{ 'Next week'|trans }}"
                         title="{{ 'Next week'|trans }}">
-                    {{ ux_icon('tabler:chevron-right', {'width': '16', 'height': '16'}) }}
+                    {{ ux_icon('tabler:chevron-right', {'width': '14', 'height': '14'}) }}
                 </button>
             </div>
         </div>
-        <div class="card-body">
-            <div class="row text-center mb-3">
-                <div class="col">
-                    <div class="text-secondary small">{{ 'Total'|trans }}</div>
-                    <div class="font-weight-medium"><time>{{ format_interval(totals.total, true) }}</time></div>
+        <div class="st-card-body">
+            <div class="st-week-summary">
+                <div>
+                    <div class="l">{{ 'Total'|trans }}</div>
+                    <div class="v"><time>{{ format_interval(totals.total, true) }}</time></div>
                 </div>
-                <div class="col">
-                    <div class="text-secondary small">{{ 'Billable'|trans }}</div>
-                    <div class="font-weight-medium text-success"><time>{{ format_interval(totals.billable, true) }}</time></div>
+                <div style="text-align: right;">
+                    <div class="l">{{ 'Billable'|trans }}</div>
+                    <div class="v billable"><time>{{ format_interval(totals.billable, true) }}</time></div>
                 </div>
             </div>
-            <div style="height: 220px;">
+            <div style="height: 180px;">
                 {{ render_chart(chart, {style: 'width: 100%; height: 100%;'}) }}
+            </div>
+            <div class="st-week-legend">
+                <span>
+                    <span class="sw" style="background: var(--st-primary);"></span>
+                    {{ 'Billable'|trans }}
+                </span>
+                <span>
+                    <span class="sw" style="background: rgba(245, 158, 11, 0.4);"></span>
+                    {{ 'Non-billable'|trans }}
+                </span>
             </div>
         </div>
     </div>
