@@ -53,6 +53,7 @@
                                 {{ ux_icon('tabler:pencil', {width: '16px', height: '16px'}) }}
                                 {{ 'Edit'|trans }}
                             </a>
+                            {{ include('client/_delete_form.html.twig', {'client': client}) }}
                         </td>
                     </tr>
                 {% else %}

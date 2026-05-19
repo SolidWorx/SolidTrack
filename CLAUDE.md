@@ -43,6 +43,10 @@ Bun is the package manager / script runner only — the actual bundler is **Webp
 - **Templates**: `templates/layouts/base.html.twig` extends `@Ui/Layout/base.html.twig` and overrides `block body` to inject the page wrapper / menus / footer. App page templates extend `layouts/base.html.twig` and override `block content` (NOT `block body` — that block now contains the wrapper). UI components `<twig:Ui:Alert>`, `<twig:Ui:Card>`, `<twig:Ui:Modal>` ship from the UiBundle.
 - **2FA**: disabled in `platform.yaml`. Flip `platform.security.two_factor.enabled: true` to have the platform Kernel yield `SchebTwoFactorBundle` and register the 2FA routes/services. The base 2FA template comes from `platform.security.two_factor.base_template`.
 
+## Migrations
+
+Every Doctrine migration in `migrations/` mutates the `Schema` object via the DBAL schema builder API (`$schema->getTable()`, `createTable()`, `addColumn()`, `addForeignKeyConstraint()`, `removeForeignKey()`, etc.) — **never** call `$this->addSql()` with hand-written DDL. `doctrine:migrations:diff` will auto-generate raw `addSql()` blocks (especially for SQLite FK/column changes that require table rebuilds); rewrite those blocks with the equivalent schema-builder mutations before committing, and let Doctrine emit the platform-specific DDL. Reference table names through entity constants (`Project::TABLE_NAME`) and pull foreign-key names from `bin/console doctrine:schema:create --dump-sql` rather than hard-coding them inline (constants on the migration class are fine). Both `up()` and `down()` follow this rule. Every migration class is `final`, declares `strict_types`, carries the ECS file header, marks `getDescription`/`up`/`down` with `#[Override]`, and is verified by running it down then up against a populated DB before committing.
+
 ## Architecture map
 
 - `src/Entity/` — Doctrine entities (`Client`, `Project`, `TimeEntry`, `User`).

@@ -69,7 +69,7 @@ final class ClientController extends BaseController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_client_delete', methods: ['DELETE'])]
+    #[Route('/{id}/delete', name: 'app_client_delete', methods: ['POST'])]
     public function delete(Request $request, Client $client, ClientRepository $clientRepository): Response
     {
         if ($this->isCsrfTokenValid('delete' . $client->getId(), $request->getPayload()->getString('_token'))) {

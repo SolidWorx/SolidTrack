@@ -70,7 +70,7 @@ final class ProjectController extends BaseController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_project_delete', methods: ['DELETE'])]
+    #[Route('/{id}/delete', name: 'app_project_delete', methods: ['POST'])]
     public function delete(Request $request, Project $project, ProjectRepository $projectRepository): Response
     {
         if ($this->isCsrfTokenValid('delete' . $project->getId(), $request->getPayload()->getString('_token'))) {

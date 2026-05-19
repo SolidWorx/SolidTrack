@@ -43,7 +43,7 @@ class Client implements Stringable
     /**
      * @var Collection<int, Project>
      */
-    #[ORM\OneToMany(mappedBy: 'client', targetEntity: Project::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'client', targetEntity: Project::class, cascade: ['remove'], orphanRemoval: true)]
     private Collection $projects;
 
     public function __construct()

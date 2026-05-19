@@ -40,6 +40,7 @@ class TimeEntry implements Stringable
     private Ulid $id;
 
     #[ORM\ManyToOne(inversedBy: 'timeEntries')]
+    #[ORM\JoinColumn(onDelete: 'CASCADE')]
     private ?Project $project = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]

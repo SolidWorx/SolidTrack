@@ -38,7 +38,7 @@ class Project implements Stringable
     private Ulid $id;
 
     #[ORM\ManyToOne(inversedBy: 'projects')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Client $client = null;
 
     #[ORM\Column()]
@@ -55,7 +55,7 @@ class Project implements Stringable
     /**
      * @var Collection<int, TimeEntry>
      */
-    #[ORM\OneToMany(mappedBy: 'project', targetEntity: TimeEntry::class)]
+    #[ORM\OneToMany(mappedBy: 'project', targetEntity: TimeEntry::class, cascade: ['remove'])]
     private Collection $timeEntries;
 
     public function __construct()
