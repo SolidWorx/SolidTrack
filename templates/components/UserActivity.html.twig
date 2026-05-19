@@ -32,9 +32,7 @@
                                     {% endif %}
                                 </span>
                             {% endif %}
-                            {% for tag in tracker.tags %}
-                                <span class="st-tagchip">{{ tag.name }}</span>
-                            {% endfor %}
+                            {% include 'components/_tag_chips.html.twig' with {tags: tracker.tags} only %}
                         </div>
                     </div>
 

@@ -36,8 +36,15 @@
     border-radius: 12px;
     border: 1px solid var(--st-border-light);
     box-shadow: var(--st-shadow-sm);
-    overflow: hidden;
     min-height: 68px;
+    position: relative;
+    z-index: 10;
+
+    // TomSelect renders its dropdown as an absolutely-positioned sibling inside
+    // the cell; lift it above neighbouring dashboard cards.
+    .ts-dropdown {
+        z-index: 1050;
+    }
 
     // Description input — takes remaining space
     .st-timer-desc {
@@ -54,12 +61,15 @@
         &::placeholder { color: var(--st-text-light); }
     }
 
-    // Bordered cell for project / tags / billable
+    // Common cell. Each option (project / tags / billable) is a trigger-style
+    // pill — icon-led, content-width, consistent padding. Cells share their
+    // chrome so the bar reads as a single object.
     .st-timer-cell {
+        position: relative;
         display: flex;
         align-items: center;
         gap: 8px;
-        padding: 0 18px;
+        padding: 0 14px;
         border-left: 1px solid var(--st-border-light);
         color: var(--st-text-secondary);
         font-size: 13px;
@@ -74,11 +84,11 @@
         &:hover .ic { color: var(--st-text-primary); }
 
         &.project {
-            min-width: 240px;
+            min-width: 180px;
+            max-width: 220px;
             color: var(--st-primary);
             font-weight: 600;
 
-            // The TomSelect/select widget needs to feel embedded in the cell
             select,
             .ts-wrapper {
                 width: 100%;
@@ -105,53 +115,128 @@
             }
         }
 
+        // Tag cell renders only a custom summary chip — the TomSelect chip
+        // strip and input live behind it (absolute, invisible) so the dropdown
+        // anchor stays correct while we control the visual.
         &.tags {
-            min-width: 160px;
+            flex: 0 0 auto;
+            max-width: 240px;
+            min-width: 48px;
+            padding: 0 12px;
 
-            .ic { flex-shrink: 0; }
+            .st-tags-input {
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+                z-index: 0;
 
-            select,
-            .ts-wrapper { width: 100%; border: none; background: transparent; box-shadow: none; }
+                .ts-wrapper {
+                    width: 100%;
+                    height: 100%;
+                    background: transparent;
+                    border: none;
+                    box-shadow: none;
+                }
 
-            .ts-wrapper .ts-control {
-                border: none;
-                background: transparent;
-                padding: 0;
-                box-shadow: none;
-                min-height: auto;
-                font-size: 13px;
+                .ts-control {
+                    width: 100%;
+                    height: 100%;
+                    min-height: 0;
+                    padding: 0;
+                    border: none;
+                    background: transparent;
+                    box-shadow: none;
+                    opacity: 0;
+                    pointer-events: none;
+                    overflow: hidden;
+                }
+
+                .ts-dropdown {
+                    pointer-events: auto;
+                    opacity: 1;
+                    // The hidden `.ts-control` is the size of the cell, so the
+                    // dropdown inherits its narrow width by default. Give it
+                    // room to show full tag names.
+                    width: auto;
+                    min-width: 220px;
+
+                    // Already-selected options stay in the list (so they can
+                    // be toggled off); mark them with a check on the right.
+                    .option.selected {
+                        background: var(--st-primary-lighter);
+                        color: var(--st-primary-dark);
+                        position: relative;
+                        padding-right: 28px;
+
+                        &::after {
+                            content: '✓';
+                            position: absolute;
+                            right: 10px;
+                            top: 50%;
+                            transform: translateY(-50%);
+                            font-weight: 700;
+                            color: var(--st-primary);
+                        }
+                    }
+                }
             }
 
-            .count {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                min-width: 18px;
-                height: 18px;
-                padding: 0 5px;
-                background: var(--st-primary-lighter);
-                color: var(--st-primary-dark);
-                border-radius: 999px;
-                font-size: 11px;
-                font-weight: 700;
+            .ic, .st-tags-summary {
+                position: relative;
+                z-index: 1;
             }
         }
 
-        // Billable cell — left divider only, reset native <button> chrome
+        // Billable cell — single $ glyph, sized down so the bar isn't lopsided
         &.billable {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 700;
             font-family: var(--st-mono-display);
             color: var(--st-text-muted);
-            padding: 0 18px;
-            border: none;
-            border-left: 1px solid var(--st-border-light);
-            background: transparent;
+            padding: 0 12px;
+            min-width: 0;
+            justify-content: center;
 
             &.on {
                 color: var(--st-secondary-dark);
             }
         }
+    }
+
+    // Summary chip for selected tags: colored dot stripe + truncated names.
+    .st-tags-summary {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        max-width: 180px;
+        padding: 4px 10px;
+        background: var(--st-primary-lighter);
+        color: var(--st-primary-dark);
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1;
+        overflow: hidden;
+    }
+
+    .st-tags-dots {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        flex-shrink: 0;
+    }
+
+    .st-tags-dots .st-tag-dot {
+        width: 8px;
+        height: 8px;
+        margin: 0;
+    }
+
+    .st-tags-summary-text {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     // Elapsed time display
@@ -207,6 +292,18 @@
 
         .ic { width: 16px; height: 16px; }
     }
+}
+
+// Color dot rendered inline by EntityType choice_label HTML (both dropdown
+// rows and TomSelect's selected chips).
+.st-tag-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    margin-right: 6px;
+    flex-shrink: 0;
+    vertical-align: middle;
 }
 
 @keyframes st-pulse {

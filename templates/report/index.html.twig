@@ -2,6 +2,14 @@
 
 {% block title %}{{ 'Reports'|trans }}{% endblock %}
 
+{# Inject into <head> via the stylesheets block (the only head-extension point
+   exposed by the platform layout) so Turbo sees them before swap. #}
+{% block stylesheets %}
+    {{ parent() }}
+    <meta name="turbo-cache-control" content="no-cache">
+    <meta name="turbo-visit-control" content="reload">
+{% endblock %}
+
 {% block page_header %}
     <div class="page-header">
         <div class="container-xl">

@@ -244,13 +244,13 @@ final class ReportSummary extends AbstractController
     }
 
     /**
-     * @return list<array{label: string, color: ?string, sub: ?string, totalHours: float, billableHours: float, amount: float, children: list<array{label: string, totalHours: float, billableHours: float, amount: float}>}>
+     * @return list<array{label: string, color: ?string, sub: ?string, totalHours: float, billableHours: float, amount: float, tags: list<\App\Entity\Tag>, children: list<array{label: string, totalHours: float, billableHours: float, amount: float, tags: list<\App\Entity\Tag>}>}>
      */
     #[ExposeInTemplate(name: 'groups')]
     public function groups(): array
     {
         $groupBy = $this->groupByEnum();
-        /** @var array<string, array{label: string, color: ?string, sub: ?string, totalHours: float, billableHours: float, amount: float, children: array<string, array{label: string, totalHours: float, billableHours: float, amount: float}>}> $groups */
+        /** @var array<string, array{label: string, color: ?string, sub: ?string, totalHours: float, billableHours: float, amount: float, tags: array<string, \App\Entity\Tag>, children: array<string, array{label: string, totalHours: float, billableHours: float, amount: float, tags: array<string, \App\Entity\Tag>}>}> $groups */
         $groups = [];
 
         foreach ($this->loadEntries() as $entry) {
@@ -292,6 +292,7 @@ final class ReportSummary extends AbstractController
                 'totalHours' => 0.0,
                 'billableHours' => 0.0,
                 'amount' => 0.0,
+                'tags' => [],
                 'children' => [],
             ];
             $groups[$key]['totalHours'] += $hours;
@@ -307,20 +308,31 @@ final class ReportSummary extends AbstractController
                 'totalHours' => 0.0,
                 'billableHours' => 0.0,
                 'amount' => 0.0,
+                'tags' => [],
             ];
             $groups[$key]['children'][$childKey]['totalHours'] += $hours;
             if ($entry->isBillable()) {
                 $groups[$key]['children'][$childKey]['billableHours'] += $hours;
             }
             $groups[$key]['children'][$childKey]['amount'] += $amount;
+
+            foreach ($entry->getTags() as $tag) {
+                $tagKey = $tag->getId()?->toRfc4122() ?? $tag->getName();
+                $groups[$key]['tags'][$tagKey] = $tag;
+                $groups[$key]['children'][$childKey]['tags'][$tagKey] = $tag;
+            }
         }
 
         usort($groups, static fn (array $a, array $b): int => $b['totalHours'] <=> $a['totalHours']);
 
         return array_map(static function (array $group): array {
-            $children = array_values($group['children']);
+            $children = array_map(static function (array $child): array {
+                $child['tags'] = array_values($child['tags']);
+                return $child;
+            }, array_values($group['children']));
             usort($children, static fn (array $a, array $b): int => $b['totalHours'] <=> $a['totalHours']);
             $group['children'] = $children;
+            $group['tags'] = array_values($group['tags']);
 
             return $group;
         }, $groups);

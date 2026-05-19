@@ -56,8 +56,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for group in groups %}
-                        <tr style="font-weight: 600;">
+                    {% for groupIndex, group in groups %}
+                        {# Stable per-row IDs so morphdom can reconcile rows when
+                           the group/child count changes (e.g. on tag toggle).
+                           Without IDs, morphdom falls back to positional
+                           matching and duplicates rows on Live re-renders. #}
+                        <tr id="rs-g-{{ groupIndex }}" style="font-weight: 600;">
                             <td>
                                 <div class="d-flex align-items-center gap-2">
                                     {% if group.color %}
@@ -67,15 +71,21 @@
                                     {% if group.sub %}
                                         <span class="text-muted" style="font-weight: 400;">· {{ group.sub }}</span>
                                     {% endif %}
+                                    {% include 'components/_tag_chips.html.twig' with {tags: group.tags} only %}
                                 </div>
                             </td>
                             <td style="text-align: right;"><time>{{ group.totalHours|number_format(2) }}h</time></td>
                             <td style="text-align: right;"><time>{{ group.billableHours|number_format(2) }}h</time></td>
                             <td style="text-align: right;">${{ group.amount|number_format(2, '.', ',') }}</td>
                         </tr>
-                        {% for child in group.children %}
-                            <tr>
-                                <td style="padding-left: 32px; color: var(--st-text-muted, #6b7280);">↳ {{ child.label }}</td>
+                        {% for childIndex, child in group.children %}
+                            <tr id="rs-g-{{ groupIndex }}-c-{{ childIndex }}">
+                                <td style="padding-left: 32px; color: var(--st-text-muted, #6b7280);">
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        <span>↳ {{ child.label }}</span>
+                                        {% include 'components/_tag_chips.html.twig' with {tags: child.tags} only %}
+                                    </div>
+                                </td>
                                 <td style="text-align: right;">{{ child.totalHours|number_format(2) }}h</td>
                                 <td style="text-align: right;">{{ child.billableHours|number_format(2) }}h</td>
                                 <td style="text-align: right;">${{ child.amount|number_format(2, '.', ',') }}</td>

@@ -21,10 +21,12 @@ use App\Report\ReportFilter;
 use Carbon\CarbonInterval;
 use Carbon\CarbonPeriod;
 use DateTimeInterface;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use SolidWorx\Platform\PlatformBundle\Repository\EntityRepository;
 use Symfony\Bridge\Doctrine\Types\UlidType;
+use Symfony\Component\Uid\Ulid;
 
 /**
  * @extends EntityRepository<TimeEntry>
@@ -154,8 +156,18 @@ final class TimeEntryRepository extends EntityRepository
         }
 
         if ($filter->tagIds !== []) {
-            $qb->andWhere('EXISTS (SELECT 1 FROM ' . TimeEntry::class . ' t2 JOIN t2.tags tg WHERE t2 = t AND tg.id IN (:tagIds))')
-                ->setParameter('tagIds', $filter->tagIds);
+            $sub = $this->getEntityManager()->createQueryBuilder()
+                ->select('t2.id')
+                ->from(TimeEntry::class, 't2')
+                ->join('t2.tags', 'tg2')
+                ->where('tg2.id IN (:tagIds)')
+                ->getDQL();
+            $qb->andWhere($qb->expr()->in('t.id', $sub))
+                ->setParameter(
+                    'tagIds',
+                    array_map(static fn (Ulid $id): string => $id->toBinary(), $filter->tagIds),
+                    ArrayParameterType::STRING,
+                );
         }
 
         if ($filter->billable !== null) {

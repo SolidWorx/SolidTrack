@@ -63,7 +63,12 @@ class TimeTrackerType extends AbstractType
                 EntityType::class,
                 [
                     'class' => Tag::class,
-                    'choice_label' => 'name',
+                    'choice_label' => static fn (Tag $tag) => sprintf(
+                        '<span class="st-tag-dot" style="background-color: %s"></span>%s',
+                        htmlspecialchars($tag->getColor(), \ENT_QUOTES),
+                        htmlspecialchars($tag->getName(), \ENT_QUOTES),
+                    ),
+                    'options_as_html' => true,
                     'multiple' => true,
                     'expanded' => false,
                     'required' => false,

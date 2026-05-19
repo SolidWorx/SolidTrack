@@ -4,7 +4,20 @@
 %}
 {% set is_running = entry is not null %}
 {% set is_billable = form.billable.vars.checked %}
-{% set tag_count = form.tags.vars.value is iterable ? form.tags.vars.value|length : 0 %}
+
+{# Resolve the selected Tag entities for the summary chip. Use the form's
+   choice list (which always reflects the latest formValues snapshot) rather
+   than entry.tags, which is null before Start. #}
+{% set selected_tag_ids = form.tags.vars.value ?? [] %}
+{% set selected_tags = [] %}
+{% if selected_tag_ids|length > 0 %}
+    {% for choice in form.tags.vars.choices %}
+        {% if choice.value in selected_tag_ids %}
+            {% set selected_tags = selected_tags|merge([choice.data]) %}
+        {% endif %}
+    {% endfor %}
+{% endif %}
+{% set tag_count = selected_tags|length %}
 
 <div {{ attributes.defaults({id: 'time-tracker'}) }}>
     {{ form_start(form, {
@@ -25,17 +38,32 @@
             {{ form_widget(form.project) }}
         </div>
 
-        <div class="st-timer-cell tags"
-             data-live-ignore
-             {{ stimulus_controller('time-tracker-form') }}
-             data-action="time-tracker:cleared@window->time-tracker-form#clear">
+        {# Tags cell: single summary chip (icon + colored dots + truncated
+           names). The real TomSelect input is hidden behind it and opened on
+           click via the `tag-cell` controller. `data-live-ignore` is scoped to
+           the input wrapper so the summary still morphs on tag changes. #}
+        <div class="st-timer-cell tags{% if tag_count > 0 %} has-tags{% endif %}"
+             {{ stimulus_controller('tag-cell time-tracker-form') }}
+             data-action="time-tracker:cleared@window->time-tracker-form#clear click->tag-cell#open">
             <span class="ic">{{ ux_icon('tabler:tag', {'width': '18', 'height': '18'}) }}</span>
-            {{ form_widget(form.tags) }}
             {% if tag_count > 0 %}
-                <span class="count">{{ tag_count }}</span>
+                <span class="st-tags-summary">
+                    <span class="st-tags-dots">
+                        {% for tag in selected_tags %}
+                            <span class="st-tag-dot" style="background-color: {{ tag.color }}"></span>
+                        {% endfor %}
+                    </span>
+                    <span class="st-tags-summary-text">{% for tag in selected_tags %}{{ tag.name }}{% if not loop.last %}, {% endif %}{% endfor %}</span>
+                </span>
             {% endif %}
+            <div class="st-tags-input" data-live-ignore>
+                {{ form_widget(form.tags) }}
+            </div>
         </div>
 
+        {# Use the default form theme for this field so the checkbox isn't
+           wrapped in Bootstrap 5's `.form-check` div + duplicate label. #}
+        {% form_theme form.billable 'form_div_layout.html.twig' %}
         <label for="{{ form.billable.vars.id }}"
                class="st-timer-cell billable{% if is_billable %} on{% endif %}"
                title="{{ (is_billable ? 'Billable' : 'Not billable')|trans }}">
@@ -46,8 +74,8 @@
         <div class="st-timer-display"
              id="time-tracker-display"
              {{ stimulus_controller('time-tracker', {'time': entry.dateStart.timestampMs|default(0)}) }}>
-            {% if is_running %}<span class="live-dot"></span>{% endif %}
-            <span {{ stimulus_target('time-tracker', 'timer') }} data-live-ignore>{{ initial_elapsed }}</span>
+            {% if is_running %}<span id="time-tracker-dot" class="live-dot"></span>{% endif %}
+            <span id="time-tracker-timer" {{ stimulus_target('time-tracker', 'timer') }} data-live-ignore>{{ initial_elapsed }}</span>
         </div>
 
         {% if is_running %}
