@@ -8,3 +8,10 @@ controllers:
 app_logout:
     path: /logout
     methods: [GET]
+
+home:
+    path: /
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController
+    defaults:
+        route: dashboard
+        permanent: false
