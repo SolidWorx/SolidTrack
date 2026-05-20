@@ -24,7 +24,7 @@ jobs:
 
     steps:
     - name: Harden Runner
-      uses: step-security/harden-runner@c95a14d0e5bab51a9f56296a4eb0e416910cd350
+      uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5
       with:
         disable-sudo: true
         egress-policy: block
@@ -58,7 +58,7 @@ jobs:
   #
   #  steps:
   #    - name: Harden Runner
-  #      uses: step-security/harden-runner@c95a14d0e5bab51a9f56296a4eb0e416910cd350
+  #      uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5
   #      with:
   #        disable-sudo: true
   #        egress-policy: block
