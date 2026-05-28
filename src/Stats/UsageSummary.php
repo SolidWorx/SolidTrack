@@ -30,8 +30,8 @@ final readonly class UsageSummary
     public static function empty(?string $currency = null): self
     {
         return new self(
-            CarbonInterval::seconds(0),
-            CarbonInterval::seconds(0),
+            CarbonInterval::hours(0.0),
+            CarbonInterval::hours(0.0),
             0.0,
             $currency,
             null,

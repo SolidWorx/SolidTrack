@@ -166,9 +166,9 @@ final class TimeEntryRepository extends EntityRepository
             }
         }
 
-        $start = $entry->getDateStart();
-        if ($start !== null && ($acc[$key]['last'] === null || $start->greaterThan($acc[$key]['last']))) {
-            $acc[$key]['last'] = $start;
+        $end = $entry->getDateEnd();
+        if ($end !== null && ($acc[$key]['last'] === null || $end->greaterThan($acc[$key]['last']))) {
+            $acc[$key]['last'] = $end;
         }
     }
 
@@ -206,9 +206,13 @@ final class TimeEntryRepository extends EntityRepository
             ->setParameter('status', TimeEntryStatus::COMPLETED)
             ->setParameter('user', $user->getId(), UlidType::NAME);
 
-        if ($from !== null && $to !== null) {
-            $qb->andWhere('t.dateStart BETWEEN :from AND :to')
-                ->setParameter('from', $from)
+        if ($from !== null) {
+            $qb->andWhere('t.dateStart >= :from')
+                ->setParameter('from', $from);
+        }
+
+        if ($to !== null) {
+            $qb->andWhere('t.dateStart <= :to')
                 ->setParameter('to', $to);
         }
 

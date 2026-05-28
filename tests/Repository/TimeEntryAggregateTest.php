@@ -92,6 +92,7 @@ final class TimeEntryAggregateTest extends KernelTestCase
         $summaries = $this->repository->aggregateByProjectForUser($user, $from, $to);
         $key = $project->getId()->toRfc4122();
 
+        self::assertCount(1, $summaries);
         self::assertEqualsWithDelta(3.0, $summaries[$key]->totalDuration->totalHours, 0.001);
         self::assertSame(
             '2026-05-10',
