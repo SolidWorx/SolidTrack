@@ -35,7 +35,9 @@ final class TimeEntryAggregateTest extends KernelTestCase
     protected function setUp(): void
     {
         self::bootKernel();
-        $this->em = self::getContainer()->get('doctrine')->getManager();
+        $manager = self::getContainer()->get('doctrine')->getManager();
+        \assert($manager instanceof EntityManagerInterface);
+        $this->em = $manager;
         $this->repository = $this->em->getRepository(TimeEntry::class);
     }
 
@@ -51,7 +53,7 @@ final class TimeEntryAggregateTest extends KernelTestCase
         $this->em->flush();
 
         $summaries = $this->repository->aggregateByProjectForUser($user, null, null);
-        $key = $project->getId()->toRfc4122();
+        $key = $this->projectKey($project);
 
         self::assertArrayHasKey($key, $summaries);
         self::assertEqualsWithDelta(3.0, $summaries[$key]->totalDuration->totalHours, 0.001);
@@ -70,7 +72,7 @@ final class TimeEntryAggregateTest extends KernelTestCase
         $this->em->flush();
 
         $summaries = $this->repository->aggregateByProjectForUser($user, null, null);
-        $key = $project->getId()->toRfc4122();
+        $key = $this->projectKey($project);
 
         self::assertEqualsWithDelta(0.0, $summaries[$key]->amount, 0.001);
         self::assertEqualsWithDelta(2.0, $summaries[$key]->totalDuration->totalHours, 0.001);
@@ -90,14 +92,13 @@ final class TimeEntryAggregateTest extends KernelTestCase
         $to = CarbonImmutable::parse('2026-05-31 23:59:59');
 
         $summaries = $this->repository->aggregateByProjectForUser($user, $from, $to);
-        $key = $project->getId()->toRfc4122();
+        $key = $this->projectKey($project);
 
         self::assertCount(1, $summaries);
         self::assertEqualsWithDelta(3.0, $summaries[$key]->totalDuration->totalHours, 0.001);
-        self::assertSame(
-            '2026-05-10',
-            $summaries[$key]->lastActivity->format('Y-m-d'),
-        );
+        $lastActivity = $summaries[$key]->lastActivity;
+        self::assertNotNull($lastActivity);
+        self::assertSame('2026-05-10', $lastActivity->format('Y-m-d'));
     }
 
     public function testAggregateIsScopedToTheGivenUser(): void
@@ -112,7 +113,7 @@ final class TimeEntryAggregateTest extends KernelTestCase
         $this->em->flush();
 
         $summaries = $this->repository->aggregateByProjectForUser($owner, null, null);
-        $key = $project->getId()->toRfc4122();
+        $key = $this->projectKey($project);
 
         self::assertEqualsWithDelta(2.0, $summaries[$key]->totalDuration->totalHours, 0.001);
     }
@@ -129,11 +130,27 @@ final class TimeEntryAggregateTest extends KernelTestCase
         $this->em->flush();
 
         $summaries = $this->repository->aggregateByClientForUser($user, null, null);
-        $key = $client->getId()->toRfc4122();
+        $key = $this->clientKey($client);
 
         self::assertEqualsWithDelta(6.0, $summaries[$key]->totalDuration->totalHours, 0.001);
         self::assertEqualsWithDelta(400.0, $summaries[$key]->amount, 0.001);
         self::assertSame('EUR', $summaries[$key]->currency);
+    }
+
+    private function projectKey(Project $project): string
+    {
+        $id = $project->getId();
+        self::assertNotNull($id);
+
+        return $id->toRfc4122();
+    }
+
+    private function clientKey(Client $client): string
+    {
+        $id = $client->getId();
+        self::assertNotNull($id);
+
+        return $id->toRfc4122();
     }
 
     private function createUser(string $email): User

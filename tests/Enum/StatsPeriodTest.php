@@ -32,7 +32,9 @@ final class StatsPeriodTest extends TestCase
     {
         $now = CarbonImmutable::parse('2026-05-28 14:00:00');
 
-        [$from, $to] = StatsPeriod::Month->range($now);
+        $range = StatsPeriod::Month->range($now);
+        self::assertNotNull($range);
+        [$from, $to] = $range;
 
         self::assertSame('2026-05-01 00:00:00', $from->format('Y-m-d H:i:s'));
         self::assertSame('2026-05-31 23:59:59', $to->format('Y-m-d H:i:s'));
@@ -42,7 +44,9 @@ final class StatsPeriodTest extends TestCase
     {
         $now = CarbonImmutable::parse('2026-05-28 14:00:00');
 
-        [$from, $to] = StatsPeriod::Year->range($now);
+        $range = StatsPeriod::Year->range($now);
+        self::assertNotNull($range);
+        [$from, $to] = $range;
 
         self::assertSame('2026-01-01 00:00:00', $from->format('Y-m-d H:i:s'));
         self::assertSame('2026-12-31 23:59:59', $to->format('Y-m-d H:i:s'));
