@@ -29,41 +29,5 @@
  {% endblock page_header %}
 
 {% block content %}
-    <div class="table-responsive">
-        <div class="card">
-            <table class="table table-vcenter card-table">
-                <thead>
-                <tr>
-                    <th>{{ 'Name'|trans }}</th>
-                    <th>{{ 'Client'|trans }}</th>
-                    <th>{{ 'Hourly Rate'|trans }}</th>
-                    <th>{{ 'Actions'|trans }}</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for project in projects %}
-                    <tr>
-                        <td>
-                            <span class="d-inline-block rounded-circle align-middle me-2" style="width: 18px; height: 18px; background-color: {{ project.color }};" aria-label="{{ project.color }}"></span>
-                            {{ project.name }}
-                        </td>
-                        <td>{{ project.client }}</td>
-                        <td>{{ project.hourlyRate|default(0) }} {{ project.client.currency }}</td>
-                        <td>
-                            <a href="{{ path('app_project_edit', {'id': project.id}) }}">
-                                {{ ux_icon('tabler:pencil', {width: '16px', height: '16px'}) }}
-                                {{ 'Edit'|trans }}
-                            </a>
-                            {{ include('project/_delete_form.html.twig', {'project': project}) }}
-                        </td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="3">{{ 'No records found'|trans }}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <twig:ProjectList />
 {% endblock %}

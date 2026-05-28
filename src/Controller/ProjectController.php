@@ -25,11 +25,9 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ProjectController extends BaseController
 {
     #[Route('/', name: 'app_project_index', methods: ['GET'])]
-    public function index(ProjectRepository $projectRepository): Response
+    public function index(): Response
     {
-        return $this->render('project/index.html.twig', [
-            'projects' => $projectRepository->findAll(),
-        ]);
+        return $this->render('project/index.html.twig');
     }
 
     #[Route('/new', name: 'app_project_new', methods: ['GET', 'POST'])]
