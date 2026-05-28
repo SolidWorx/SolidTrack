@@ -29,13 +29,13 @@
                         {% set s = row.summary %}
                         <tr>
                             <td>
-                                <span class="st-pdot align-middle me-2" style="background-color: {{ row.project.color }};" aria-label="{{ row.project.color }}"></span>
+                                <span class="st-pdot align-middle me-2" style="background-color: {{ row.project.color }};" aria-hidden="true"></span>
                                 {{ row.project.name }}
                             </td>
                             <td>{{ row.project.client }}</td>
                             <td class="text-end">
                                 {% if row.project.hourlyRate is not null %}
-                                    {{ row.project.hourlyRate }} {{ row.project.client.currency }}
+                                    {{ row.project.hourlyRate }} {{ row.project.client ? row.project.client.currency : '' }}
                                 {% else %}
                                     <span class="text-muted">—</span>
                                 {% endif %}
