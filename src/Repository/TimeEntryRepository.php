@@ -18,6 +18,8 @@ use App\Entity\User;
 use App\Enum\TimeEntryStatus;
 use App\Enum\TimeEntryType;
 use App\Report\ReportFilter;
+use App\Stats\UsageSummary;
+use Carbon\CarbonImmutable;
 use Carbon\CarbonInterval;
 use Carbon\CarbonPeriod;
 use DateTimeInterface;
@@ -88,6 +90,129 @@ final class TimeEntryRepository extends EntityRepository
             ->setParameter('end', $end)
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * @return array<string, UsageSummary> Keyed by project id (RFC 4122).
+     */
+    public function aggregateByProjectForUser(User $user, ?DateTimeInterface $from, ?DateTimeInterface $to): array
+    {
+        /** @var array<string, array{total: float, billable: float, amount: float, currency: ?string, last: ?CarbonImmutable}> $acc */
+        $acc = [];
+
+        foreach ($this->findCompletedForUserInPeriod($user, $from, $to) as $entry) {
+            $project = $entry->getProject();
+            $duration = $entry->getDuration();
+            $key = $project?->getId()?->toRfc4122();
+            if ($project === null || $duration === null || $key === null) {
+                continue;
+            }
+
+            $this->fold(
+                $acc,
+                $key,
+                $entry,
+                $duration->totalHours,
+                $project->getHourlyRate(),
+                $project->getClient()?->getCurrency(),
+            );
+        }
+
+        return $this->materialise($acc);
+    }
+
+    /**
+     * @return array<string, UsageSummary> Keyed by client id (RFC 4122).
+     */
+    public function aggregateByClientForUser(User $user, ?DateTimeInterface $from, ?DateTimeInterface $to): array
+    {
+        /** @var array<string, array{total: float, billable: float, amount: float, currency: ?string, last: ?CarbonImmutable}> $acc */
+        $acc = [];
+
+        foreach ($this->findCompletedForUserInPeriod($user, $from, $to) as $entry) {
+            $project = $entry->getProject();
+            $duration = $entry->getDuration();
+            $client = $project?->getClient();
+            $key = $client?->getId()?->toRfc4122();
+            if ($duration === null || $client === null || $key === null) {
+                continue;
+            }
+
+            $this->fold(
+                $acc,
+                $key,
+                $entry,
+                $duration->totalHours,
+                $project->getHourlyRate(),
+                $client->getCurrency(),
+            );
+        }
+
+        return $this->materialise($acc);
+    }
+
+    /**
+     * @param array<string, array{total: float, billable: float, amount: float, currency: ?string, last: ?CarbonImmutable}> $acc
+     */
+    private function fold(array &$acc, string $key, TimeEntry $entry, float $hours, ?float $rate, ?string $currency): void
+    {
+        $acc[$key] ??= ['total' => 0.0, 'billable' => 0.0, 'amount' => 0.0, 'currency' => $currency, 'last' => null];
+        $acc[$key]['total'] += $hours;
+
+        if ($entry->isBillable()) {
+            $acc[$key]['billable'] += $hours;
+            if ($rate !== null) {
+                $acc[$key]['amount'] += $hours * $rate;
+            }
+        }
+
+        $start = $entry->getDateStart();
+        if ($start !== null && ($acc[$key]['last'] === null || $start->greaterThan($acc[$key]['last']))) {
+            $acc[$key]['last'] = $start;
+        }
+    }
+
+    /**
+     * @param array<string, array{total: float, billable: float, amount: float, currency: ?string, last: ?CarbonImmutable}> $acc
+     *
+     * @return array<string, UsageSummary>
+     */
+    private function materialise(array $acc): array
+    {
+        return array_map(
+            static fn (array $row): UsageSummary => new UsageSummary(
+                CarbonInterval::hours($row['total']),
+                CarbonInterval::hours($row['billable']),
+                $row['amount'],
+                $row['currency'],
+                $row['last'],
+            ),
+            $acc,
+        );
+    }
+
+    /**
+     * @return list<TimeEntry>
+     */
+    private function findCompletedForUserInPeriod(User $user, ?DateTimeInterface $from, ?DateTimeInterface $to): array
+    {
+        $qb = $this->createQueryBuilder('t')
+            ->leftJoin('t.project', 'p')
+            ->addSelect('p')
+            ->leftJoin('p.client', 'c')
+            ->addSelect('c')
+            ->where('t.status = :status')
+            ->andWhere('t.user = :user')
+            ->setParameter('status', TimeEntryStatus::COMPLETED)
+            ->setParameter('user', $user->getId(), UlidType::NAME);
+
+        if ($from !== null && $to !== null) {
+            $qb->andWhere('t.dateStart BETWEEN :from AND :to')
+                ->setParameter('from', $from)
+                ->setParameter('to', $to);
+        }
+
+        return $qb->getQuery()->getResult();
     }
 
     /**
