@@ -479,6 +479,37 @@
     &:hover { color: var(--st-primary-hover); text-decoration: none; }
 }
 
+// Segmented period toggle (All time / This month / This year)
+.st-segment {
+    display: inline-flex;
+    background: var(--st-gray-100);
+    border-radius: 8px;
+    padding: 3px;
+    gap: 2px;
+
+    label {
+        margin: 0;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--st-text-muted);
+        padding: 5px 12px;
+        border-radius: 6px;
+        line-height: 1;
+        transition: background 0.12s ease, color 0.12s ease;
+
+        input { display: none; }
+
+        &:hover { color: var(--st-text-primary); }
+
+        &.active {
+            background: #fff;
+            color: var(--st-primary);
+            box-shadow: var(--st-shadow-sm);
+        }
+    }
+}
+
 // Project dot / chip / tag chip
 .st-pdot {
     display: inline-block;
