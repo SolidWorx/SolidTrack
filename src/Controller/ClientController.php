@@ -25,11 +25,9 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ClientController extends BaseController
 {
     #[Route('/', name: 'app_client_index', methods: ['GET'])]
-    public function index(ClientRepository $clientRepository): Response
+    public function index(): Response
     {
-        return $this->render('client/index.html.twig', [
-            'clients' => $clientRepository->findAll(),
-        ]);
+        return $this->render('client/index.html.twig');
     }
 
     #[Route('/new', name: 'app_client_new', methods: ['GET', 'POST'])]

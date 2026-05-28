@@ -1,0 +1,87 @@
+<div {{ attributes }}>
+    <div class="st-card">
+        <div class="st-card-head">
+            <h3 class="st-card-title">{{ 'All clients'|trans }}</h3>
+            <div class="st-segment" role="group" aria-label="{{ 'Time window'|trans }}">
+                {% for opt in periodOptions %}
+                    <label class="{{ period == opt.value ? 'active' : '' }}">
+                        <input type="radio" name="period" value="{{ opt.value }}" data-model="period" {{ period == opt.value ? 'checked' : '' }}>
+                        {{ opt.label|trans }}
+                    </label>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-vcenter card-table">
+                <thead>
+                    <tr>
+                        <th>{{ 'Name'|trans }}</th>
+                        <th>{{ 'Currency'|trans }}</th>
+                        <th class="text-end">{{ 'Projects'|trans }}</th>
+                        <th class="text-end">{{ 'Tracked'|trans }}</th>
+                        <th class="text-end">{{ 'Earned'|trans }}</th>
+                        <th>{{ 'Last activity'|trans }}</th>
+                        <th>{{ 'Actions'|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                        {% set s = row.summary %}
+                        <tr>
+                            <td>{{ row.client.name }}</td>
+                            <td>{{ row.client.currency }}</td>
+                            <td class="text-end">{{ row.client.projects|length }}</td>
+                            <td class="text-end">
+                                {% if s.hasActivity %}
+                                    <time>{{ format_interval(s.totalDuration, true) }}</time>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                {% if s.amount > 0 and s.currency %}
+                                    {{ s.amount|format_currency(s.currency) }}
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if s.lastActivity %}
+                                    {{ s.lastActivity.diffForHumans }}
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ path('app_client_edit', {'id': row.client.id}) }}">
+                                    {{ ux_icon('tabler:pencil', {width: '16px', height: '16px'}) }}
+                                    {{ 'Edit'|trans }}
+                                </a>
+                                {{ include('client/_delete_form.html.twig', {'client': row.client}) }}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted" style="padding: 24px;">{{ 'No records found'|trans }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                {% if rows is not empty %}
+                    <tfoot>
+                        <tr style="font-weight: 600;">
+                            <td colspan="3" class="text-end">{{ 'Totals'|trans }}</td>
+                            <td class="text-end"><time>{{ format_interval(totals.tracked, true) }}</time></td>
+                            <td class="text-end" colspan="3">
+                                {% if totals.earnings is empty %}
+                                    <span class="text-muted">—</span>
+                                {% else %}
+                                    {{ totals.earnings|map((amount, currency) => amount|format_currency(currency))|join(' · ') }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </tfoot>
+                {% endif %}
+            </table>
+        </div>
+    </div>
+</div>
