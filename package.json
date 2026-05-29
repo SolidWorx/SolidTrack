@@ -15,7 +15,7 @@
     "bootstrap": "^5.3.8",
     "chart.js": "^4.5.1",
     "cloudinary": "^2.10.0",
-    "eslint": "^9.39.4",
+    "eslint": "^10.4.0",
     "eslint-webpack-plugin": "^5.0.3",
     "postcss": "^8.5.14",
     "postcss-scss": "^4.0.9",
