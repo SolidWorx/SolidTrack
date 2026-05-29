@@ -11,7 +11,7 @@
     "@symfony/ux-live-component": "file:vendor/symfony/ux-live-component/assets",
     "@symfony/webpack-encore": "^5.3.1",
     "@types/bootstrap": "^5.2.10",
-    "@types/jquery": "^3.5.34",
+    "@types/jquery": "^4.0.0",
     "bootstrap": "^5.3.8",
     "chart.js": "^4.5.1",
     "cloudinary": "^2.10.0",
