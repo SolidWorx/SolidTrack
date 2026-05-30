@@ -16,7 +16,11 @@
             {{ form_end(form) }}
         </div>
         <div class="card-footer d-flex">
-            <a href="{{ path('app_project_index') }}" class="btn btn-link link-warning">
+            <a href="{{ path('app_project_index') }}"
+               class="btn btn-link link-warning"
+               data-controller="back"
+               data-back-fallback-value="{{ path('app_project_index') }}"
+               data-action="back#back">
                 {{ ux_icon('tabler:arrow-back') }}
                 {{ 'Cancel'|trans }}
             </a>

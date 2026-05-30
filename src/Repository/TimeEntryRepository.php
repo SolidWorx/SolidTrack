@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Entity\Project;
 use App\Entity\TimeEntry;
 use App\Entity\User;
 use App\Enum\TimeEntryStatus;
@@ -152,6 +153,61 @@ final class TimeEntryRepository extends EntityRepository
     }
 
     /**
+     * All-time (or ranged) usage summary for a single project, scoped to the given user.
+     */
+    public function aggregateForProjectAndUser(User $user, Project $project, ?DateTimeInterface $from = null, ?DateTimeInterface $to = null): UsageSummary
+    {
+        /** @var array<string, array{total: float, billable: float, amount: float, currency: ?string, last: ?CarbonImmutable}> $acc */
+        $acc = [];
+        $currency = $project->getClient()?->getCurrency();
+
+        foreach ($this->findCompletedForUserInPeriod($user, $from, $to, $project) as $entry) {
+            $duration = $entry->getDuration();
+            if ($duration === null) {
+                continue;
+            }
+
+            $this->fold($acc, 'project', $entry, $duration->totalHours, $project->getHourlyRate(), $currency);
+        }
+
+        return $this->materialise($acc)['project'] ?? UsageSummary::empty($currency);
+    }
+
+    public function countCompletedForProjectAndUser(User $user, Project $project): int
+    {
+        return (int) $this->createQueryBuilder('t')
+            ->select('COUNT(t.id)')
+            ->where('t.status = :status')
+            ->andWhere('t.user = :user')
+            ->andWhere('t.project = :project')
+            ->setParameter('status', TimeEntryStatus::COMPLETED)
+            ->setParameter('user', $user->getId(), UlidType::NAME)
+            ->setParameter('project', $project->getId(), UlidType::NAME)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function earliestEntryDateForProjectAndUser(User $user, Project $project): ?CarbonImmutable
+    {
+        $earliest = $this->createQueryBuilder('t')
+            ->select('MIN(t.dateStart)')
+            ->where('t.status = :status')
+            ->andWhere('t.user = :user')
+            ->andWhere('t.project = :project')
+            ->setParameter('status', TimeEntryStatus::COMPLETED)
+            ->setParameter('user', $user->getId(), UlidType::NAME)
+            ->setParameter('project', $project->getId(), UlidType::NAME)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return match (true) {
+            $earliest instanceof DateTimeInterface => CarbonImmutable::instance($earliest),
+            is_string($earliest) && $earliest !== '' => CarbonImmutable::parse($earliest),
+            default => null,
+        };
+    }
+
+    /**
      * @param array<string, array{total: float, billable: float, amount: float, currency: ?string, last: ?CarbonImmutable}> $acc
      */
     private function fold(array &$acc, string $key, TimeEntry $entry, float $hours, ?float $rate, ?string $currency): void
@@ -194,7 +250,7 @@ final class TimeEntryRepository extends EntityRepository
     /**
      * @return list<TimeEntry>
      */
-    private function findCompletedForUserInPeriod(User $user, ?DateTimeInterface $from, ?DateTimeInterface $to): array
+    private function findCompletedForUserInPeriod(User $user, ?DateTimeInterface $from, ?DateTimeInterface $to, ?Project $project = null): array
     {
         $qb = $this->createQueryBuilder('t')
             ->leftJoin('t.project', 'p')
@@ -205,6 +261,11 @@ final class TimeEntryRepository extends EntityRepository
             ->andWhere('t.user = :user')
             ->setParameter('status', TimeEntryStatus::COMPLETED)
             ->setParameter('user', $user->getId(), UlidType::NAME);
+
+        if ($project !== null) {
+            $qb->andWhere('t.project = :project')
+                ->setParameter('project', $project->getId(), UlidType::NAME);
+        }
 
         if ($from !== null) {
             $qb->andWhere('t.dateStart >= :from')

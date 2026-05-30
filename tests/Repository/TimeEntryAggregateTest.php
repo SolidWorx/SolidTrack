@@ -137,6 +137,78 @@ final class TimeEntryAggregateTest extends KernelTestCase
         self::assertSame('EUR', $summaries[$key]->currency);
     }
 
+    public function testAggregateForProjectScopesToProjectUserAndComputesEarnings(): void
+    {
+        $owner = $this->createUser('owner@example.test');
+        $other = $this->createUser('other@example.test');
+        $client = $this->createClient('Acme', 'USD');
+        $project = $this->createProject('Website', $client, 100.0);
+        $otherProject = $this->createProject('Mobile', $client, 100.0);
+
+        // 2h billable -> $200, 1h non-billable -> $0.
+        $this->createEntry($owner, $project, '2026-05-10 09:00:00', '2026-05-10 11:00:00', true);
+        $this->createEntry($owner, $project, '2026-05-12 09:00:00', '2026-05-12 10:00:00', false);
+        // Noise that must be excluded.
+        $this->createEntry($other, $project, '2026-05-10 09:00:00', '2026-05-10 15:00:00', true);
+        $this->createEntry($owner, $otherProject, '2026-05-10 09:00:00', '2026-05-10 13:00:00', true);
+        $this->em->flush();
+
+        $summary = $this->repository->aggregateForProjectAndUser($owner, $project);
+
+        self::assertEqualsWithDelta(3.0, $summary->totalDuration->totalHours, 0.001);
+        self::assertEqualsWithDelta(2.0, $summary->billableDuration->totalHours, 0.001);
+        self::assertEqualsWithDelta(200.0, $summary->amount, 0.001);
+        self::assertSame('USD', $summary->currency);
+        self::assertNotNull($summary->lastActivity);
+        self::assertSame('2026-05-12', $summary->lastActivity->format('Y-m-d'));
+    }
+
+    public function testAggregateForProjectReturnsEmptyWhenNoEntries(): void
+    {
+        $user = $this->createUser('owner@example.test');
+        $client = $this->createClient('Acme', 'EUR');
+        $project = $this->createProject('Idle', $client, 100.0);
+        $this->em->flush();
+
+        $summary = $this->repository->aggregateForProjectAndUser($user, $project);
+
+        self::assertFalse($summary->hasActivity());
+        self::assertEqualsWithDelta(0.0, $summary->totalDuration->totalHours, 0.001);
+        self::assertSame('EUR', $summary->currency);
+    }
+
+    public function testCountAndEarliestDateAreScopedToProjectAndUser(): void
+    {
+        $owner = $this->createUser('owner@example.test');
+        $other = $this->createUser('other@example.test');
+        $client = $this->createClient('Acme', 'USD');
+        $project = $this->createProject('Website', $client, 100.0);
+        $otherProject = $this->createProject('Mobile', $client, 100.0);
+
+        $this->createEntry($owner, $project, '2026-05-10 09:00:00', '2026-05-10 11:00:00', true);
+        $this->createEntry($owner, $project, '2026-03-01 09:00:00', '2026-03-01 10:00:00', true);
+        $this->createEntry($other, $project, '2026-01-01 09:00:00', '2026-01-01 10:00:00', true);
+        $this->createEntry($owner, $otherProject, '2026-02-01 09:00:00', '2026-02-01 10:00:00', true);
+        $this->em->flush();
+
+        self::assertSame(2, $this->repository->countCompletedForProjectAndUser($owner, $project));
+
+        $earliest = $this->repository->earliestEntryDateForProjectAndUser($owner, $project);
+        self::assertNotNull($earliest);
+        self::assertSame('2026-03-01', $earliest->format('Y-m-d'));
+    }
+
+    public function testEarliestDateIsNullWhenProjectHasNoEntries(): void
+    {
+        $user = $this->createUser('owner@example.test');
+        $client = $this->createClient('Acme', 'USD');
+        $project = $this->createProject('Idle', $client, 100.0);
+        $this->em->flush();
+
+        self::assertNull($this->repository->earliestEntryDateForProjectAndUser($user, $project));
+        self::assertSame(0, $this->repository->countCompletedForProjectAndUser($user, $project));
+    }
+
     private function projectKey(Project $project): string
     {
         $id = $project->getId();

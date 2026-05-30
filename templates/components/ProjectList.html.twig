@@ -30,7 +30,7 @@
                         <tr>
                             <td>
                                 <span class="st-pdot align-middle me-2" style="background-color: {{ row.project.color }};" aria-hidden="true"></span>
-                                {{ row.project.name }}
+                                <a href="{{ path('app_project_show', {'id': row.project.id}) }}" class="text-reset text-decoration-none">{{ row.project.name }}</a>
                             </td>
                             <td>{{ row.project.client }}</td>
                             <td class="text-end">
@@ -62,6 +62,10 @@
                                 {% endif %}
                             </td>
                             <td>
+                                <a href="{{ path('app_project_show', {'id': row.project.id}) }}" class="me-2">
+                                    {{ ux_icon('tabler:eye', {width: '16px', height: '16px'}) }}
+                                    {{ 'View'|trans }}
+                                </a>
                                 <a href="{{ path('app_project_edit', {'id': row.project.id}) }}">
                                     {{ ux_icon('tabler:pencil', {width: '16px', height: '16px'}) }}
                                     {{ 'Edit'|trans }}

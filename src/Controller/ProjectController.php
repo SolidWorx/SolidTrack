@@ -14,8 +14,12 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Project;
+use App\Entity\User;
 use App\Form\ProjectType;
 use App\Repository\ProjectRepository;
+use App\Repository\TimeEntryRepository;
+use Carbon\CarbonInterval;
+use LogicException;
 use SolidWorx\Platform\PlatformBundle\Controller\BaseController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -47,6 +51,27 @@ final class ProjectController extends BaseController
         return $this->render('project/new.html.twig', [
             'project' => $project,
             'form' => $form,
+        ]);
+    }
+
+    #[Route('/{id}', name: 'app_project_show', methods: ['GET'])]
+    public function show(Project $project, TimeEntryRepository $timeEntryRepository): Response
+    {
+        $user = $this->getUser();
+        if (! $user instanceof User) {
+            throw new LogicException('Viewing a project requires an authenticated User.');
+        }
+
+        $summary = $timeEntryRepository->aggregateForProjectAndUser($user, $project);
+        $nonBillable = CarbonInterval::hours(
+            max(0.0, $summary->totalDuration->totalHours - $summary->billableDuration->totalHours),
+        );
+
+        return $this->render('project/show.html.twig', [
+            'project' => $project,
+            'summary' => $summary,
+            'nonBillable' => $nonBillable,
+            'entryCount' => $timeEntryRepository->countCompletedForProjectAndUser($user, $project),
         ]);
     }
 
