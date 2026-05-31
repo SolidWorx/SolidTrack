@@ -40,7 +40,7 @@ final class InlineRateEdit extends AbstractController
     /**
      * @var list<string>
      */
-    #[LiveProp(writable: true)]
+    #[LiveProp]
     public array $formErrors = [];
 
     public function __construct(
