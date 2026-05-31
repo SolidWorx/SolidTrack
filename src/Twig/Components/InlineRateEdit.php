@@ -48,8 +48,9 @@ final class InlineRateEdit extends AbstractController
     ) {
     }
 
-    public function mount(): void
+    public function mount(Project $project): void
     {
+        $this->project = $project;
         $hourlyRate = $this->project->getHourlyRate();
         $this->rate = $hourlyRate !== null ? (string) $hourlyRate : '';
     }
