@@ -856,3 +856,36 @@
 
     &.muted { color: var(--st-text-secondary); }
 }
+
+// ─────────────────────────────────────────────────────────────
+// Inline edit — hover-reveal pencil, compact input
+// ─────────────────────────────────────────────────────────────
+
+.st-inline-edit-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+
+    .st-inline-edit-pencil {
+        opacity: 0;
+        transition: opacity 120ms;
+        color: var(--st-text-muted);
+        flex-shrink: 0;
+    }
+
+    &:hover .st-inline-edit-pencil {
+        opacity: 1;
+    }
+}
+
+.st-inline-edit-field {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.st-inline-edit-input {
+    min-width: 90px;
+    width: 110px;
+}
