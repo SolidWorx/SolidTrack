@@ -1,0 +1,42 @@
+<span {{ attributes }}>
+    {% if editing %}
+        <span class="st-inline-edit-field">
+            <input
+                type="number"
+                min="0"
+                step="0.01"
+                class="form-control form-control-sm st-inline-edit-input{% if formErrors is not empty %} is-invalid{% endif %}"
+                data-model="norender|rate"
+                value="{{ rate }}"
+                data-action="blur->live#action"
+                data-live-action-param="save"
+                autofocus
+            >
+            <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary"
+                data-action="mousedown.prevent live#action"
+                data-live-action-param="cancel"
+                title="{{ 'Cancel'|trans }}"
+            >✕</button>
+            {% if formErrors is not empty %}
+                <div class="invalid-feedback d-block">{{ formErrors[0] }}</div>
+            {% endif %}
+        </span>
+    {% else %}
+        <span
+            class="st-inline-edit-trigger"
+            data-action="click->live#action"
+            data-live-action-param="startEdit"
+            title="{{ 'Click to edit rate'|trans }}"
+        >
+            {% if project.hourlyRate is not null %}
+                {{ project.hourlyRate|format_currency(project.client ? project.client.currency : 'USD') }}
+                <span class="text-muted fw-normal"> / {{ 'hour'|trans }}</span>
+            {% else %}
+                <span class="text-muted">{{ 'No rate set'|trans }}</span>
+            {% endif %}
+            {{ ux_icon('tabler:pencil', {class: 'st-inline-edit-pencil', width: '13px', height: '13px'}) }}
+        </span>
+    {% endif %}
+</span>
