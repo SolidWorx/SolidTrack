@@ -34,11 +34,7 @@
                             </td>
                             <td>{{ row.project.client }}</td>
                             <td class="text-end">
-                                {% if row.project.hourlyRate is not null %}
-                                    {{ row.project.hourlyRate }} {{ row.project.client ? row.project.client.currency : '' }}
-                                {% else %}
-                                    <span class="text-muted">—</span>
-                                {% endif %}
+                                <twig:InlineRateEdit :project="row.project" />
                             </td>
                             <td class="text-end">
                                 {% if s.hasActivity %}
