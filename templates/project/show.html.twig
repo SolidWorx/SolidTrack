@@ -34,13 +34,7 @@
                             <span>{{ ux_icon('tabler:building', {width: '14px', height: '14px'}) }} {{ project.client.name }}</span>
                         {% endif %}
                         <span>·</span>
-                        <span>
-                            {% if project.hourlyRate is not null %}
-                                {{ project.hourlyRate|format_currency(project.client ? project.client.currency : 'USD') }} / {{ 'hour'|trans }}
-                            {% else %}
-                                {{ 'No rate set'|trans }}
-                            {% endif %}
-                        </span>
+                        <twig:InlineRateEdit :project="project" />
                     </div>
                 </div>
                 <div class="col-auto ms-auto d-print-none">

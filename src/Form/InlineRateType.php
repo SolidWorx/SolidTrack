@@ -19,6 +19,9 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 
+/**
+ * @extends AbstractType<mixed>
+ */
 final class InlineRateType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
