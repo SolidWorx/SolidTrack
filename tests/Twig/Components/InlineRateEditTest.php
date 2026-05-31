@@ -102,7 +102,7 @@ final class InlineRateEditTest extends WebTestCase
         $html = $component->call('startEdit')->render()->toString();
 
         self::assertStringContainsString('<input', $html);
-        self::assertStringContainsString('50', $html);
+        self::assertStringContainsString('value="50"', $html);
     }
 
     public function testSaveValidRatePersistsAndReturnsToReadMode(): void
@@ -126,6 +126,28 @@ final class InlineRateEditTest extends WebTestCase
         $refreshed = $this->em->find(Project::class, $project->getId());
         self::assertNotNull($refreshed);
         self::assertSame(120.0, $refreshed->getHourlyRate());
+    }
+
+    public function testSaveZeroRateIsValidAndPersists(): void
+    {
+        $project = $this->makeProject(50.0);
+
+        $component = $this->createLiveComponent('InlineRateEdit', ['project' => $project])
+            ->actingAs($this->user);
+
+        $html = $component
+            ->call('startEdit')
+            ->set('rate', '0')
+            ->call('save')
+            ->render()
+            ->toString();
+
+        self::assertStringContainsString('$0.00', $html);
+        self::assertStringNotContainsString('<input', $html);
+
+        $this->em->clear();
+        $refreshed = $this->em->find(Project::class, $project->getId());
+        self::assertSame(0.0, $refreshed?->getHourlyRate());
     }
 
     public function testSaveEmptyRateClearsToNull(): void
