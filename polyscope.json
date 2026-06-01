@@ -8,7 +8,7 @@
     ]
   },
   "preview": {
-      "command": "symfony server:start"
+      "command": "symfony server:start --allow-all-ip"
   },
   "runMode": "replace",
   "copyGitignored": true
