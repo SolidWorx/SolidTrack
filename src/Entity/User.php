@@ -64,4 +64,8 @@ class User extends PlatformUser
 
         return $this;
     }
+
+    public function eraseCredentials(): void
+    {
+    }
 }
