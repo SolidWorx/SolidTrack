@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=./platform-schema.json
+# yaml-language-server: $schema=./vendor/solidworx/platform/platform-schema.json
 platform:
   name: 'SolidTrack'
   version: '0.1.0-dev'
@@ -13,6 +13,9 @@ platform:
 
   models:
     user: App\Entity\User
+
+  multi_tenancy:
+    enabled: true
 
 ui:
   icon_pack: tabler

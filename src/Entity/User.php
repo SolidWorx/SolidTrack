@@ -34,7 +34,6 @@ class User extends PlatformUser
     public function __construct()
     {
         parent::__construct();
-
         $this->timeEntries = new ArrayCollection();
     }
 
@@ -63,9 +62,5 @@ class User extends PlatformUser
         }
 
         return $this;
-    }
-
-    public function eraseCredentials(): void
-    {
     }
 }
