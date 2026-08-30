@@ -3511,7 +3511,7 @@
             "dist": {
                 "type": "path",
                 "url": "../platform",
-                "reference": "acd32898e4e0a114e1e9c54af9e6d4dd937bae96"
+                "reference": "ed9513ca6de0563c4c40d3294ced3e794a0a3439"
             },
             "require": {
                 "doctrine/doctrine-bundle": "^2.13 || ^3.0",

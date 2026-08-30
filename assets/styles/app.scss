@@ -598,7 +598,7 @@
 
 .st-row {
     display: grid;
-    grid-template-columns: 1fr auto auto auto auto;
+    grid-template-columns: 1fr auto auto auto auto auto;
     align-items: center;
     gap: 14px;
     padding: 12px 22px;
@@ -663,6 +663,12 @@
     .st-row-bill.on { color: var(--st-secondary-dark); }
 
     .st-row-act.danger:hover { background: #fee2e2; color: var(--st-danger); }
+
+    .st-row-act.resume {
+        color: var(--st-primary);
+
+        &:hover { background: var(--st-primary-lighter); color: var(--st-primary-dark); }
+    }
 }
 
 // Top projects bars

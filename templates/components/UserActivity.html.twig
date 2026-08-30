@@ -3,7 +3,7 @@
         <h2 style="font-size: 15px; font-weight: 600; color: var(--st-text-primary); margin: 0; letter-spacing: -0.01em;">
             {{ 'Recent activity'|trans }}
         </h2>
-        <a href="#" class="st-card-link">{{ 'View all entries →'|trans }}</a>
+        <a href="{{ path('app_report_index', {type: 'detailed'}) }}" class="st-card-link">{{ 'View all entries →'|trans }}</a>
     </div>
 
     {% for date, trackers in userActivity %}
@@ -41,6 +41,18 @@
                     <div class="st-row-dur st-time">
                         <time>{{ format_interval(tracker.duration, true) }}</time>
                     </div>
+
+                    {% set resume_target = tracker.description ?: (tracker.project ? tracker.project.name : ('this entry'|trans)) %}
+                    {% set resume_label = 'Resume %entry%'|trans({'%entry%': resume_target}) %}
+                    <button type="button"
+                            class="st-row-act resume"
+                            data-action="live#action:prevent"
+                            data-live-action-param="resumeEntry"
+                            data-live-id-param="{{ tracker.id }}"
+                            aria-label="{{ resume_label }}"
+                            title="{{ resume_label }}">
+                        {{ ux_icon('tabler:player-play-filled', {'width': '16', 'height': '16'}) }}
+                    </button>
 
                     <button type="button"
                             class="st-row-bill{{ tracker.billable ? ' on' : '' }}"

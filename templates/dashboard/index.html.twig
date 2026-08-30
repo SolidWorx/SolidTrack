@@ -4,6 +4,11 @@
 {% set greeting = hour < 12 ? 'Good morning'|trans : (hour < 18 ? 'Good afternoon'|trans : 'Good evening'|trans) %}
 {% set display_name = app.user.firstName ?: (app.user.email|split('@')|first) %}
 
+{# The dashboard's figures are all scoped to the current (Monday-start) week, so
+   the header action drills into the detailed report for exactly that range. #}
+{% set week_from = 'monday this week'|date('Y-m-d') %}
+{% set week_to = 'sunday this week'|date('Y-m-d') %}
+
 {% block page_header %}
     <div class="page-header">
         <div class="container-xl">
@@ -13,18 +18,10 @@
                     <p class="st-pagehead-sub">{{ 'now'|date('l, F j, Y') }}</p>
                 </div>
                 <div class="st-pagehead-actions">
-                    <button type="button" class="st-btn st-btn-outline">
+                    <a href="{{ path('app_report_index', {type: 'detailed', from: week_from, to: week_to}) }}"
+                       class="st-btn st-btn-primary">
                         <span class="ic">{{ ux_icon('tabler:calendar', {'width': '14', 'height': '14'}) }}</span>
-                        {{ 'This week'|trans }}
-                    </button>
-                    <button type="button" class="st-btn st-btn-outline">
-                        <span class="ic">{{ ux_icon('tabler:download', {'width': '14', 'height': '14'}) }}</span>
-                        {{ 'Export'|trans }}
-                    </button>
-                    <span class="st-vsep"></span>
-                    <a href="#" class="st-btn st-btn-primary" data-bs-toggle="modal" data-bs-target="#modal-report">
-                        <span class="ic">{{ ux_icon('tabler:plus', {'width': '14', 'height': '14'}) }}</span>
-                        {{ 'New entry'|trans }}
+                        {{ "This week's report"|trans }}
                     </a>
                 </div>
             </section>

@@ -13,9 +13,15 @@ namespace App\Twig\Components;
 
 use App\Entity\TimeEntry;
 use App\Entity\User;
+use App\Enum\TimeEntryStatus;
+use App\Enum\TimeEntryType;
 use App\Repository\TimeEntryRepository;
+use Carbon\CarbonImmutable;
 use Carbon\CarbonInterval;
+use LogicException;
+use Psr\Clock\ClockInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
@@ -34,6 +40,7 @@ final class UserActivity extends AbstractController
     public function __construct(
         private readonly TimeEntryRepository $timeEntryRepository,
         private readonly TranslatorInterface $translator,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -43,8 +50,7 @@ final class UserActivity extends AbstractController
     {
         $groups = [];
 
-        /** @var User $user */
-        $user = $this->getUser();
+        $user = $this->currentUser();
         foreach ($this->timeEntryRepository->findCompleteTrackersForUser($user) as $tracker) {
             $duration = $tracker->getDuration();
             if ($duration === null) {
@@ -72,6 +78,8 @@ final class UserActivity extends AbstractController
     #[LiveAction]
     public function removeItem(#[LiveArg('id')] TimeEntry $entry): void
     {
+        $this->assertOwnedByCurrentUser($entry);
+
         $this->timeEntryRepository->remove($entry);
         $this->emit('entry-updated');
     }
@@ -79,8 +87,85 @@ final class UserActivity extends AbstractController
     #[LiveAction]
     public function toggleBillable(#[LiveArg('id')] TimeEntry $entry): void
     {
+        $this->assertOwnedByCurrentUser($entry);
+
         $entry->setBillable(! $entry->isBillable());
         $this->timeEntryRepository->save($entry);
         $this->emit('entry-updated');
+    }
+
+    /**
+     * Start a new timer carrying over the project, description, tags and billable
+     * flag of an entry already in the list.
+     *
+     * Only one tracker may run per user (see TimeEntryRepository::findActiveTrackersForUser),
+     * so a running timer is stopped and closed off first rather than the click being
+     * refused — refusing would leave the most-used control in the list doing nothing
+     * whenever a timer happens to be running.
+     *
+     * Returns a redirect rather than re-rendering in place: the tracker bar's project
+     * and tag fields sit behind `data-live-ignore` (TomSelect owns that DOM), so a
+     * live morph cannot show the carried-over project. A full render can.
+     */
+    #[LiveAction]
+    public function resumeEntry(#[LiveArg('id')] TimeEntry $entry): RedirectResponse
+    {
+        $this->assertOwnedByCurrentUser($entry);
+
+        $user = $this->currentUser();
+        $now = CarbonImmutable::instance($this->clock->now());
+
+        $running = $this->timeEntryRepository->findActiveTrackersForUser($user);
+        if ($running !== null) {
+            $running
+                ->setDateEnd($now)
+                ->setStatus(TimeEntryStatus::COMPLETED);
+
+            $this->timeEntryRepository->save($running);
+        }
+
+        $resumed = new TimeEntry();
+        $resumed
+            ->setUser($user)
+            ->setProject($entry->getProject())
+            ->setDescription($entry->getDescription())
+            ->setBillable($entry->isBillable())
+            ->setDateStart($now)
+            ->setStatus(TimeEntryStatus::TRACKING)
+            ->setEntryType(TimeEntryType::TRACKING);
+
+        foreach ($entry->getTags() as $tag) {
+            $resumed->addTag($tag);
+        }
+
+        $this->timeEntryRepository->save($resumed);
+
+        // Rendered by the layout's flash block as a Tabler alert, which is what
+        // announces the state change to screen readers after the redirect.
+        $this->addFlash(
+            $running !== null ? 'info' : 'success',
+            $running !== null
+                ? $this->translator->trans('Previous timer stopped. Now tracking: %entry%', ['%entry%' => (string) $resumed])
+                : $this->translator->trans('Now tracking: %entry%', ['%entry%' => (string) $resumed]),
+        );
+
+        return $this->redirectToRoute('dashboard');
+    }
+
+    private function assertOwnedByCurrentUser(TimeEntry $entry): void
+    {
+        if ($entry->getUser()?->getId()->equals($this->currentUser()->getId()) !== true) {
+            throw $this->createAccessDeniedException('This time entry belongs to another user.');
+        }
+    }
+
+    private function currentUser(): User
+    {
+        $user = $this->getUser();
+        if (! $user instanceof User) {
+            throw new LogicException('UserActivity requires an authenticated User.');
+        }
+
+        return $user;
     }
 }

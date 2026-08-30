@@ -146,9 +146,20 @@ class TimeEntry implements Stringable
         return $this;
     }
 
+    /**
+     * Falls back to the project name, then the start time, so that string-casting
+     * an entry (Twig, log lines, EntityType choice labels) is safe for the very
+     * common case of a timer started without a description.
+     */
     public function __toString(): string
     {
-        return $this->description;
+        if ($this->description !== null && $this->description !== '') {
+            return $this->description;
+        }
+
+        return $this->project?->getName()
+            ?? $this->dateStart?->format('Y-m-d H:i')
+            ?? '';
     }
 
     public function getStatus(): ?TimeEntryStatus
