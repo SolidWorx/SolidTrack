@@ -20,5 +20,4 @@ platform:
 ui:
   icon_pack: tabler
   templates:
-    base: 'layouts/base.html.twig'
     login: '@Ui/Security/login.html.twig'
