@@ -1,7 +1,5 @@
 {% extends 'layouts/base.html.twig' %}
 
-{% block title %}{{ project.name }}{% endblock %}
-
 {# Inject into <head> via the stylesheets block (the only head-extension point
    exposed by the platform layout) so Turbo sees it before swap. Without this,
    the url:true LiveProps on <twig:ProjectTimeEntries> make Turbo cache/restore a
@@ -14,82 +12,75 @@
     <meta name="turbo-cache-control" content="no-cache">
 {% endblock %}
 
-{% block page_header %}
-    <div class="page-header d-print-none">
-        <div class="container-xl">
-            <div class="row g-2 align-items-center">
-                <div class="col">
-                    <div class="page-pretitle">
-                        <a href="{{ path('app_project_index') }}" class="text-decoration-none text-muted">
-                            {{ ux_icon('tabler:arrow-left', {width: '14px', height: '14px'}) }}
-                            {{ 'Projects'|trans }}
-                        </a>
-                    </div>
-                    <h2 class="page-title d-flex align-items-center gap-2">
-                        <span class="st-pdot" style="background-color: {{ project.color }};" aria-hidden="true"></span>
-                        {{ project.name }}
-                    </h2>
-                    <div class="text-muted mt-1 d-flex align-items-center flex-wrap gap-2">
-                        {% if project.client %}
-                            <span>{{ ux_icon('tabler:building', {width: '14px', height: '14px'}) }} {{ project.client.name }}</span>
-                        {% endif %}
-                        <span>·</span>
-                        <twig:InlineRateEdit :project="project" />
-                    </div>
-                </div>
-                <div class="col-auto ms-auto d-print-none">
-                    <div class="btn-list">
-                        <a href="{{ path('app_project_edit', {'id': project.id}) }}" class="btn btn-primary">
-                            {{ ux_icon('tabler:pencil') }}
-                            {{ 'Edit project'|trans }}
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-{% endblock page_header %}
+{% block page_pretitle %}
+    <a href="{{ path('app_project_index') }}" class="text-secondary">
+        {{ ux_icon('tabler:arrow-left', {class: 'icon icon-sm'}) }}
+        {{ 'Projects'|trans }}
+    </a>
+{% endblock %}
+
+{% block page_title %}
+    <span class="status-dot align-middle me-2" style="--swp-status-color: {{ project.color }}" aria-hidden="true"></span>
+    {{ project.name }}
+{% endblock %}
+
+{% block page_title_actions %}
+    <a href="{{ path('app_project_edit', {'id': project.id}) }}" class="btn btn-primary">
+        {{ ux_icon('tabler:pencil', {class: 'icon'}) }}
+        {{ 'Edit project'|trans }}
+    </a>
+{% endblock %}
 
 {% block content %}
-    <div class="st-tiles" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 14px; margin-bottom: 18px;">
-        <div class="st-tile">
-            <span class="l">{{ 'Total tracked'|trans }}</span>
-            <div class="v"><time class="st-time">{{ format_interval(summary.totalDuration, true) }}</time></div>
-            <span class="delta">{{ '%count% entries'|trans({'%count%': entryCount}) }}</span>
+    <div class="text-secondary d-flex align-items-center flex-wrap gap-2 mb-3">
+        {% if project.client %}
+            <span>
+                {{ ux_icon('tabler:building', {class: 'icon icon-sm'}) }}
+                {{ project.client.name }}
+            </span>
+            <span>·</span>
+        {% endif %}
+        <twig:InlineRateEdit :project="project" />
+    </div>
+
+    <div class="row row-cards mb-3">
+        <div class="col-sm-6 col-xl">
+            <twig:StatCard :label="'Total tracked'|trans"
+                           :hint="'%count% entries'|trans({'%count%': entryCount})">
+                <time>{{ format_interval(summary.totalDuration, true) }}</time>
+            </twig:StatCard>
         </div>
-        <div class="st-tile">
-            <span class="l">{{ 'Billable'|trans }}</span>
-            <div class="v" style="color: var(--st-primary);"><time class="st-time" style="color: var(--st-primary);">{{ format_interval(summary.billableDuration, true) }}</time></div>
-            <span class="delta">{{ 'Billable hours'|trans }}</span>
+        <div class="col-sm-6 col-xl">
+            <twig:StatCard :label="'Billable'|trans" :hint="'Billable hours'|trans" tone="text-primary">
+                <time>{{ format_interval(summary.billableDuration, true) }}</time>
+            </twig:StatCard>
         </div>
-        <div class="st-tile">
-            <span class="l">{{ 'Non-billable'|trans }}</span>
-            <div class="v"><time class="st-time">{{ format_interval(nonBillable, true) }}</time></div>
-            <span class="delta">{{ 'Non-billable hours'|trans }}</span>
+        <div class="col-sm-6 col-xl">
+            <twig:StatCard :label="'Non-billable'|trans" :hint="'Non-billable hours'|trans">
+                <time>{{ format_interval(nonBillable, true) }}</time>
+            </twig:StatCard>
         </div>
-        <div class="st-tile">
-            <span class="l">{{ 'Earned'|trans }}</span>
-            <div class="v">
+        <div class="col-sm-6 col-xl">
+            <twig:StatCard :label="'Earned'|trans" :hint="'All time'|trans">
                 {% if summary.amount > 0 and summary.currency %}
                     {{ summary.amount|format_currency(summary.currency) }}
                 {% else %}
-                    <span class="text-muted">—</span>
+                    <span class="text-secondary">—</span>
                 {% endif %}
-            </div>
-            <span class="delta">{{ 'All time'|trans }}</span>
+            </twig:StatCard>
         </div>
-        <div class="st-tile">
-            <span class="l">{{ 'Last activity'|trans }}</span>
-            <div class="v" style="font-size: 18px;">
+        <div class="col-sm-6 col-xl">
+            <twig:StatCard
+                :label="'Last activity'|trans"
+                :hint="summary.lastActivity ? summary.lastActivity.format('M j, Y') : 'No entries yet'|trans"
+                :numeric="false"
+            >
                 {% if summary.lastActivity %}
-                    {{ summary.lastActivity.diffForHumans }}
+                    <span class="fs-2">{{ summary.lastActivity.diffForHumans }}</span>
                 {% else %}
-                    <span class="text-muted">—</span>
+                    <span class="text-secondary">—</span>
                 {% endif %}
-            </div>
-            <span class="delta">
-                {% if summary.lastActivity %}{{ summary.lastActivity.format('M j, Y') }}{% else %}{{ 'No entries yet'|trans }}{% endif %}
-            </span>
+            </twig:StatCard>
         </div>
     </div>
 

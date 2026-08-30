@@ -1,44 +1,30 @@
 @import '@solidworx/platform/scss/platform';
 @import '@simonwep/pickr/dist/themes/nano.min.css';
 
-// ─────────────────────────────────────────────────────────────
-// SolidTrack — Clockify-style timer (design: timer.html)
-// Indigo primary + amber billable accent on top of platform tokens.
-// ─────────────────────────────────────────────────────────────
+// Tabler's custom properties are prefixed `--swp-`, not the upstream `--tblr-`,
+// because the platform sets `$prefix: 'swp-'` before importing it. Use
+// `#{$prefix}` here so this file survives a change to that setting; templates
+// that pass a per-record colour into a component spell it out (`--swp-status-color`
+// on `.status-dot`, `--swp-badge-color` on `.badge`).
 
-:root {
-    --st-primary:          #4f46e5;
-    --st-primary-hover:    #4338ca;
-    --st-primary-dark:     #3730a3;
-    --st-primary-light:    #e0e7ff;
-    --st-primary-lighter:  #eef2ff;
-    --st-secondary:        #f59e0b;
-    --st-secondary-dark:   #b45309;
-    --st-secondary-light:  #fef3c7;
-    --st-danger:           #ef4444;
-    --st-text-primary:     #1f2937;
-    --st-text-secondary:   #4b5563;
-    --st-text-muted:       #6b7280;
-    --st-text-light:       #9ca3af;
-    --st-border-light:     #e5e7eb;
-    --st-gray-50:          #f9fafb;
-    --st-gray-100:         #f3f4f6;
-    --st-shadow-sm:        0 1px 2px 0 rgb(0 0 0 / 5%);
-    --st-shadow-primary:   0 4px 14px 0 rgb(79 70 229 / 22%);
-    --st-mono-display:     "SF Mono", ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
+// Tabler has `.font-monospace` but no tabular-figures utility, and duration
+// columns jitter without one.
+.text-tabular {
+    font-variant-numeric: tabular-nums;
 }
 
+// A single object — one border, one radius, cells divided by hairlines — wrapping
+// a TomSelect project picker, a hidden TomSelect tag input, a billable toggle and
+// a live clock. Tabler has no equivalent.
 .st-timer {
-    display: flex;
-    align-items: stretch;
-    gap: 0;
-    background: #fff;
-    border-radius: 12px;
-    border: 1px solid var(--st-border-light);
-    box-shadow: var(--st-shadow-sm);
-    min-height: 68px;
     position: relative;
     z-index: 10;
+    display: flex;
+    align-items: stretch;
+    min-height: 4.25rem;
+    background: var(--#{$prefix}bg-surface);
+    border: var(--#{$prefix}border-width) solid var(--#{$prefix}border-color);
+    border-radius: var(--#{$prefix}border-radius-lg);
 
     // TomSelect renders its dropdown as an absolutely-positioned sibling inside
     // the cell; lift it above neighbouring dashboard cards.
@@ -46,95 +32,101 @@
         z-index: 1050;
     }
 
-    // Description input — takes remaining space
+    // min-width stops the bar resizing when the label flips Start/Stop.
+    > .btn {
+        min-width: 7rem;
+        margin: 0.5rem;
+    }
+
+    // Keeps `.form-control` for sizing and focus, drops its chrome.
     .st-timer-desc {
         flex: 1;
         min-width: 0;
-        padding: 0 22px;
-        border: none;
-        outline: none;
-        font-size: 15px;
-        font-family: inherit;
-        color: var(--st-text-primary);
+        height: auto;
+        padding: 0 1.25rem;
         background: transparent;
-
-        &::placeholder { color: var(--st-text-light); }
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
     }
 
-    // Common cell. Each option (project / tags / billable) is a trigger-style
-    // pill — icon-led, content-width, consistent padding. Cells share their
-    // chrome so the bar reads as a single object.
     .st-timer-cell {
         position: relative;
         display: flex;
+        gap: 0.5rem;
         align-items: center;
-        gap: 8px;
-        padding: 0 14px;
-        border-left: 1px solid var(--st-border-light);
-        color: var(--st-text-secondary);
-        font-size: 13px;
-        font-weight: 500;
-        cursor: pointer;
+        padding: 0 0.875rem;
+        margin-bottom: 0;
+        font-weight: var(--#{$prefix}font-weight-medium);
+        color: var(--#{$prefix}secondary);
         white-space: nowrap;
+        cursor: pointer;
+        border-left: var(--#{$prefix}border-width) solid var(--#{$prefix}border-color);
         transition: background 150ms, color 150ms;
 
-        &:hover { background: var(--st-gray-50); color: var(--st-text-primary); }
+        &:hover {
+            color: var(--#{$prefix}body-color);
+            background: var(--#{$prefix}bg-surface-secondary);
+        }
 
-        .ic { width: 18px; height: 18px; color: var(--st-text-muted); }
-        &:hover .ic { color: var(--st-text-primary); }
+        .icon {
+            color: var(--#{$prefix}secondary);
+        }
+
+        &:hover .icon {
+            color: var(--#{$prefix}body-color);
+        }
 
         &.project {
-            min-width: 180px;
-            max-width: 220px;
-            color: var(--st-primary);
-            font-weight: 600;
+            min-width: 11rem;
+            max-width: 13.75rem;
+            color: var(--#{$prefix}primary);
 
             select,
             .ts-wrapper {
                 width: 100%;
-                border: none;
                 background: transparent;
+                border: 0;
                 box-shadow: none;
             }
 
             .ts-wrapper .ts-control,
             .ts-wrapper.single .ts-control {
-                border: none;
-                background: transparent;
-                padding: 0;
-                box-shadow: none;
                 min-height: auto;
-                font-size: 14px;
-                font-weight: 600;
-                color: var(--st-primary);
+                padding: 0;
+                font-weight: var(--#{$prefix}font-weight-bold);
+                color: var(--#{$prefix}primary);
+                background: transparent;
+                border: 0;
+                box-shadow: none;
             }
 
             .ts-wrapper .ts-control input::placeholder {
-                color: var(--st-primary);
+                color: var(--#{$prefix}primary);
                 opacity: 1;
             }
         }
 
-        // Tag cell renders only a custom summary chip — the TomSelect chip
-        // strip and input live behind it (absolute, invisible) so the dropdown
-        // anchor stays correct while we control the visual.
+        // Tag cell renders only a summary badge — the TomSelect chip strip and
+        // input live behind it (absolute, invisible) so the dropdown anchor
+        // stays correct while we control the visual.
         &.tags {
             flex: 0 0 auto;
-            max-width: 240px;
-            min-width: 48px;
-            padding: 0 12px;
+            min-width: 3rem;
+            max-width: 15rem;
+            padding: 0 0.75rem;
 
             .st-tags-input {
                 position: absolute;
                 inset: 0;
-                pointer-events: none;
                 z-index: 0;
+                pointer-events: none;
 
                 .ts-wrapper {
                     width: 100%;
                     height: 100%;
                     background: transparent;
-                    border: none;
+                    border: 0;
                     box-shadow: none;
                 }
 
@@ -143,93 +135,64 @@
                     height: 100%;
                     min-height: 0;
                     padding: 0;
-                    border: none;
+                    overflow: hidden;
                     background: transparent;
+                    border: 0;
                     box-shadow: none;
                     opacity: 0;
                     pointer-events: none;
-                    overflow: hidden;
                 }
 
                 .ts-dropdown {
-                    pointer-events: auto;
-                    opacity: 1;
                     // The hidden `.ts-control` is the size of the cell, so the
                     // dropdown inherits its narrow width by default. Give it
                     // room to show full tag names.
                     width: auto;
-                    min-width: 220px;
+                    min-width: 13.75rem;
+                    opacity: 1;
+                    pointer-events: auto;
 
-                    // Already-selected options stay in the list (so they can
-                    // be toggled off); mark them with a check on the right.
+                    // Already-selected options stay in the list (so they can be
+                    // toggled off); mark them with a check on the right.
                     .option.selected {
-                        background: var(--st-primary-lighter);
-                        color: var(--st-primary-dark);
                         position: relative;
-                        padding-right: 28px;
+                        padding-right: 1.75rem;
+                        color: var(--#{$prefix}primary);
+                        background: var(--#{$prefix}primary-lt);
 
                         &::after {
-                            content: '✓';
                             position: absolute;
-                            right: 10px;
                             top: 50%;
+                            right: 0.625rem;
+                            font-weight: var(--#{$prefix}font-weight-bold);
+                            content: '✓';
                             transform: translateY(-50%);
-                            font-weight: 700;
-                            color: var(--st-primary);
                         }
                     }
                 }
             }
 
-            .ic, .st-tags-summary {
+            .icon,
+            .st-tags-summary {
                 position: relative;
                 z-index: 1;
             }
         }
 
-        // Billable cell — single $ glyph, sized down so the bar isn't lopsided
         &.billable {
-            font-size: 15px;
-            font-weight: 700;
-            font-family: var(--st-mono-display);
-            color: var(--st-text-muted);
-            padding: 0 12px;
-            min-width: 0;
             justify-content: center;
-
-            &.on {
-                color: var(--st-secondary-dark);
-            }
+            min-width: 0;
+            padding: 0 0.75rem;
+            font-family: var(--#{$prefix}font-monospace);
+            font-size: 0.9375rem;
+            font-weight: var(--#{$prefix}font-weight-bold);
         }
     }
 
-    // Summary chip for selected tags: colored dot stripe + truncated names.
     .st-tags-summary {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        max-width: 180px;
-        padding: 4px 10px;
-        background: var(--st-primary-lighter);
-        color: var(--st-primary-dark);
-        border-radius: 999px;
-        font-size: 12px;
-        font-weight: 600;
-        line-height: 1;
+        max-width: 11rem;
+        gap: 0.375rem;
         overflow: hidden;
-    }
-
-    .st-tags-dots {
-        display: inline-flex;
-        align-items: center;
-        gap: 3px;
-        flex-shrink: 0;
-    }
-
-    .st-tags-dots .st-tag-dot {
-        width: 8px;
-        height: 8px;
-        margin: 0;
     }
 
     .st-tags-summary-text {
@@ -239,659 +202,52 @@
         white-space: nowrap;
     }
 
-    // Elapsed time display
     .st-timer-display {
         display: flex;
         align-items: center;
-        padding: 0 22px;
-        border-left: 1px solid var(--st-border-light);
-        font-size: 22px;
-        font-weight: 600;
-        font-family: var(--st-mono-display);
-        font-variant-numeric: tabular-nums;
-        color: var(--st-text-primary);
-        letter-spacing: -0.01em;
-
-        .live-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 999px;
-            background: var(--st-danger);
-            margin-right: 12px;
-            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
-            animation: st-pulse 1.6s ease-in-out infinite;
-        }
-    }
-
-    // Start / Stop button
-    .st-timer-start {
-        margin: 10px 10px 10px 0;
-        padding: 0 22px;
-        font-size: 14px;
-        font-weight: 600;
-        background: var(--st-primary);
-        color: #fff;
-        border: none;
-        border-radius: 8px;
-        box-shadow: var(--st-shadow-primary);
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-family: inherit;
-        min-width: 110px;
-        justify-content: center;
-
-        &:hover { background: var(--st-primary-hover); }
-
-        &.running {
-            background: var(--st-danger);
-            box-shadow: 0 4px 14px 0 rgb(239 68 68 / 22%);
-        }
-        &.running:hover { background: #dc2626; }
-
-        .ic { width: 16px; height: 16px; }
+        padding: 0 1.25rem;
+        font-size: 1.375rem;
+        border-left: var(--#{$prefix}border-width) solid var(--#{$prefix}border-color);
     }
 }
 
-// Color dot rendered inline by EntityType choice_label HTML (both dropdown
-// rows and TomSelect's selected chips).
-.st-tag-dot {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 999px;
-    margin-right: 6px;
-    flex-shrink: 0;
-    vertical-align: middle;
+// Live indicator on the running timer. `.status-dot-animated` pulses on a delay;
+// a running clock wants a continuous beat, so it gets its own.
+.st-live-dot {
+    animation: st-pulse 1.6s ease-in-out infinite;
 }
 
 @keyframes st-pulse {
-    0%, 100% { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15); }
-    50%      { box-shadow: 0 0 0 7px rgba(239, 68, 68, 0.05); }
+    0%,
+    100% {
+        box-shadow: 0 0 0 4px rgba(var(--#{$prefix}danger-rgb), 0.15);
+    }
+
+    50% {
+        box-shadow: 0 0 0 7px rgba(var(--#{$prefix}danger-rgb), 0.05);
+    }
 }
 
-// ─────────────────────────────────────────────────────────────
-// Dashboard — page header + KPI tiles + day-grouped feed
-// ─────────────────────────────────────────────────────────────
-
-.st-pagehead {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 18px;
-    flex-wrap: wrap;
-}
-
-.st-pagehead-title {
-    font-size: 22px;
-    font-weight: 600;
-    color: var(--st-text-primary);
-    letter-spacing: -0.02em;
-    margin: 0 0 4px;
-}
-
-.st-pagehead-sub {
-    font-size: 13px;
-    color: var(--st-text-muted);
-    margin: 0;
-}
-
-.st-pagehead-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.st-vsep { width: 1px; height: 28px; background: var(--st-border-light); }
-
-.st-btn {
+.st-inline-edit {
     display: inline-flex;
+    gap: 0.25rem;
     align-items: center;
-    gap: 8px;
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 500;
-    border: 1px solid transparent;
-    cursor: pointer;
-    font-family: inherit;
-    line-height: 1.2;
-    text-decoration: none;
-    transition: all 150ms;
-
-    .ic { width: 14px; height: 14px; }
-}
-.st-btn-primary {
-    background: var(--st-primary);
-    color: #fff;
-    box-shadow: var(--st-shadow-primary);
-
-    &:hover { background: var(--st-primary-hover); color: #fff; }
-}
-.st-btn-outline {
-    background: #fff;
-    color: var(--st-text-primary);
-    border-color: var(--st-border-light);
-
-    &:hover { background: var(--st-gray-50); color: var(--st-text-primary); }
-}
-
-// KPI tile
-.st-tile {
-    background: #fff;
-    border-radius: 12px;
-    border: 1px solid var(--st-border-light);
-    padding: 16px 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    min-width: 0;
-
-    .l {
-        font-size: 11px;
-        font-weight: 600;
-        color: var(--st-text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-    }
-
-    .v {
-        font-size: 26px;
-        font-weight: 600;
-        font-family: var(--st-mono-display);
-        font-variant-numeric: tabular-nums;
-        color: var(--st-text-primary);
-        letter-spacing: -0.02em;
-        line-height: 1.1;
-
-        .unit {
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--st-text-muted);
-            margin-left: 4px;
-            font-family: inherit;
-        }
-    }
-
-    .delta {
-        font-size: 12px;
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        font-weight: 500;
-        color: var(--st-text-muted);
-
-        &.up   { color: #10b981; }
-        &.down { color: var(--st-danger); }
-    }
-
-    .progress-track {
-        height: 5px;
-        background: var(--st-gray-100);
-        border-radius: 999px;
-        margin-top: 8px;
-        overflow: hidden;
-
-        > div {
-            height: 100%;
-            background: var(--st-primary);
-            border-radius: 999px;
-        }
-    }
-}
-
-// Generic card matching the design system
-.st-card {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: var(--st-shadow-sm);
-    border: 1px solid var(--st-border-light);
-}
-.st-card-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 18px 22px 14px;
-    gap: 12px;
-}
-.st-card-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--st-text-primary);
-    letter-spacing: -0.01em;
-    margin: 0;
-}
-.st-card-sub {
-    font-size: 12px;
-    color: var(--st-text-muted);
-    margin-top: 2px;
-}
-.st-card-body { padding: 0 22px 20px; }
-.st-card-body.flush { padding: 0; }
-.st-card-link {
-    font-size: 12px;
-    color: var(--st-primary);
-    text-decoration: none;
-    font-weight: 500;
-
-    &:hover { color: var(--st-primary-hover); text-decoration: none; }
-}
-
-// Segmented period toggle (All time / This month / This year)
-.st-segment {
-    display: inline-flex;
-    background: var(--st-gray-100);
-    border-radius: 8px;
-    padding: 3px;
-    gap: 2px;
-
-    label {
-        margin: 0;
-        cursor: pointer;
-        font-size: 12px;
-        font-weight: 600;
-        color: var(--st-text-muted);
-        padding: 5px 12px;
-        border-radius: 6px;
-        line-height: 1;
-        transition: background 0.12s ease, color 0.12s ease;
-
-        input { display: none; }
-
-        &:hover { color: var(--st-text-primary); }
-
-        &.active {
-            background: #fff;
-            color: var(--st-primary);
-            box-shadow: var(--st-shadow-sm);
-        }
-    }
-}
-
-// Project dot / chip / tag chip
-.st-pdot {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 999px;
-    flex-shrink: 0;
-}
-.st-pchip {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 3px 9px;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--st-text-primary);
-    background: var(--st-gray-50);
-    border: 1px solid var(--st-border-light);
-    border-radius: 999px;
-    white-space: nowrap;
-    line-height: 1.2;
-
-    .st-pdot { width: 8px; height: 8px; }
-    .client { color: var(--st-text-muted); font-weight: 500; }
-}
-.st-tagchip {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 2px 8px;
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--st-text-secondary);
-    background: var(--st-gray-100);
-    border-radius: 6px;
-}
-
-// Mono time
-.st-time {
-    font-family: var(--st-mono-display);
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -0.01em;
-    color: var(--st-text-primary);
-    font-weight: 600;
-}
-
-// Day-grouped activity feed
-.st-day {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    padding: 14px 22px 10px;
-    background: var(--st-gray-50);
-    border-bottom: 1px solid var(--st-border-light);
-
-    .date {
-        font-size: 12px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: var(--st-text-muted);
-
-        b {
-            color: var(--st-text-secondary);
-            font-weight: 600;
-            text-transform: none;
-            letter-spacing: 0;
-            margin-right: 8px;
-            font-size: 13px;
-        }
-    }
-
-    .total {
-        font-size: 13px;
-        color: var(--st-text-muted);
-
-        b {
-            font-family: var(--st-mono-display);
-            font-variant-numeric: tabular-nums;
-            color: var(--st-text-primary);
-            font-weight: 600;
-            margin-left: 4px;
-        }
-    }
-}
-
-.st-row {
-    display: grid;
-    grid-template-columns: 1fr auto auto auto auto auto;
-    align-items: center;
-    gap: 14px;
-    padding: 12px 22px;
-    border-bottom: 1px solid var(--st-border-light);
-    background: #fff;
-    transition: background 150ms;
-
-    &:hover { background: var(--st-gray-50); }
-    &:last-child { border-bottom: none; }
-
-    .st-row-desc { min-width: 0; }
-
-    .st-row-title {
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--st-text-primary);
-        margin-bottom: 4px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .st-row-meta {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        flex-wrap: wrap;
-    }
-
-    .st-row-time {
-        font-size: 13px;
-        font-family: var(--st-mono-display);
-        font-variant-numeric: tabular-nums;
-        color: var(--st-text-muted);
-        white-space: nowrap;
-    }
-
-    .st-row-dur {
-        min-width: 76px;
-        text-align: right;
-        font-size: 14px;
-    }
-
-    .st-row-bill,
-    .st-row-act {
-        width: 32px;
-        height: 32px;
-        border-radius: 999px;
-        border: none;
-        background: transparent;
-        color: var(--st-text-muted);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 150ms;
-        padding: 0;
-
-        &:hover { background: var(--st-gray-100); color: var(--st-text-primary); }
-    }
-
-    .st-row-bill.on { color: var(--st-secondary-dark); }
-
-    .st-row-act.danger:hover { background: #fee2e2; color: var(--st-danger); }
-
-    .st-row-act.resume {
-        color: var(--st-primary);
-
-        &:hover { background: var(--st-primary-lighter); color: var(--st-primary-dark); }
-    }
-}
-
-// Top projects bars
-.st-project-bars {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-
-    .row-head {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 5px;
-    }
-
-    .name {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 13px;
-        color: var(--st-text-primary);
-        font-weight: 500;
-        min-width: 0;
-
-        > span:last-child {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-    }
-
-    .track {
-        height: 4px;
-        background: var(--st-gray-100);
-        border-radius: 999px;
-        overflow: hidden;
-
-        > div { height: 100%; border-radius: 999px; }
-    }
-}
-
-// Weekly activity card — header pill, summary row, legend
-.st-weeknav {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    padding: 3px;
-    background: var(--st-gray-50);
-    border: 1px solid var(--st-border-light);
-    border-radius: 8px;
-
-    .nav,
-    .label {
-        background: transparent;
-        border: none;
-        font-family: inherit;
-        cursor: pointer;
-        color: var(--st-text-secondary);
-        border-radius: 6px;
-        transition: background 150ms, color 150ms;
-    }
-
-    .nav {
-        width: 24px;
-        height: 24px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-
-        &:hover { background: #fff; color: var(--st-text-primary); }
-    }
-
-    .label {
-        font-size: 12px;
-        font-weight: 500;
-        color: var(--st-text-primary);
-        padding: 4px 10px;
-        white-space: nowrap;
-
-        &:hover:not(:disabled) { background: #fff; }
-        &:disabled { cursor: default; color: var(--st-text-secondary); }
-    }
-}
-
-.st-week-summary {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 14px;
-
-    .l {
-        font-size: 10px;
-        font-weight: 600;
-        color: var(--st-text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-    }
-
-    .v {
-        font-family: var(--st-mono-display);
-        font-variant-numeric: tabular-nums;
-        font-size: 18px;
-        font-weight: 600;
-        color: var(--st-text-primary);
-        margin-top: 2px;
-        letter-spacing: -0.01em;
-
-        &.billable { color: var(--st-secondary-dark); }
-    }
-}
-
-.st-week-legend {
-    display: flex;
-    justify-content: center;
-    gap: 18px;
-    margin-top: 10px;
-    font-size: 11px;
-    color: var(--st-text-muted);
-
-    > span { display: inline-flex; align-items: center; gap: 6px; }
-
-    .sw { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
-}
-
-// Billable split bar
-.st-billsplit-bar {
-    display: block;
-    height: 10px;
-    border-radius: 999px;
-    overflow: hidden;
-    background: var(--st-gray-100);
-
-    .fill {
-        display: block;
-        height: 100%;
-        background: var(--st-secondary);
-        border-radius: 999px;
-        transition: width 200ms ease;
-    }
-}
-
-.st-billsplit-legend {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-top: 14px;
-}
-
-.st-billsplit-item { min-width: 0; }
-
-.st-billsplit-head {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: var(--st-text-secondary);
-    margin-bottom: 4px;
-
-    .sw {
-        width: 8px;
-        height: 8px;
-        border-radius: 2px;
-        flex-shrink: 0;
-        display: inline-block;
-    }
-
-    .lbl {
-        flex: 1;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .pct {
-        font-family: var(--st-mono-display);
-        font-variant-numeric: tabular-nums;
-        font-size: 11px;
-        font-weight: 600;
-        color: var(--st-text-muted);
-        flex-shrink: 0;
-    }
-}
-
-.st-billsplit-value {
-    font-family: var(--st-mono-display);
-    font-variant-numeric: tabular-nums;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--st-text-primary);
-    letter-spacing: -0.01em;
-
-    &.muted { color: var(--st-text-secondary); }
-}
-
-// ─────────────────────────────────────────────────────────────
-// Inline edit — hover-reveal pencil, compact input
-// ─────────────────────────────────────────────────────────────
-
-.st-inline-edit-trigger {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
     cursor: pointer;
 
     .st-inline-edit-pencil {
+        flex-shrink: 0;
+        color: var(--#{$prefix}secondary);
         opacity: 0;
         transition: opacity 120ms;
-        color: var(--st-text-muted);
-        flex-shrink: 0;
     }
 
-    &:hover .st-inline-edit-pencil {
+    &:hover .st-inline-edit-pencil,
+    &:focus-visible .st-inline-edit-pencil {
         opacity: 1;
     }
 }
 
-.st-inline-edit-field {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-}
-
 .st-inline-edit-input {
-    min-width: 90px;
-    width: 110px;
+    width: 6.875rem;
+    min-width: 5.625rem;
 }

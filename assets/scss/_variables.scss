@@ -1,0 +1,7 @@
+// The platform's webpack config prepends this file to every SCSS entrypoint
+// (sass-loader `additionalData`), so it overrides Tabler's and Bootstrap's
+// `!default` values. Declarations only — a rule here would be emitted once per
+// entrypoint.
+
+$primary: #4f46e5;
+$warning: #f59e0b;

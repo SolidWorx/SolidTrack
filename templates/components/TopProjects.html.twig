@@ -1,38 +1,39 @@
 <div {{ attributes }}>
-    <div class="st-card">
-        <div class="st-card-head">
+    <div class="card">
+        <div class="card-header">
             <div>
-                <h3 class="st-card-title">{{ 'Top projects'|trans }}</h3>
-                <div class="st-card-sub">
+                <h3 class="card-title">{{ 'Top projects'|trans }}</h3>
+                <p class="card-subtitle">
                     {{ 'This week'|trans }} ·
                     <time>{{ format_interval(topProjects.total, true) }}</time> {{ 'tracked'|trans }}
-                </div>
+                </p>
             </div>
-            <a href="#" class="st-card-link">{{ 'View all'|trans }}</a>
+            <div class="card-actions">
+                <a href="{{ path('app_project_index') }}">{{ 'View all'|trans }}</a>
+            </div>
         </div>
-        <div class="st-card-body">
+        <div class="card-body">
             {% if topProjects.projects is empty %}
-                <div style="padding: 12px 0; color: var(--st-text-muted); font-size: 13px; text-align: center;">
-                    {{ 'No tracked time this week.'|trans }}
-                </div>
+                <p class="text-secondary text-center mb-0">{{ 'No tracked time this week.'|trans }}</p>
             {% else %}
-                <div class="st-project-bars">
+                <div class="d-flex flex-column gap-3">
                     {% for row in topProjects.projects %}
                         <div>
-                            <div class="row-head">
-                                <div class="name">
-                                    <span class="st-pdot" style="background: {{ row.project.color }};"></span>
-                                    <span>{{ row.project.name }}</span>
-                                </div>
-                                <span class="st-time" style="font-size: 13px;">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="d-inline-flex align-items-center gap-2 text-truncate">
+                                    <span class="status-dot" style="--swp-status-color: {{ row.project.color }}"></span>
+                                    <span class="text-truncate">{{ row.project.name }}</span>
+                                </span>
+                                <span class="fw-bold font-monospace text-tabular">
                                     <time>{{ format_interval(row.duration, true) }}</time>
                                 </span>
                             </div>
-                            <div class="track" role="progressbar"
+                            <div class="progress progress-sm" role="progressbar"
                                  aria-valuenow="{{ row.percent|number_format(0) }}"
                                  aria-valuemin="0" aria-valuemax="100"
                                  aria-label="{{ row.project.name }} share">
-                                <div style="width: {{ row.percent }}%; background: {{ row.project.color }};"></div>
+                                <div class="progress-bar"
+                                     style="width: {{ row.percent }}%; --swp-progress-bar-bg: {{ row.project.color }}"></div>
                             </div>
                         </div>
                     {% endfor %}

@@ -38,3 +38,4 @@ npm-debug.log
 yarn-error.log
 /public/static
 ###< symfony/webpack-encore-bundle ###
+.gstack/

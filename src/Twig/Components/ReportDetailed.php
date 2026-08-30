@@ -20,6 +20,7 @@ use App\Repository\ClientRepository;
 use App\Repository\ProjectRepository;
 use App\Repository\TagRepository;
 use App\Repository\TimeEntryRepository;
+use App\Time\Duration;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterval;
 use LogicException;
@@ -158,8 +159,8 @@ final class ReportDetailed extends AbstractController
         $count = $this->timeEntryRepository->countForReport($user, $filter);
 
         return [
-            'total' => CarbonInterval::hours($total),
-            'billable' => CarbonInterval::hours($billable),
+            'total' => Duration::fromHours($total),
+            'billable' => Duration::fromHours($billable),
             'amount' => $amount,
             'count' => $count,
             'pages' => max(1, (int) ceil($count / self::PER_PAGE)),

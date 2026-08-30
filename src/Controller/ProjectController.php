@@ -18,7 +18,7 @@ use App\Entity\User;
 use App\Form\ProjectType;
 use App\Repository\ProjectRepository;
 use App\Repository\TimeEntryRepository;
-use Carbon\CarbonInterval;
+use App\Time\Duration;
 use LogicException;
 use SolidWorx\Platform\PlatformBundle\Controller\BaseController;
 use Symfony\Component\HttpFoundation\Request;
@@ -63,7 +63,7 @@ final class ProjectController extends BaseController
         }
 
         $summary = $timeEntryRepository->aggregateForProjectAndUser($user, $project);
-        $nonBillable = CarbonInterval::hours(
+        $nonBillable = Duration::fromHours(
             max(0.0, $summary->totalDuration->totalHours - $summary->billableDuration->totalHours),
         );
 

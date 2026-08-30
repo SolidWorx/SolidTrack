@@ -9,41 +9,35 @@
 {% set week_from = 'monday this week'|date('Y-m-d') %}
 {% set week_to = 'sunday this week'|date('Y-m-d') %}
 
-{% block page_header %}
-    <div class="page-header">
-        <div class="container-xl">
-            <section class="st-pagehead">
-                <div>
-                    <h1 class="st-pagehead-title">{{ greeting }}, {{ display_name }}</h1>
-                    <p class="st-pagehead-sub">{{ 'now'|date('l, F j, Y') }}</p>
-                </div>
-                <div class="st-pagehead-actions">
-                    <a href="{{ path('app_report_index', {type: 'detailed', from: week_from, to: week_to}) }}"
-                       class="st-btn st-btn-primary">
-                        <span class="ic">{{ ux_icon('tabler:calendar', {'width': '14', 'height': '14'}) }}</span>
-                        {{ "This week's report"|trans }}
-                    </a>
-                </div>
-            </section>
-        </div>
-    </div>
+{% block page_pretitle %}{{ 'now'|date('l, F j, Y') }}{% endblock %}
+{% block page_title %}{{ greeting }}, {{ display_name }}{% endblock %}
+
+{% block page_title_actions %}
+    <a href="{{ path('app_report_index', {type: 'detailed', from: week_from, to: week_to}) }}"
+       class="btn btn-primary">
+        {{ ux_icon('tabler:calendar', {class: 'icon'}) }}
+        {{ "This week's report"|trans }}
+    </a>
 {% endblock %}
 
 {% block content %}
     <twig:TimeTracker />
 
-    <div style="margin-top: 18px;">
-        <twig:DashboardStats />
-    </div>
+    <div class="row row-cards mt-3">
+        <div class="col-12">
+            <twig:DashboardStats />
+        </div>
 
-    <div style="display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 18px; margin-top: 18px;">
-        <div>
+        <div class="col-lg-8">
             <twig:UserActivity />
         </div>
-        <div style="display: flex; flex-direction: column; gap: 14px;">
-            <twig:WeeklyChart />
-            <twig:TopProjects />
-            <twig:BillableSplit />
+
+        <div class="col-lg-4">
+            <div class="row row-cards">
+                <div class="col-12"><twig:WeeklyChart /></div>
+                <div class="col-12"><twig:TopProjects /></div>
+                <div class="col-12"><twig:BillableSplit /></div>
+            </div>
         </div>
     </div>
 {% endblock content %}

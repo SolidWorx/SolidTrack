@@ -1,14 +1,16 @@
 <div {{ attributes }}>
-    <div class="st-card">
-        <div class="st-card-head">
-            <h3 class="st-card-title">{{ 'All clients'|trans }}</h3>
-            <div class="st-segment" role="group" aria-label="{{ 'Time window'|trans }}">
-                {% for opt in periodOptions %}
-                    <label class="{{ period == opt.value ? 'active' : '' }}">
-                        <input type="radio" name="period" value="{{ opt.value }}" data-model="period" {{ period == opt.value ? 'checked' : '' }}>
-                        {{ opt.label|trans }}
-                    </label>
-                {% endfor %}
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">{{ 'All clients'|trans }}</h3>
+            <div class="card-actions">
+                <div class="nav nav-segmented" role="group" aria-label="{{ 'Time window'|trans }}">
+                    {% for opt in periodOptions %}
+                        <label class="nav-link{{ period == opt.value ? ' active' : '' }}">
+                            <input type="radio" class="nav-link-input" name="period" value="{{ opt.value }}" data-model="period" {{ period == opt.value ? 'checked' : '' }}>
+                            {{ opt.label|trans }}
+                        </label>
+                    {% endfor %}
+                </div>
             </div>
         </div>
         <div class="table-responsive">
@@ -21,7 +23,7 @@
                         <th class="text-end">{{ 'Tracked'|trans }}</th>
                         <th class="text-end">{{ 'Earned'|trans }}</th>
                         <th>{{ 'Last activity'|trans }}</th>
-                        <th>{{ 'Actions'|trans }}</th>
+                        <th class="w-1">{{ 'Actions'|trans }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -31,49 +33,51 @@
                             <td>{{ row.client.name }}</td>
                             <td>{{ row.client.currency }}</td>
                             <td class="text-end">{{ row.client.projects|length }}</td>
-                            <td class="text-end">
+                            <td class="text-end font-monospace text-tabular">
                                 {% if s.hasActivity %}
                                     <time>{{ format_interval(s.totalDuration, true) }}</time>
                                 {% else %}
-                                    <span class="text-muted">—</span>
+                                    <span class="text-secondary">—</span>
                                 {% endif %}
                             </td>
-                            <td class="text-end">
+                            <td class="text-end font-monospace text-tabular">
                                 {% if s.amount > 0 and s.currency %}
                                     {{ s.amount|format_currency(s.currency) }}
                                 {% else %}
-                                    <span class="text-muted">—</span>
+                                    <span class="text-secondary">—</span>
                                 {% endif %}
                             </td>
                             <td>
                                 {% if s.lastActivity %}
                                     {{ s.lastActivity.diffForHumans }}
                                 {% else %}
-                                    <span class="text-muted">—</span>
+                                    <span class="text-secondary">—</span>
                                 {% endif %}
                             </td>
                             <td>
-                                <a href="{{ path('app_client_edit', {'id': row.client.id}) }}">
-                                    {{ ux_icon('tabler:pencil', {width: '16px', height: '16px'}) }}
-                                    {{ 'Edit'|trans }}
-                                </a>
-                                {{ include('client/_delete_form.html.twig', {'client': row.client}) }}
+                                <div class="btn-list flex-nowrap">
+                                    <a href="{{ path('app_client_edit', {'id': row.client.id}) }}" class="btn btn-sm">
+                                        {{ ux_icon('tabler:pencil', {class: 'icon'}) }}
+                                        {{ 'Edit'|trans }}
+                                    </a>
+                                    {{ include('client/_delete_form.html.twig', {'client': row.client}) }}
+                                </div>
                             </td>
                         </tr>
                     {% else %}
                         <tr>
-                            <td colspan="7" class="text-center text-muted" style="padding: 24px;">{{ 'No records found'|trans }}</td>
+                            <td colspan="7" class="text-center text-secondary py-4">{{ 'No records found'|trans }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
                 {% if rows is not empty %}
                     <tfoot>
-                        <tr style="font-weight: 600;">
+                        <tr class="fw-bold">
                             <td colspan="3" class="text-end">{{ 'Totals'|trans }}</td>
-                            <td class="text-end"><time>{{ format_interval(totals.tracked, true) }}</time></td>
-                            <td class="text-end" colspan="3">
+                            <td class="text-end font-monospace text-tabular"><time>{{ format_interval(totals.tracked, true) }}</time></td>
+                            <td class="text-end font-monospace text-tabular" colspan="3">
                                 {% if totals.earnings is empty %}
-                                    <span class="text-muted">—</span>
+                                    <span class="text-secondary">—</span>
                                 {% else %}
                                     {{ totals.earnings|map((amount, currency) => amount|format_currency(currency))|join(' · ') }}
                                 {% endif %}

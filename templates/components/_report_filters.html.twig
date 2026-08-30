@@ -1,16 +1,16 @@
-<div class="st-card" style="margin-bottom: 18px;">
-    <div class="st-card-body" style="padding: 16px 18px;">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; align-items: end;">
-            <div>
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="row g-2 align-items-end">
+            <div class="col-sm-6 col-lg">
                 <label class="form-label" for="report-from">{{ 'From'|trans }}</label>
                 <input type="date" id="report-from" class="form-control" value="{{ from }}" data-model="from">
             </div>
-            <div>
+            <div class="col-sm-6 col-lg">
                 <label class="form-label" for="report-to">{{ 'To'|trans }}</label>
                 <input type="date" id="report-to" class="form-control" value="{{ to }}" data-model="to">
             </div>
             {% if showClient ?? true %}
-            <div>
+            <div class="col-sm-6 col-lg">
                 <label class="form-label" for="report-client">{{ 'Client'|trans }}</label>
                 <select id="report-client" class="form-select" data-model="clientId">
                     <option value="">{{ 'All clients'|trans }}</option>
@@ -23,7 +23,7 @@
             {% endif %}
             {% if showProject ?? true %}
             {% set projectKey = clientId != '' ? clientId : 'all' %}
-            <div id="report-project-wrap-{{ projectKey }}">
+            <div class="col-sm-6 col-lg" id="report-project-wrap-{{ projectKey }}">
                 <label class="form-label" for="report-project">{{ 'Project'|trans }}</label>
                 {% set projectsByClient = {} %}
                 {% for project in filterOptions.projects %}
@@ -41,7 +41,7 @@
                         <optgroup label="{{ clientName }}">
                             {% for project in projects %}
                                 {% set pid = project.id ~ '' %}
-                                {% set optionLabel = '<span class="d-inline-block rounded-circle me-2" style="width: 10px; height: 10px; background-color: ' ~ project.color ~ ';"></span>' ~ project.name %}
+                                {% set optionLabel = '<span class="status-dot align-middle me-2" style="--swp-status-color: ' ~ project.color ~ '"></span>' ~ project.name %}
                                 <option value="{{ pid }}" {{ projectId == pid ? 'selected' : '' }}>{{ optionLabel }}</option>
                             {% endfor %}
                         </optgroup>
@@ -49,7 +49,7 @@
                 </select>
             </div>
             {% endif %}
-            <div>
+            <div class="col-sm-6 col-lg">
                 <label class="form-label" for="report-billable">{{ 'Billable'|trans }}</label>
                 <select id="report-billable" class="form-select" data-model="billable">
                     <option value="">{{ 'All'|trans }}</option>
@@ -58,7 +58,7 @@
                 </select>
             </div>
             {% if showGroupBy ?? false %}
-                <div>
+                <div class="col-sm-6 col-lg">
                     <label class="form-label" for="report-groupby">{{ 'Group by'|trans }}</label>
                     <select id="report-groupby" class="form-select" data-model="groupBy">
                         {% for opt in filterOptions.groupByOptions %}
@@ -70,20 +70,20 @@
         </div>
 
         {% if filterOptions.tags is not empty %}
-            <div style="margin-top: 12px;">
+            <div class="mt-3">
                 <label class="form-label">{{ 'Tags'|trans }}</label>
                 <div class="d-flex flex-wrap gap-2">
                     {% for tag in filterOptions.tags %}
                         {% set tid = tag.id ~ '' %}
                         {% set active = tid in tagIds %}
-                        <label class="badge"
-                               style="cursor: pointer; user-select: none; background-color: {{ active ? tag.color : 'transparent' }}; color: {{ active ? '#fff' : tag.color }}; border: 1px solid {{ tag.color }}; padding: 6px 10px;">
+                        <label class="badge cursor-pointer {{ active ? 'text-white' : 'badge-outline' }}"
+                               style="{{ active ? 'background-color: ' ~ tag.color : '--swp-badge-color: ' ~ tag.color }}">
                             <input type="checkbox"
+                                   class="d-none"
                                    value="{{ tid }}"
                                    data-model="tagIds"
-                                   {{ active ? 'checked' : '' }}
-                                   style="display: none;">
-                            {{ ux_icon('tabler:tag', {width: '12px', height: '12px'}) }}
+                                   {{ active ? 'checked' : '' }}>
+                            {{ ux_icon('tabler:tag', {class: 'icon'}) }}
                             {{ tag.name }}
                         </label>
                     {% endfor %}

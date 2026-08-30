@@ -1,7 +1,25 @@
-<form method="delete" action="{{ path('app_tag_delete', {'id': tag.id}) }}" onsubmit="return confirm('{{ 'Are you sure you want to delete this tag?'|trans }}');" class="d-inline">
-    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ tag.id) }}">
-    <button class="btn btn-link text-danger p-0">
-        {{ ux_icon('tabler:trash', {width: '16px', height: '16px'}) }}
-        {{ 'Delete'|trans }}
-    </button>
-</form>
+{% set modal_id = 'tag-delete-' ~ tag.id %}
+
+<button type="button" class="btn btn-sm text-danger" data-bs-toggle="modal" data-bs-target="#{{ modal_id }}">
+    {{ ux_icon('tabler:trash', {class: 'icon'}) }}
+    {{ 'Delete'|trans }}
+</button>
+
+<twig:Ui:Modal id="{{ modal_id }}" :title="'Delete tag'|trans" status="danger" :centered="true">
+    <p>
+        {{ 'Are you sure you want to delete the tag'|trans }}
+        <strong>{{ tag.name }}</strong>?
+    </p>
+    <p class="text-secondary mb-0">{{ 'This action cannot be undone.'|trans }}</p>
+
+    <twig:block name="footer">
+        <button type="button" class="btn" data-bs-dismiss="modal">{{ 'Cancel'|trans }}</button>
+        <form method="post" action="{{ path('app_tag_delete', {'id': tag.id}) }}" class="d-inline">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ tag.id) }}">
+            <button type="submit" class="btn btn-danger">
+                {{ ux_icon('tabler:trash', {class: 'icon'}) }}
+                {{ 'Delete tag'|trans }}
+            </button>
+        </form>
+    </twig:block>
+</twig:Ui:Modal>

@@ -13,14 +13,15 @@ declare(strict_types=1);
 
 namespace App\Twig\Components;
 
+use App\Chart\BillableChartFactory;
 use App\Entity\User;
 use App\Repository\TimeEntryRepository;
+use App\Time\Duration;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterval;
 use LogicException;
 use Psr\Clock\ClockInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
 use Symfony\UX\Chartjs\Model\Chart;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
@@ -43,7 +44,7 @@ final class WeeklyChart extends AbstractController
     public function __construct(
         private readonly TimeEntryRepository $timeEntryRepository,
         private readonly ClockInterface $clock,
-        private readonly ChartBuilderInterface $chartBuilder,
+        private readonly BillableChartFactory $billableChartFactory,
     ) {
     }
 
@@ -63,6 +64,15 @@ final class WeeklyChart extends AbstractController
     public function currentWeek(): void
     {
         $this->weekOffset = 0;
+    }
+
+    /**
+     * @return array{billable: string, nonBillable: string}
+     */
+    #[ExposeInTemplate(name: 'legendColors')]
+    public function legendColors(): array
+    {
+        return BillableChartFactory::legendColors();
     }
 
     #[ExposeInTemplate(name: 'rangeLabel')]
@@ -101,8 +111,8 @@ final class WeeklyChart extends AbstractController
         }
 
         return [
-            'total' => CarbonInterval::hours($billableHours + $nonBillableHours),
-            'billable' => CarbonInterval::hours($billableHours),
+            'total' => Duration::fromHours($billableHours + $nonBillableHours),
+            'billable' => Duration::fromHours($billableHours),
         ];
     }
 
@@ -145,53 +155,7 @@ final class WeeklyChart extends AbstractController
             $nonBillable[] = round($perDay[$i]['nonBillable'], 2);
         }
 
-        $chart = $this->chartBuilder->createChart(Chart::TYPE_BAR);
-        $chart->setData([
-            'labels' => $labels,
-            'datasets' => [
-                [
-                    'label' => 'Billable',
-                    'backgroundColor' => '#4f46e5',
-                    'borderColor' => '#4f46e5',
-                    'borderRadius' => 4,
-                    'data' => $billable,
-                    'stack' => 'time',
-                ],
-                [
-                    'label' => 'Non-billable',
-                    'backgroundColor' => 'rgba(245, 158, 11, 0.4)',
-                    'borderColor' => 'rgba(245, 158, 11, 0.4)',
-                    'borderRadius' => 4,
-                    'data' => $nonBillable,
-                    'stack' => 'time',
-                ],
-            ],
-        ]);
-
-        $chart->setOptions([
-            'responsive' => true,
-            'maintainAspectRatio' => false,
-            'plugins' => [
-                'legend' => ['display' => false],
-                'tooltip' => ['mode' => 'index', 'intersect' => false],
-            ],
-            'scales' => [
-                'x' => [
-                    'stacked' => true,
-                    'grid' => ['display' => false],
-                    'ticks' => ['color' => '#6b7280', 'font' => ['size' => 11]],
-                ],
-                'y' => [
-                    'stacked' => true,
-                    'beginAtZero' => true,
-                    'border' => ['display' => false],
-                    'grid' => ['color' => '#f3f4f6'],
-                    'ticks' => ['precision' => 0, 'color' => '#9ca3af', 'font' => ['size' => 11]],
-                ],
-            ],
-        ]);
-
-        return $chart;
+        return $this->billableChartFactory->create($labels, $billable, $nonBillable);
     }
 
     /**

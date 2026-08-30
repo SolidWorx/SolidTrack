@@ -1,15 +1,14 @@
 {% extends 'layouts/base.html.twig' %}
 
-{% block title %}{{ 'Edit :project'|trans({':project': project}) }}{% endblock %}
+{% block page_pretitle %}{{ 'Projects'|trans }}{% endblock %}
+{% block page_title %}{{ 'Edit :project'|trans({':project': project}) }}{% endblock %}
+
+{% block page_title_actions %}
+    {{ include('project/_delete_form.html.twig') }}
+{% endblock %}
 
 {% block content %}
     <div class="card">
-        <div class="card-header">
-            <h2 class="card-title">{{ 'Edit :project'|trans({':project': project}) }}</h2>
-            <div class="card-actions">
-                {{ include('project/_delete_form.html.twig') }}
-            </div>
-        </div>
         <div class="card-body">
             {{ form_start(form, {'attr': {'id': 'form_' ~ form.vars.name}}) }}
             {{ form_widget(form) }}
@@ -17,15 +16,15 @@
         </div>
         <div class="card-footer d-flex">
             <a href="{{ path('app_project_index') }}"
-               class="btn btn-link link-warning"
+               class="btn"
                data-controller="back"
                data-back-fallback-value="{{ path('app_project_index') }}"
                data-action="back#back">
-                {{ ux_icon('tabler:arrow-back') }}
+                {{ ux_icon('tabler:arrow-back', {class: 'icon'}) }}
                 {{ 'Cancel'|trans }}
             </a>
             <button class="btn btn-primary ms-auto" type="submit" form="{{ 'form_' ~ form.vars.name }}">
-                {{ ux_icon('tabler:device-floppy') }}
+                {{ ux_icon('tabler:device-floppy', {class: 'icon'}) }}
                 {{ button_label|default('Save') }}
             </button>
         </div>

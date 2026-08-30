@@ -1,83 +1,95 @@
 <div {{ attributes }}>
-    <div class="d-flex align-items-center justify-content-between" style="margin-bottom: 10px;">
-        <h2 style="font-size: 15px; font-weight: 600; color: var(--st-text-primary); margin: 0; letter-spacing: -0.01em;">
-            {{ 'Recent activity'|trans }}
-        </h2>
-        <a href="{{ path('app_report_index', {type: 'detailed'}) }}" class="st-card-link">{{ 'View all entries →'|trans }}</a>
+    <div class="d-flex align-items-center justify-content-between mb-2">
+        <h2 class="h3 mb-0">{{ 'Recent activity'|trans }}</h2>
+        <a href="{{ path('app_report_index', {type: 'detailed'}) }}">{{ 'View all entries →'|trans }}</a>
     </div>
 
     {% for date, trackers in userActivity %}
-        <div class="st-card" style="margin-bottom: 14px; overflow: hidden;">
-            <div class="st-day">
-                <div class="date">
-                    <b>{{ date }}</b>
+        <div class="card mb-3">
+            <div class="list-group list-group-flush list-group-hoverable">
+                <div class="list-group-header d-flex align-items-baseline justify-content-between">
+                    <span>{{ date }}</span>
+                    <span>
+                        {{ 'Total'|trans }}
+                        <span class="text-body font-monospace text-tabular">
+                            <time>{{ format_interval(trackers.total, true) }}</time>
+                        </span>
+                    </span>
                 </div>
-                <div class="total">
-                    {{ 'Total'|trans }}
-                    <b><time>{{ format_interval(trackers.total, true) }}</time></b>
-                </div>
-            </div>
 
-            {% for tracker in trackers.entries %}
-                <div class="st-row">
-                    <div class="st-row-desc">
-                        <div class="st-row-title">{{ tracker.description ?: ('(no description)'|trans) }}</div>
-                        <div class="st-row-meta">
-                            {% if tracker.project is not empty %}
-                                <span class="st-pchip">
-                                    <span class="st-pdot" style="background: {{ tracker.project.color }};"></span>
-                                    <span>{{ tracker.project.name }}</span>
-                                    {% if tracker.project.client %}
-                                        <span class="client">· {{ tracker.project.client }}</span>
+                {% for tracker in trackers.entries %}
+                    <div class="list-group-item">
+                        <div class="row g-2 align-items-center flex-nowrap">
+                            <div class="col text-truncate">
+                                <div class="text-body text-truncate">{{ tracker.description ?: ('(no description)'|trans) }}</div>
+                                <div class="d-flex align-items-center flex-wrap gap-2 mt-1">
+                                    {% if tracker.project is not empty %}
+                                        <span class="d-inline-flex align-items-center gap-1">
+                                            <span class="status-dot" style="--swp-status-color: {{ tracker.project.color }}"></span>
+                                            <span>{{ tracker.project.name }}</span>
+                                            {% if tracker.project.client %}
+                                                <span class="text-secondary">· {{ tracker.project.client }}</span>
+                                            {% endif %}
+                                        </span>
                                     {% endif %}
-                                </span>
-                            {% endif %}
-                            {% include 'components/_tag_chips.html.twig' with {tags: tracker.tags} only %}
+                                    {% include 'components/_tag_chips.html.twig' with {tags: tracker.tags} only %}
+                                </div>
+                            </div>
+
+                            <div class="col-auto text-secondary font-monospace text-tabular">
+                                {{ tracker.dateStart.format('H:i') }}
+                            </div>
+
+                            <div class="col-auto fw-bold font-monospace text-tabular">
+                                <time>{{ format_interval(tracker.duration, true) }}</time>
+                            </div>
+
+                            <div class="col-auto">
+                                <div class="btn-list flex-nowrap">
+                                    {% set resume_target = tracker.description ?: (tracker.project ? tracker.project.name : ('this entry'|trans)) %}
+                                    {% set resume_label = 'Resume %entry%'|trans({'%entry%': resume_target}) %}
+                                    <button type="button"
+                                            class="btn btn-icon btn-ghost-primary"
+                                            data-action="live#action:prevent"
+                                            data-live-action-param="resumeEntry"
+                                            data-live-id-param="{{ tracker.id }}"
+                                            aria-label="{{ resume_label }}"
+                                            title="{{ resume_label }}">
+                                        {{ ux_icon('tabler:player-play-filled', {class: 'icon'}) }}
+                                    </button>
+
+                                    <button type="button"
+                                            class="btn btn-icon {{ tracker.billable ? 'btn-ghost-warning' : 'btn-ghost-secondary' }}"
+                                            {{ live_action('toggleBillable', {id: tracker.id}) }}
+                                            title="{{ (tracker.billable ? 'Billable (click to mark non-billable)' : 'Non-billable (click to mark billable)')|trans }}"
+                                            aria-label="{{ (tracker.billable ? 'Billable' : 'Non-billable')|trans }}">
+                                        {{ ux_icon(tracker.billable ? 'tabler:currency-dollar' : 'tabler:currency-dollar-off', {class: 'icon'}) }}
+                                    </button>
+
+                                    <button type="button"
+                                            class="btn btn-icon btn-ghost-danger"
+                                            data-action="live#action:prevent"
+                                            data-live-action-param="removeItem"
+                                            data-live-id-param="{{ tracker.id }}"
+                                            aria-label="{{ 'Delete entry'|trans }}"
+                                            title="{{ 'Delete entry'|trans }}">
+                                        {{ ux_icon('tabler:trash', {class: 'icon'}) }}
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="st-row-time">{{ tracker.dateStart.format('H:i') }}</div>
-
-                    <div class="st-row-dur st-time">
-                        <time>{{ format_interval(tracker.duration, true) }}</time>
-                    </div>
-
-                    {% set resume_target = tracker.description ?: (tracker.project ? tracker.project.name : ('this entry'|trans)) %}
-                    {% set resume_label = 'Resume %entry%'|trans({'%entry%': resume_target}) %}
-                    <button type="button"
-                            class="st-row-act resume"
-                            data-action="live#action:prevent"
-                            data-live-action-param="resumeEntry"
-                            data-live-id-param="{{ tracker.id }}"
-                            aria-label="{{ resume_label }}"
-                            title="{{ resume_label }}">
-                        {{ ux_icon('tabler:player-play-filled', {'width': '16', 'height': '16'}) }}
-                    </button>
-
-                    <button type="button"
-                            class="st-row-bill{{ tracker.billable ? ' on' : '' }}"
-                            {{ live_action('toggleBillable', {id: tracker.id}) }}
-                            title="{{ (tracker.billable ? 'Billable (click to mark non-billable)' : 'Non-billable (click to mark billable)')|trans }}"
-                            aria-label="{{ (tracker.billable ? 'Billable' : 'Non-billable')|trans }}">
-                        {{ ux_icon(tracker.billable ? 'tabler:currency-dollar' : 'tabler:currency-dollar-off', {'width': '16', 'height': '16'}) }}
-                    </button>
-
-                    <button type="button"
-                            class="st-row-act danger"
-                            data-action="live#action:prevent"
-                            data-live-action-param="removeItem"
-                            data-live-id-param="{{ tracker.id }}"
-                            aria-label="{{ 'Delete entry'|trans }}"
-                            title="{{ 'Delete entry'|trans }}">
-                        {{ ux_icon('tabler:trash', {'width': '16', 'height': '16'}) }}
-                    </button>
-                </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
         </div>
     {% else %}
-        <div class="st-card">
-            <div class="st-card-body" style="padding: 32px 22px; text-align: center; color: var(--st-text-muted);">
-                {{ 'No tracked time yet — start the timer above.'|trans }}
+        <div class="card">
+            <div class="card-body">
+                <div class="empty">
+                    <div class="empty-icon">{{ ux_icon('tabler:clock-play', {class: 'icon'}) }}</div>
+                    <p class="empty-title">{{ 'No tracked time yet'|trans }}</p>
+                    <p class="empty-subtitle text-secondary">{{ 'Start the timer above to track your first entry.'|trans }}</p>
+                </div>
             </div>
         </div>
     {% endfor %}

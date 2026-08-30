@@ -1,0 +1,22 @@
+{# Requires the including component to expose `previousPage` / `nextPage` live actions. #}
+{% if totals.pages > 1 %}
+    <div class="card-footer d-flex align-items-center justify-content-between">
+        <p class="m-0 text-secondary">
+            {{ 'Page %page% of %pages%'|trans({'%page%': page, '%pages%': totals.pages}) }}
+        </p>
+        <div class="btn-list">
+            <button type="button" class="btn btn-sm"
+                    {{ live_action('previousPage') }}
+                    {{ page <= 1 ? 'disabled' : '' }}>
+                {{ ux_icon('tabler:chevron-left', {class: 'icon'}) }}
+                {{ 'Previous'|trans }}
+            </button>
+            <button type="button" class="btn btn-sm"
+                    {{ live_action('nextPage') }}
+                    {{ page >= totals.pages ? 'disabled' : '' }}>
+                {{ 'Next'|trans }}
+                {{ ux_icon('tabler:chevron-right', {class: 'icon icon-end'}) }}
+            </button>
+        </div>
+    </div>
+{% endif %}

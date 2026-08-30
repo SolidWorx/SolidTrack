@@ -1,6 +1,6 @@
 <span {{ attributes }}>
     {% if editing %}
-        <span class="st-inline-edit-field">
+        <span class="d-inline-flex align-items-center gap-1">
             <input
                 type="number"
                 min="0"
@@ -14,29 +14,30 @@
             >
             <button
                 type="button"
-                class="btn btn-sm btn-outline-secondary"
+                class="btn btn-sm btn-icon"
                 data-action="mousedown.prevent live#action"
                 data-live-action-param="cancel"
+                aria-label="{{ 'Cancel'|trans }}"
                 title="{{ 'Cancel'|trans }}"
-            >✕</button>
+            >{{ ux_icon('tabler:x', {class: 'icon'}) }}</button>
             {% if formErrors is not empty %}
                 <div class="invalid-feedback d-block">{{ formErrors[0] }}</div>
             {% endif %}
         </span>
     {% else %}
         <span
-            class="st-inline-edit-trigger"
+            class="st-inline-edit"
             data-action="click->live#action"
             data-live-action-param="startEdit"
             title="{{ 'Click to edit rate'|trans }}"
         >
             {% if project.hourlyRate is not null %}
                 {{ project.hourlyRate|format_currency(project.client ? project.client.currency : 'USD') }}
-                <span class="text-muted fw-normal"> / {{ 'hour'|trans }}</span>
+                <span class="text-secondary fw-normal">/ {{ 'hour'|trans }}</span>
             {% else %}
-                <span class="text-muted">{{ 'No rate set'|trans }}</span>
+                <span class="text-secondary">{{ 'No rate set'|trans }}</span>
             {% endif %}
-            {{ ux_icon('tabler:pencil', {class: 'st-inline-edit-pencil', width: '13px', height: '13px'}) }}
+            {{ ux_icon('tabler:pencil', {class: 'icon icon-sm st-inline-edit-pencil'}) }}
         </span>
     {% endif %}
 </span>

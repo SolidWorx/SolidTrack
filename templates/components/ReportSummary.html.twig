@@ -1,58 +1,48 @@
 <div {{ attributes }}>
     {% include 'components/_report_filters.html.twig' with {showGroupBy: true} %}
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 18px;">
-        <div class="st-card">
-            <div class="st-card-body" style="padding: 16px 18px;">
-                <div class="st-card-sub">{{ 'Total time'|trans }}</div>
-                <div style="font-size: 22px; font-weight: 600;"><time>{{ format_interval(totals.total, true) }}</time></div>
-                <div class="st-card-sub">{{ totals.entries }} {{ 'entries'|trans }}</div>
-            </div>
+    <div class="row row-cards mb-3">
+        <div class="col-sm-6 col-xl-3">
+            <twig:StatCard :label="'Total time'|trans"
+                           :hint="'%count% entries'|trans({'%count%': totals.entries})">
+                <time>{{ format_interval(totals.total, true) }}</time>
+            </twig:StatCard>
         </div>
-        <div class="st-card">
-            <div class="st-card-body" style="padding: 16px 18px;">
-                <div class="st-card-sub">{{ 'Billable'|trans }}</div>
-                <div style="font-size: 22px; font-weight: 600; color: var(--st-primary, #4f46e5);">
-                    <time>{{ format_interval(totals.billable, true) }}</time>
-                </div>
-            </div>
+        <div class="col-sm-6 col-xl-3">
+            <twig:StatCard :label="'Billable'|trans" tone="text-primary">
+                <time>{{ format_interval(totals.billable, true) }}</time>
+            </twig:StatCard>
         </div>
-        <div class="st-card">
-            <div class="st-card-body" style="padding: 16px 18px;">
-                <div class="st-card-sub">{{ 'Non-billable'|trans }}</div>
-                <div style="font-size: 22px; font-weight: 600; color: #f59e0b;">
-                    <time>{{ format_interval(totals.nonBillable, true) }}</time>
-                </div>
-            </div>
+        <div class="col-sm-6 col-xl-3">
+            <twig:StatCard :label="'Non-billable'|trans" tone="text-warning-emphasis">
+                <time>{{ format_interval(totals.nonBillable, true) }}</time>
+            </twig:StatCard>
         </div>
-        <div class="st-card">
-            <div class="st-card-body" style="padding: 16px 18px;">
-                <div class="st-card-sub">{{ 'Amount'|trans }}</div>
-                <div style="font-size: 22px; font-weight: 600;">${{ totals.amount|number_format(2, '.', ',') }}</div>
-            </div>
+        <div class="col-sm-6 col-xl-3">
+            <twig:StatCard :label="'Amount'|trans">${{ totals.amount|number_format(2, '.', ',') }}</twig:StatCard>
         </div>
     </div>
 
-    <div class="st-card" style="margin-bottom: 18px;">
-        <div class="st-card-body" style="padding: 14px 18px;">
-            <div style="height: 220px;">
+    <div class="card mb-3">
+        <div class="card-body">
+            <div style="height: 220px">
                 {{ render_chart(chart, {style: 'width: 100%; height: 100%;'}) }}
             </div>
         </div>
     </div>
 
-    <div class="st-card">
-        <div class="st-card-head" style="padding: 14px 18px; border-bottom: 1px solid var(--st-border, #e5e7eb);">
-            <h3 class="st-card-title">{{ 'Breakdown'|trans }}</h3>
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">{{ 'Breakdown'|trans }}</h3>
         </div>
         <div class="table-responsive">
             <table class="table table-vcenter card-table">
                 <thead>
                     <tr>
                         <th>{{ 'Name'|trans }}</th>
-                        <th style="text-align: right;">{{ 'Total'|trans }}</th>
-                        <th style="text-align: right;">{{ 'Billable'|trans }}</th>
-                        <th style="text-align: right;">{{ 'Amount'|trans }}</th>
+                        <th class="text-end">{{ 'Total'|trans }}</th>
+                        <th class="text-end">{{ 'Billable'|trans }}</th>
+                        <th class="text-end">{{ 'Amount'|trans }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -61,39 +51,39 @@
                            the group/child count changes (e.g. on tag toggle).
                            Without IDs, morphdom falls back to positional
                            matching and duplicates rows on Live re-renders. #}
-                        <tr id="rs-g-{{ groupIndex }}" style="font-weight: 600;">
+                        <tr id="rs-g-{{ groupIndex }}" class="fw-bold">
                             <td>
                                 <div class="d-flex align-items-center gap-2">
                                     {% if group.color %}
-                                        <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: {{ group.color }};"></span>
+                                        <span class="status-dot" style="--swp-status-color: {{ group.color }}"></span>
                                     {% endif %}
                                     <span>{{ group.label }}</span>
                                     {% if group.sub %}
-                                        <span class="text-muted" style="font-weight: 400;">· {{ group.sub }}</span>
+                                        <span class="text-secondary fw-normal">· {{ group.sub }}</span>
                                     {% endif %}
                                     {% include 'components/_tag_chips.html.twig' with {tags: group.tags} only %}
                                 </div>
                             </td>
-                            <td style="text-align: right;"><time>{{ group.totalHours|number_format(2) }}h</time></td>
-                            <td style="text-align: right;"><time>{{ group.billableHours|number_format(2) }}h</time></td>
-                            <td style="text-align: right;">${{ group.amount|number_format(2, '.', ',') }}</td>
+                            <td class="text-end font-monospace text-tabular"><time>{{ group.totalHours|number_format(2) }}h</time></td>
+                            <td class="text-end font-monospace text-tabular"><time>{{ group.billableHours|number_format(2) }}h</time></td>
+                            <td class="text-end font-monospace text-tabular">${{ group.amount|number_format(2, '.', ',') }}</td>
                         </tr>
                         {% for childIndex, child in group.children %}
                             <tr id="rs-g-{{ groupIndex }}-c-{{ childIndex }}">
-                                <td style="padding-left: 32px; color: var(--st-text-muted, #6b7280);">
+                                <td class="ps-5 text-secondary">
                                     <div class="d-flex align-items-center gap-2 flex-wrap">
                                         <span>↳ {{ child.label }}</span>
                                         {% include 'components/_tag_chips.html.twig' with {tags: child.tags} only %}
                                     </div>
                                 </td>
-                                <td style="text-align: right;">{{ child.totalHours|number_format(2) }}h</td>
-                                <td style="text-align: right;">{{ child.billableHours|number_format(2) }}h</td>
-                                <td style="text-align: right;">${{ child.amount|number_format(2, '.', ',') }}</td>
+                                <td class="text-end font-monospace text-tabular">{{ child.totalHours|number_format(2) }}h</td>
+                                <td class="text-end font-monospace text-tabular">{{ child.billableHours|number_format(2) }}h</td>
+                                <td class="text-end font-monospace text-tabular">${{ child.amount|number_format(2, '.', ',') }}</td>
                             </tr>
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="4" style="text-align: center; padding: 24px; color: var(--st-text-muted, #6b7280);">
+                            <td colspan="4" class="text-center text-secondary py-4">
                                 {{ 'No time entries match the selected filters.'|trans }}
                             </td>
                         </tr>

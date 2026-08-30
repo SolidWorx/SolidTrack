@@ -1,0 +1,23 @@
+{# The value goes in the default block. Override the `footer` block instead of
+   passing `hint` when the tile needs something richer under the value, such as a
+   progress bar. #}
+{% props
+    label,
+    hint = '',
+    tone = '',
+    numeric = true
+%}
+
+<div {{ attributes.defaults({class: 'card card-sm h-100'}) }}>
+    <div class="card-body">
+        <div class="subheader">{{ label }}</div>
+        <div class="{{ html_classes('h1 mb-1', tone, {'font-monospace text-tabular': numeric}) }}">
+            {% block content %}{% endblock %}
+        </div>
+        {% block footer %}
+            {% if hint is not empty %}
+                <div class="text-secondary">{{ hint }}</div>
+            {% endif %}
+        {% endblock %}
+    </div>
+</div>

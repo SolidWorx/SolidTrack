@@ -64,7 +64,7 @@ class TimeTrackerType extends AbstractType
                 [
                     'class' => Tag::class,
                     'choice_label' => static fn (Tag $tag) => sprintf(
-                        '<span class="st-tag-dot" style="background-color: %s"></span>%s',
+                        '<span class="status-dot align-middle me-2" style="--swp-status-color: %s"></span>%s',
                         htmlspecialchars($tag->getColor(), \ENT_QUOTES),
                         htmlspecialchars($tag->getName(), \ENT_QUOTES),
                     ),

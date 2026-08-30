@@ -1,8 +1,8 @@
 {% if tags is not empty %}
     <div class="d-flex flex-wrap gap-1">
         {% for tag in tags %}
-            <span class="badge bg-transparent" style="border: 1px solid {{ tag.color }}; color: {{ tag.color }};">
-                {{ ux_icon('tabler:tag', {width: '12px', height: '12px'}) }}
+            <span class="badge badge-outline" style="--swp-badge-color: {{ tag.color }}">
+                {{ ux_icon('tabler:tag', {class: 'icon'}) }}
                 {{ tag.name }}
             </span>
         {% endfor %}

@@ -1,56 +1,63 @@
-{% set today_hours = stats.today_total.totalHours %}
 {% set week_hours = stats.week_total.totalHours %}
 {% set billable_hours = stats.week_billable.totalHours %}
 {% set week_goal = 40 %}
 {% set week_pct = week_hours > 0 ? (week_hours / week_goal * 100)|round : 0 %}
 {% set billable_pct = week_hours > 0 ? (billable_hours / week_hours * 100)|round : 0 %}
 
-<div {{ attributes.defaults({class: 'st-tiles'}) }}
-     style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;">
+<div {{ attributes.defaults({class: 'row row-cards'}) }}>
 
-    <div class="st-tile">
-        <span class="l">{{ 'Today'|trans }}</span>
-        <div class="v"><time>{{ format_interval(stats.today_total, true) }}</time></div>
-        <span class="delta">{{ 'Tracked today'|trans }}</span>
+    <div class="col-sm-6 col-xl-3">
+        <twig:StatCard :label="'Today'|trans" :hint="'Tracked today'|trans">
+            <time>{{ format_interval(stats.today_total, true) }}</time>
+        </twig:StatCard>
     </div>
 
-    <div class="st-tile">
-        <span class="l">{{ 'This week'|trans }}</span>
-        <div class="v">
+    <div class="col-sm-6 col-xl-3">
+        <twig:StatCard :label="'This week'|trans">
             <time>{{ format_interval(stats.week_total, true) }}</time>
-            <span class="unit">/ {{ week_goal }}h</span>
-        </div>
-        <div class="progress-track" role="progressbar"
-             aria-valuenow="{{ week_pct }}" aria-valuemin="0" aria-valuemax="100"
-             aria-label="{{ 'Weekly progress'|trans }}">
-            <div style="width: {{ min(week_pct, 100) }}%;"></div>
-        </div>
+            <span class="fs-4 fw-normal text-secondary">/ {{ week_goal }}h</span>
+
+            <twig:block name="footer">
+                <div class="progress progress-sm" role="progressbar"
+                     aria-valuenow="{{ week_pct }}" aria-valuemin="0" aria-valuemax="100"
+                     aria-label="{{ 'Weekly progress'|trans }}">
+                    <div class="progress-bar" style="width: {{ min(week_pct, 100) }}%"></div>
+                </div>
+            </twig:block>
+        </twig:StatCard>
     </div>
 
-    <div class="st-tile">
-        <span class="l">{{ 'Billable'|trans }}</span>
-        <div class="v"><time>{{ format_interval(stats.week_billable, true) }}</time></div>
-        <span class="delta {{ billable_pct >= 50 ? 'up' : '' }}">
-            {{ billable_pct }}% {{ 'of tracked'|trans }}
-        </span>
+    <div class="col-sm-6 col-xl-3">
+        <twig:StatCard :label="'Billable'|trans" tone="text-warning-emphasis">
+            <time>{{ format_interval(stats.week_billable, true) }}</time>
+
+            <twig:block name="footer">
+                <div class="{{ billable_pct >= 50 ? 'text-success' : 'text-secondary' }}">
+                    {{ billable_pct }}% {{ 'of tracked'|trans }}
+                </div>
+            </twig:block>
+        </twig:StatCard>
     </div>
 
-    <div class="st-tile">
-        <span class="l">{{ 'Earnings · estimate'|trans }}</span>
+    <div class="col-sm-6 col-xl-3">
         {% if stats.week_earnings is empty %}
-            <div class="v" style="color: var(--st-text-muted);">—</div>
-            <span class="delta">{{ 'No billable rate set'|trans }}</span>
+            <twig:StatCard :label="'Earnings · estimate'|trans"
+                           :hint="'No billable rate set'|trans"
+                           tone="text-secondary"
+                           :numeric="false">—</twig:StatCard>
         {% else %}
-            {% set first = true %}
-            {% for currency, amount in stats.week_earnings %}
-                {% if first %}
-                    <div class="v" style="color: var(--st-primary);">{{ amount|format_currency(currency) }}</div>
-                    {% set first = false %}
-                {% else %}
-                    <span class="delta">+ {{ amount|format_currency(currency) }}</span>
-                {% endif %}
-            {% endfor %}
-            <span class="delta">{{ 'This week'|trans }}</span>
+            <twig:StatCard :label="'Earnings · estimate'|trans" tone="text-primary">
+                {% for currency, amount in stats.week_earnings|slice(0, 1, true) %}
+                    {{ amount|format_currency(currency) }}
+                {% endfor %}
+
+                <twig:block name="footer">
+                    {% for currency, amount in stats.week_earnings|slice(1, null, true) %}
+                        <div class="text-secondary">+ {{ amount|format_currency(currency) }}</div>
+                    {% endfor %}
+                    <div class="text-secondary">{{ 'This week'|trans }}</div>
+                </twig:block>
+            </twig:StatCard>
         {% endif %}
     </div>
 

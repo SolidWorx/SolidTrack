@@ -1,32 +1,16 @@
 {% extends 'layouts/base.html.twig' %}
 
-{% block title %}{{ 'Project'|trans }}{% endblock %}
+{% block page_title %}{{ 'Projects'|trans }}{% endblock %}
 
- {% block page_header %}
-     <div class="page-header d-print-none">
-         <div class="container-xl">
-             <div class="row g-2 align-items-center">
-                 <div class="col">
-                     <h2 class="page-title">
-                         {{ 'Projects'|trans }}
-                     </h2>
-                 </div>
-
-                 <div class="col-auto ms-auto d-print-none">
-                     <div class="btn-list">
-                         <a href="{{ url('app_project_new') }}" class="btn btn-primary d-none d-sm-inline-block">
-                             {{ ux_icon('tabler:text-plus') }}
-                             {{ 'Create new project'|trans }}
-                         </a>
-                         <a href="#" class="btn btn-primary d-sm-none btn-icon" aria-label="Create new location">
-                             {{ ux_icon('tabler:plus') }}
-                         </a>
-                     </div>
-                 </div>
-             </div>
-         </div>
-     </div>
- {% endblock page_header %}
+{% block page_title_actions %}
+    <a href="{{ path('app_project_new') }}" class="btn btn-primary d-none d-sm-inline-flex">
+        {{ ux_icon('tabler:text-plus', {class: 'icon'}) }}
+        {{ 'Create new project'|trans }}
+    </a>
+    <a href="{{ path('app_project_new') }}" class="btn btn-primary btn-icon d-sm-none" aria-label="{{ 'Create new project'|trans }}">
+        {{ ux_icon('tabler:plus', {class: 'icon'}) }}
+    </a>
+{% endblock %}
 
 {% block content %}
     <twig:ProjectList />

@@ -5,8 +5,8 @@
     {% set time_entry_count = time_entry_count + project.timeEntries|length %}
 {% endfor %}
 
-<button type="button" class="btn btn-link text-danger p-0 ms-3" data-bs-toggle="modal" data-bs-target="#{{ modal_id }}">
-    {{ ux_icon('tabler:trash', {width: '16px', height: '16px'}) }}
+<button type="button" class="btn btn-sm text-danger" data-bs-toggle="modal" data-bs-target="#{{ modal_id }}">
+    {{ ux_icon('tabler:trash', {class: 'icon'}) }}
     {{ 'Delete'|trans }}
 </button>
 
@@ -17,7 +17,7 @@
     </p>
     {% if project_count > 0 or time_entry_count > 0 %}
         <div class="alert alert-warning mb-0 d-flex align-items-start gap-2">
-            {{ ux_icon('tabler:alert-triangle', {width: '20px', height: '20px'}) }}
+            {{ ux_icon('tabler:alert-triangle', {class: 'icon'}) }}
             <div>
                 {{ 'This will also permanently delete:'|trans }}
                 <ul class="mb-0 mt-1">
@@ -38,15 +38,15 @@
             </div>
         </div>
     {% else %}
-        <p class="text-muted mb-0">{{ 'This action cannot be undone.'|trans }}</p>
+        <p class="text-secondary mb-0">{{ 'This action cannot be undone.'|trans }}</p>
     {% endif %}
 
     <twig:block name="footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'Cancel'|trans }}</button>
+        <button type="button" class="btn" data-bs-dismiss="modal">{{ 'Cancel'|trans }}</button>
         <form method="post" action="{{ path('app_client_delete', {'id': client.id}) }}" class="d-inline">
             <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ client.id) }}">
             <button type="submit" class="btn btn-danger">
-                {{ ux_icon('tabler:trash') }}
+                {{ ux_icon('tabler:trash', {class: 'icon'}) }}
                 {{ 'Delete client'|trans }}
             </button>
         </form>

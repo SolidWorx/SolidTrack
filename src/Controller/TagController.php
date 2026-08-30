@@ -71,7 +71,7 @@ final class TagController extends BaseController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_tag_delete', methods: ['DELETE'])]
+    #[Route('/{id}/delete', name: 'app_tag_delete', methods: ['POST'])]
     public function delete(Request $request, Tag $tag, TagRepository $tagRepository): Response
     {
         if ($this->isCsrfTokenValid('delete' . $tag->getId(), $request->getPayload()->getString('_token'))) {

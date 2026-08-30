@@ -16,6 +16,7 @@ namespace App\Twig\Components;
 use App\Entity\Project;
 use App\Entity\User;
 use App\Repository\TimeEntryRepository;
+use App\Time\Duration;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterval;
 use LogicException;
@@ -79,14 +80,14 @@ final class TopProjects extends AbstractController
         foreach ($top as $row) {
             $projects[] = [
                 'project' => $row['project'],
-                'duration' => CarbonInterval::hours($row['hours']),
+                'duration' => Duration::fromHours($row['hours']),
                 'percent' => $totalHours > 0 ? ($row['hours'] / $totalHours) * 100 : 0.0,
             ];
         }
 
         return [
             'projects' => $projects,
-            'total' => CarbonInterval::hours($totalHours),
+            'total' => Duration::fromHours($totalHours),
         ];
     }
 

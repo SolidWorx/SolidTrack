@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Stats;
 
+use App\Time\Duration;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterval;
 
@@ -30,8 +31,8 @@ final readonly class UsageSummary
     public static function empty(?string $currency = null): self
     {
         return new self(
-            CarbonInterval::hours(0.0),
-            CarbonInterval::hours(0.0),
+            Duration::fromHours(0.0),
+            Duration::fromHours(0.0),
             0.0,
             $currency,
             null,

@@ -11,6 +11,7 @@
 
 namespace App\Twig\Extension;
 
+use App\Time\Duration;
 use Carbon\CarbonInterval;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
@@ -29,7 +30,7 @@ final class DateIntervalExtension extends AbstractExtension
 
     private function formatDateInterval(CarbonInterval $interval, bool $humanReadable = true): string
     {
-        $interval = CarbonInterval::hours($interval->totalHours);
+        $interval = Duration::fromHours($interval->totalHours);
 
         if ($humanReadable) {
             return $interval->forHumans(short: true, parts: 3);

@@ -19,6 +19,7 @@ use App\Enum\StatsPeriod;
 use App\Repository\ClientRepository;
 use App\Repository\TimeEntryRepository;
 use App\Stats\UsageSummary;
+use App\Time\Duration;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterval;
 use LogicException;
@@ -93,7 +94,7 @@ final class ClientList extends AbstractController
             }
         }
 
-        return ['tracked' => CarbonInterval::hours($hours), 'earnings' => $earnings];
+        return ['tracked' => Duration::fromHours($hours), 'earnings' => $earnings];
     }
 
     /**

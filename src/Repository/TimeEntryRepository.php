@@ -20,6 +20,7 @@ use App\Enum\TimeEntryStatus;
 use App\Enum\TimeEntryType;
 use App\Report\ReportFilter;
 use App\Stats\UsageSummary;
+use App\Time\Duration;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterval;
 use Carbon\CarbonPeriod;
@@ -237,8 +238,8 @@ final class TimeEntryRepository extends EntityRepository
     {
         return array_map(
             static fn (array $row): UsageSummary => new UsageSummary(
-                CarbonInterval::hours($row['total']),
-                CarbonInterval::hours($row['billable']),
+                Duration::fromHours($row['total']),
+                Duration::fromHours($row['billable']),
                 $row['amount'],
                 $row['currency'],
                 $row['last'],
