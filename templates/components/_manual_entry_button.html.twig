@@ -15,6 +15,11 @@
         {% if project is defined and project %}data-prefill-project="{{ project.id }}"{% endif %}
         {% if client is defined and client %}data-prefill-client="{{ client.id }}"{% endif %}
         {% if label is empty %}aria-label="{{ 'Add time entry'|trans }}" title="{{ 'Add time entry'|trans }}"{% endif %}>
-    {{ ux_icon('tabler:clock-plus', {class: 'icon'}) }}
-    {{ label }}
+    {#- Whitespace-controlled so an empty label leaves no stray text node beside the
+        icon. Note for icon-only use: pass `btn-sm` alone, NOT Tabler's `.btn-icon` —
+        that class negative-margins the icon by the button's padding-x and relies on
+        `.btn`'s min-width to absorb it, but that min-width calc resolves to `auto`
+        here, so the icon's width cancels out and the button collapses to its borders. -#}
+    {{- ux_icon('tabler:clock-plus', {class: 'icon'}) -}}
+    {%- if label is not empty %} {{ label }}{% endif -%}
 </button>
