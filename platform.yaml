@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=./vendor/solidworx/platform/platform-schema.json
 platform:
   name: 'SolidTrack'
-  version: '0.1.0-dev'
+  version: !php/const App\Kernel::APP_VERSION
 
   security:
     two_factor:

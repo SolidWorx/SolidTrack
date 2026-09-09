@@ -1,0 +1,20 @@
+{# Trigger for the "Add time entry" modal (_manual_entry_modal.html.twig must be
+   included somewhere on the same page).
+
+   Params:
+     project  - optional Project to pre-select
+     client   - optional Client to narrow the project list to
+     label    - optional text; omit for an icon-only button
+     class    - optional extra classes, e.g. 'btn-primary' or 'btn-sm' #}
+{% set label = label is defined ? label : 'Add time entry'|trans %}
+
+<button type="button"
+        class="btn {{ class|default('') }}"
+        data-bs-toggle="modal"
+        data-bs-target="#manual-time-entry"
+        {% if project is defined and project %}data-prefill-project="{{ project.id }}"{% endif %}
+        {% if client is defined and client %}data-prefill-client="{{ client.id }}"{% endif %}
+        {% if label is empty %}aria-label="{{ 'Add time entry'|trans }}" title="{{ 'Add time entry'|trans }}"{% endif %}>
+    {{ ux_icon('tabler:clock-plus', {class: 'icon'}) }}
+    {{ label }}
+</button>

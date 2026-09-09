@@ -17,6 +17,7 @@ use App\Enum\TimeEntryType;
 use App\Repository\TimeEntryRepository;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterval;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -25,6 +26,7 @@ use Stringable;
 use Symfony\Bridge\Doctrine\IdGenerator\UlidGenerator;
 use Symfony\Bridge\Doctrine\Types\UlidType;
 use Symfony\Component\Uid\Ulid;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: TimeEntryRepository::class)]
 #[ORM\Table(name: self::TABLE_NAME)]
@@ -47,6 +49,7 @@ class TimeEntry implements Stringable
     private ?CarbonImmutable $dateStart = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    #[Assert\GreaterThan(propertyPath: 'dateStart', message: 'The end time must be after the start time.')]
     private ?CarbonImmutable $dateEnd = null;
 
     #[ORM\Column]
@@ -103,9 +106,9 @@ class TimeEntry implements Stringable
         return $this->dateStart;
     }
 
-    public function setDateStart(CarbonImmutable $dateStart): static
+    public function setDateStart(?DateTimeInterface $dateStart): static
     {
-        $this->dateStart = $dateStart;
+        $this->dateStart = $dateStart === null ? null : CarbonImmutable::instance($dateStart);
 
         return $this;
     }
@@ -115,9 +118,9 @@ class TimeEntry implements Stringable
         return $this->dateEnd;
     }
 
-    public function setDateEnd(CarbonImmutable $dateEnd): static
+    public function setDateEnd(?DateTimeInterface $dateEnd): static
     {
-        $this->dateEnd = $dateEnd;
+        $this->dateEnd = $dateEnd === null ? null : CarbonImmutable::instance($dateEnd);
 
         return $this;
     }

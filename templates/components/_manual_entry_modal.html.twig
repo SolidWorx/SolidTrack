@@ -1,0 +1,18 @@
+{# The "Add time entry" modal. Include once per page; triggers are plain buttons
+   pointing at it (see _manual_entry_button.html.twig), so a page can carry any
+   number of them — including one per table row — without repeating the modal.
+
+   The controllers go on a wrapper rather than on <twig:Ui:Modal> itself: that
+   component renders its own stimulus_controller() after {{ attributes }}, so a
+   data-controller passed in as an attribute wins the duplicate and silently drops
+   the platform's own modal controller. Bootstrap's modal events bubble, so a
+   wrapper listens just as well. #}
+<div {{ stimulus_controller('@solidworx/platform/modal-prefill')|stimulus_controller('manual-entry') }}>
+    <twig:Ui:Modal
+        id="manual-time-entry"
+        title="Add time entry"
+        size="lg"
+    >
+        <twig:ManualTimeEntry :returnUrl="app.request.requestUri" />
+    </twig:Ui:Modal>
+</div>

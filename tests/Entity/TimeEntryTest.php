@@ -16,6 +16,7 @@ namespace App\Test\Entity;
 use App\Entity\Project;
 use App\Entity\TimeEntry;
 use Carbon\CarbonImmutable;
+use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -63,5 +64,38 @@ final class TimeEntryTest extends TestCase
             ->setProject($project);
 
         self::assertSame('Acme redesign', (string) $entry);
+    }
+
+    public function testDateSettersNormalisePlainDateTimesToCarbon(): void
+    {
+        $entry = (new TimeEntry())
+            ->setDateStart(new DateTimeImmutable('2026-08-30 09:00:00'))
+            ->setDateEnd(new DateTimeImmutable('2026-08-30 11:30:00'));
+
+        // The form layer hands over plain DateTimeImmutable instances, but the
+        // templates and UserActivity call Carbon-only methods on these values.
+        self::assertInstanceOf(CarbonImmutable::class, $entry->getDateStart());
+        self::assertInstanceOf(CarbonImmutable::class, $entry->getDateEnd());
+        self::assertTrue($entry->getDateStart()->isSameAs('Y-m-d H:i', CarbonImmutable::parse('2026-08-30 09:00:00')));
+    }
+
+    public function testDateSettersAcceptNull(): void
+    {
+        // The manual-entry form maps an empty datetime field to null before the
+        // NotNull constraint gets a chance to report it, so the setters must not
+        // blow up on the way through.
+        $entry = (new TimeEntry())->setDateStart(null)->setDateEnd(null);
+
+        self::assertNull($entry->getDateStart());
+        self::assertNull($entry->getDateEnd());
+    }
+
+    public function testDateSettersPreserveCarbonInstancesUnchanged(): void
+    {
+        $start = CarbonImmutable::parse('2026-08-30 09:00:00');
+
+        $entry = (new TimeEntry())->setDateStart($start);
+
+        self::assertTrue($start->equalTo($entry->getDateStart()));
     }
 }
