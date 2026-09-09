@@ -26,6 +26,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * The fields every time entry shares, however it is captured: the running
  * tracker bar and the manual-entry modal both build on this.
+ *
+ * @extends AbstractType<TimeEntry>
  */
 abstract class AbstractTimeEntryType extends AbstractType
 {
@@ -53,8 +55,7 @@ abstract class AbstractTimeEntryType extends AbstractType
         $builder
             ->add(
                 'description',
-                null,
-                [
+                options: [
                     'attr' => [
                         'placeholder' => $this->translator->trans('What are you working on?'),
                     ],
@@ -66,12 +67,12 @@ abstract class AbstractTimeEntryType extends AbstractType
                 EntityType::class,
                 [
                     'class' => Project::class,
-                    'choice_label' => static fn (Project $project) => sprintf(
+                    'choice_label' => static fn (Project $project): string => sprintf(
                         '<span class="d-inline-block rounded-circle me-2" style="width: 10px; height: 10px; background-color: %s;"></span>%s',
                         htmlspecialchars($project->getColor(), \ENT_QUOTES),
                         htmlspecialchars($project->getName(), \ENT_QUOTES),
                     ),
-                    'group_by' => static fn (Project $project) => $project->getClient()?->getName(),
+                    'group_by' => static fn (Project $project): ?string => $project->getClient()?->getName(),
                     'options_as_html' => true,
                     'autocomplete' => true,
                     'placeholder' => $this->translator->trans('Select a project'),
@@ -83,7 +84,7 @@ abstract class AbstractTimeEntryType extends AbstractType
                 EntityType::class,
                 [
                     'class' => Tag::class,
-                    'choice_label' => static fn (Tag $tag) => sprintf(
+                    'choice_label' => static fn (Tag $tag): string => sprintf(
                         '<span class="status-dot align-middle me-2" style="--swp-status-color: %s"></span>%s',
                         htmlspecialchars($tag->getColor(), \ENT_QUOTES),
                         htmlspecialchars($tag->getName(), \ENT_QUOTES),

@@ -56,7 +56,8 @@ final class UserActivityResumeTest extends KernelTestCase
         self::bootKernel();
         $container = self::getContainer();
 
-        $manager = $container->get('doctrine')->getManager();
+        $manager = $container->get('doctrine')
+            ->getManager();
         \assert($manager instanceof EntityManagerInterface);
         $this->em = $manager;
         $this->repository = $this->em->getRepository(TimeEntry::class);
@@ -81,7 +82,9 @@ final class UserActivityResumeTest extends KernelTestCase
         $tag = $this->createTag('resume-test-' . bin2hex(random_bytes(4)));
 
         $original = $this->createEntry($user, $project, '2026-05-10 09:00:00', '2026-05-10 11:00:00');
-        $original->setDescription('Weekly sync')->setBillable(false)->addTag($tag);
+        $original->setDescription('Weekly sync')
+            ->setBillable(false)
+            ->addTag($tag);
         $this->em->flush();
 
         $this->authenticate($user);
@@ -99,7 +102,10 @@ final class UserActivityResumeTest extends KernelTestCase
         self::assertSame(TimeEntryType::TRACKING, $running->getEntryType());
         self::assertNull($running->getDateEnd());
         self::assertCount(1, $running->getTags());
-        self::assertSame($tag->getName(), $running->getTags()->first()->getName());
+        $firstTag = $running->getTags()
+            ->first();
+        self::assertInstanceOf(Tag::class, $firstTag);
+        self::assertSame($tag->getName(), $firstTag->getName());
 
         // The entry that was resumed is untouched.
         self::assertSame(TimeEntryStatus::COMPLETED, $original->getStatus());
@@ -188,7 +194,8 @@ final class UserActivityResumeTest extends KernelTestCase
     private function createProject(string $name): Project
     {
         $client = new Client();
-        $client->setName('Acme')->setCurrency('USD');
+        $client->setName('Acme')
+            ->setCurrency('USD');
         $this->em->persist($client);
 
         $project = new Project();

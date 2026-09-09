@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of SolidTrack project.
  *
@@ -13,22 +15,12 @@ namespace App\Twig\Extension;
 
 use App\Time\Duration;
 use Carbon\CarbonInterval;
-use Twig\Extension\AbstractExtension;
-use Twig\TwigFunction;
+use Twig\Attribute\AsTwigFunction;
 
-final class DateIntervalExtension extends AbstractExtension
+final class DateIntervalExtension
 {
-    /**
-     * @return list<TwigFunction>
-     */
-    public function getFunctions(): array
-    {
-        return [
-            new TwigFunction('format_interval', $this->formatDateInterval(...)),
-        ];
-    }
-
-    private function formatDateInterval(CarbonInterval $interval, bool $humanReadable = true): string
+    #[AsTwigFunction(name: 'format_interval')]
+    public function formatDateInterval(CarbonInterval $interval, bool $humanReadable = true): string
     {
         $interval = Duration::fromHours($interval->totalHours);
 

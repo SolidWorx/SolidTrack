@@ -34,8 +34,9 @@ final class InlineRateEditTest extends WebTestCase
     protected function setUp(): void
     {
         self::bootKernel();
-        $this->em = self::getContainer()->get('doctrine')->getManager();
-        \assert($this->em instanceof EntityManagerInterface);
+        $em = self::getContainer()->get('doctrine')->getManager();
+        \assert($em instanceof EntityManagerInterface);
+        $this->em = $em;
 
         $this->user = new User();
         $this->user->setEmail('rate-test@example.test')
@@ -50,7 +51,8 @@ final class InlineRateEditTest extends WebTestCase
     private function makeProject(?float $rate = null, string $currency = 'USD'): Project
     {
         $client = new Client();
-        $client->setName('Acme')->setCurrency($currency);
+        $client->setName('Acme')
+            ->setCurrency($currency);
         $this->em->persist($client);
 
         $project = new Project();
@@ -72,7 +74,8 @@ final class InlineRateEditTest extends WebTestCase
         $component = $this->createLiveComponent('InlineRateEdit', ['project' => $project])
             ->actingAs($this->user);
 
-        $html = $component->render()->toString();
+        $html = $component->render()
+            ->toString();
 
         self::assertStringContainsString('$75.00', $html);
         self::assertStringContainsString('/ hour', $html);
@@ -86,7 +89,8 @@ final class InlineRateEditTest extends WebTestCase
         $component = $this->createLiveComponent('InlineRateEdit', ['project' => $project])
             ->actingAs($this->user);
 
-        $html = $component->render()->toString();
+        $html = $component->render()
+            ->toString();
 
         self::assertStringContainsString('No rate set', $html);
         self::assertStringNotContainsString('<input', $html);
@@ -99,7 +103,9 @@ final class InlineRateEditTest extends WebTestCase
         $component = $this->createLiveComponent('InlineRateEdit', ['project' => $project])
             ->actingAs($this->user);
 
-        $html = $component->call('startEdit')->render()->toString();
+        $html = $component->call('startEdit')
+            ->render()
+            ->toString();
 
         self::assertStringContainsString('<input', $html);
         self::assertStringContainsString('value="50"', $html);

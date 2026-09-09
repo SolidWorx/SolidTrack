@@ -46,8 +46,8 @@ final class DashboardStats extends AbstractController
      * }
      */
     #[ExposeInTemplate]
-    #[LiveListener('timer-stopped')]
-    #[LiveListener('entry-updated')]
+    #[LiveListener(eventName: 'timer-stopped')]
+    #[LiveListener(eventName: 'entry-updated')]
     public function stats(): array
     {
         $user = $this->currentUser();

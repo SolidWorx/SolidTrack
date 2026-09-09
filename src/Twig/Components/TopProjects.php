@@ -32,7 +32,7 @@ final class TopProjects extends AbstractController
 {
     use DefaultActionTrait;
 
-    private const LIMIT = 5;
+    private const int LIMIT = 5;
 
     public function __construct(
         private readonly TimeEntryRepository $timeEntryRepository,
@@ -47,8 +47,8 @@ final class TopProjects extends AbstractController
      * }
      */
     #[ExposeInTemplate]
-    #[LiveListener('timer-stopped')]
-    #[LiveListener('entry-updated')]
+    #[LiveListener(eventName: 'timer-stopped')]
+    #[LiveListener(eventName: 'entry-updated')]
     public function topProjects(): array
     {
         $user = $this->currentUser();

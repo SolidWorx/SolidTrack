@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of SolidTrack project.
  *
@@ -43,7 +45,7 @@ class Client implements Stringable
     /**
      * @var Collection<int, Project>
      */
-    #[ORM\OneToMany(mappedBy: 'client', targetEntity: Project::class, cascade: ['remove'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Project::class, mappedBy: 'client', cascade: ['remove'], orphanRemoval: true)]
     private Collection $projects;
 
     public function __construct()
@@ -103,14 +105,14 @@ class Client implements Stringable
         if ($this->projects->removeElement($project)) {
             // set the owning side to null (unless already changed)
             if ($project->getClient() === $this) {
-                $project->setClient(null);
+                $project->setClient(client: null);
             }
         }
 
         return $this;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->name ?? '';
     }

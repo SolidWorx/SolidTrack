@@ -14,6 +14,9 @@ declare(strict_types=1);
 namespace App\Twig\Components;
 
 use App\Chart\BillableChartFactory;
+use App\Entity\Client;
+use App\Entity\Project;
+use App\Entity\Tag;
 use App\Entity\TimeEntry;
 use App\Entity\User;
 use App\Report\GroupBy;
@@ -49,7 +52,7 @@ final class ReportSummary extends AbstractController
     #[LiveProp(writable: true, url: true)]
     public string $projectId = '';
 
-    #[LiveProp(writable: true, url: true, onUpdated: 'onClientChanged')]
+    #[LiveProp(writable: true, onUpdated: 'onClientChanged', url: true)]
     public string $clientId = '';
 
     /**
@@ -81,14 +84,16 @@ final class ReportSummary extends AbstractController
 
     public function onClientChanged(): void
     {
-        if ($this->projectId === '' || ! Ulid::isValid($this->projectId)) {
+        if ($this->projectId === '' || ! Ulid::isValid($this->projectId, Ulid::FORMAT_BASE_32)) {
             return;
         }
+
         $project = $this->projectRepository->find(Ulid::fromString($this->projectId));
         if ($project === null) {
             $this->projectId = '';
             return;
         }
+
         if ($this->clientId !== '' && $project->getClient()?->getId()?->toRfc4122() !== $this->clientId) {
             $this->projectId = '';
         }
@@ -99,10 +104,13 @@ final class ReportSummary extends AbstractController
         if ($this->from === '' || $this->to === '') {
             $now = CarbonImmutable::instance($this->clock->now());
             if ($this->from === '') {
-                $this->from = $now->startOfWeek()->format('Y-m-d');
+                $this->from = $now->startOfWeek()
+                    ->format('Y-m-d');
             }
+
             if ($this->to === '') {
-                $this->to = $now->endOfWeek()->format('Y-m-d');
+                $this->to = $now->endOfWeek()
+                    ->format('Y-m-d');
             }
         }
     }
@@ -122,6 +130,7 @@ final class ReportSummary extends AbstractController
             if ($duration === null) {
                 continue;
             }
+
             $hours = $duration->totalHours;
             if ($entry->isBillable()) {
                 $billableHours += $hours;
@@ -155,14 +164,17 @@ final class ReportSummary extends AbstractController
         $cursor = $start->startOfDay();
         while ($cursor->lessThanOrEqualTo($end)) {
             if ($useWeekBuckets) {
-                $key = $cursor->startOfWeek()->format('Y-m-d');
-                $label = $cursor->startOfWeek()->format('M j');
+                $key = $cursor->startOfWeek()
+                    ->format('Y-m-d');
+                $label = $cursor->startOfWeek()
+                    ->format('M j');
                 $cursor = $cursor->addWeek();
             } else {
                 $key = $cursor->format('Y-m-d');
                 $label = $cursor->format('M j');
                 $cursor = $cursor->addDay();
             }
+
             $buckets[$key] ??= ['billable' => 0.0, 'nonBillable' => 0.0, 'label' => $label];
         }
 
@@ -172,18 +184,22 @@ final class ReportSummary extends AbstractController
             if ($duration === null || $dateStart === null) {
                 continue;
             }
+
             $key = $useWeekBuckets
-                ? $dateStart->startOfWeek()->format('Y-m-d')
+                ? $dateStart->startOfWeek()
+                    ->format('Y-m-d')
                 : $dateStart->format('Y-m-d');
             if (! isset($buckets[$key])) {
                 continue;
             }
+
             $bucket = &$buckets[$key];
             if ($entry->isBillable()) {
                 $bucket['billable'] += $duration->totalHours;
             } else {
                 $bucket['nonBillable'] += $duration->totalHours;
             }
+
             unset($bucket);
         }
 
@@ -200,13 +216,13 @@ final class ReportSummary extends AbstractController
     }
 
     /**
-     * @return list<array{label: string, color: ?string, sub: ?string, totalHours: float, billableHours: float, amount: float, tags: list<\App\Entity\Tag>, children: list<array{label: string, totalHours: float, billableHours: float, amount: float, tags: list<\App\Entity\Tag>}>}>
+     * @return list<array{label: string, color: ?string, sub: ?string, totalHours: float, billableHours: float, amount: float, tags: list<Tag>, children: list<array{label: string, totalHours: float, billableHours: float, amount: float, tags: list<Tag>}>}>
      */
     #[ExposeInTemplate(name: 'groups')]
     public function groups(): array
     {
         $groupBy = $this->groupByEnum();
-        /** @var array<string, array{label: string, color: ?string, sub: ?string, totalHours: float, billableHours: float, amount: float, tags: array<string, \App\Entity\Tag>, children: array<string, array{label: string, totalHours: float, billableHours: float, amount: float, tags: array<string, \App\Entity\Tag>}>}> $groups */
+        /** @var array<string, array{label: string, color: ?string, sub: ?string, totalHours: float, billableHours: float, amount: float, tags: array<string, Tag>, children: array<string, array{label: string, totalHours: float, billableHours: float, amount: float, tags: array<string, Tag>}>}> $groups */
         $groups = [];
 
         foreach ($this->loadEntries() as $entry) {
@@ -214,6 +230,7 @@ final class ReportSummary extends AbstractController
             if ($duration === null) {
                 continue;
             }
+
             $hours = $duration->totalHours;
             $project = $entry->getProject();
             $rate = $project?->getHourlyRate();
@@ -255,28 +272,32 @@ final class ReportSummary extends AbstractController
             if ($entry->isBillable()) {
                 $groups[$key]['billableHours'] += $hours;
             }
+
             $groups[$key]['amount'] += $amount;
 
             $description = $entry->getDescription();
             $childKey = ($description === null || $description === '') ? '(no description)' : $description;
-            $groups[$key]['children'][$childKey] ??= [
+            $child = $groups[$key]['children'][$childKey] ?? [
                 'label' => $childKey,
                 'totalHours' => 0.0,
                 'billableHours' => 0.0,
                 'amount' => 0.0,
                 'tags' => [],
             ];
-            $groups[$key]['children'][$childKey]['totalHours'] += $hours;
+            $child['totalHours'] += $hours;
             if ($entry->isBillable()) {
-                $groups[$key]['children'][$childKey]['billableHours'] += $hours;
+                $child['billableHours'] += $hours;
             }
-            $groups[$key]['children'][$childKey]['amount'] += $amount;
+
+            $child['amount'] += $amount;
 
             foreach ($entry->getTags() as $tag) {
                 $tagKey = $tag->getId()?->toRfc4122() ?? $tag->getName();
                 $groups[$key]['tags'][$tagKey] = $tag;
-                $groups[$key]['children'][$childKey]['tags'][$tagKey] = $tag;
+                $child['tags'][$tagKey] = $tag;
             }
+
+            $groups[$key]['children'][$childKey] = $child;
         }
 
         usort($groups, static fn (array $a, array $b): int => $b['totalHours'] <=> $a['totalHours']);
@@ -295,13 +316,13 @@ final class ReportSummary extends AbstractController
     }
 
     /**
-     * @return array{projects: list<\App\Entity\Project>, clients: list<\App\Entity\Client>, tags: list<\App\Entity\Tag>, groupByOptions: list<array{value: string, label: string}>}
+     * @return array{projects: list<Project>, clients: list<Client>, tags: list<Tag>, groupByOptions: list<array{value: string, label: string}>}
      */
     #[ExposeInTemplate(name: 'filterOptions')]
     public function filterOptions(): array
     {
         $projectCriteria = [];
-        if ($this->clientId !== '' && Ulid::isValid($this->clientId)) {
+        if ($this->clientId !== '' && Ulid::isValid($this->clientId, Ulid::FORMAT_BASE_32)) {
             $client = $this->clientRepository->find(Ulid::fromString($this->clientId));
             if ($client !== null) {
                 $projectCriteria['client'] = $client;
@@ -324,7 +345,8 @@ final class ReportSummary extends AbstractController
      */
     private function tagGroupKey(TimeEntry $entry): array
     {
-        $first = $entry->getTags()->first();
+        $first = $entry->getTags()
+            ->first();
         if ($first === false) {
             return ['__none__', '(No tag)', null, null];
         }

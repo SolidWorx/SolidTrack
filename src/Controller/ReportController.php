@@ -24,8 +24,8 @@ final class ReportController extends BaseController
     /**
      * @return array{reportType: ReportType}
      */
-    #[Route('/reports', name: 'app_report_index')]
-    #[Template('report/index.html.twig')]
+    #[Route(path: '/reports', name: 'app_report_index')]
+    #[Template(template: 'report/index.html.twig')]
     public function __invoke(Request $request): array
     {
         $type = ReportType::tryFrom((string) $request->query->get('type', ReportType::Summary->value)) ?? ReportType::Summary;

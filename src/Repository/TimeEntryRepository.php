@@ -26,6 +26,7 @@ use Carbon\CarbonInterval;
 use Carbon\CarbonPeriod;
 use DateTimeInterface;
 use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use SolidWorx\Platform\PlatformBundle\Repository\EntityRepository;
@@ -54,7 +55,8 @@ final class TimeEntryRepository extends EntityRepository
             ->orderBy('t.dateStart', 'DESC')
             ->setMaxResults(1)
             ->getQuery()
-            ->getOneOrNullResult();
+            // Doctrine's implicit default; naming it keeps the hydrated result typed.
+            ->getOneOrNullResult(AbstractQuery::HYDRATE_OBJECT);
     }
 
     /**
@@ -224,7 +226,7 @@ final class TimeEntryRepository extends EntityRepository
         }
 
         $end = $entry->getDateEnd();
-        if ($end !== null && ($acc[$key]['last'] === null || $end->greaterThan($acc[$key]['last']))) {
+        if ($end instanceof CarbonImmutable && (! $acc[$key]['last'] instanceof CarbonImmutable || $end->greaterThan($acc[$key]['last']))) {
             $acc[$key]['last'] = $end;
         }
     }
@@ -263,22 +265,23 @@ final class TimeEntryRepository extends EntityRepository
             ->setParameter('status', TimeEntryStatus::COMPLETED)
             ->setParameter('user', $user->getId(), UlidType::NAME);
 
-        if ($project !== null) {
+        if ($project instanceof Project) {
             $qb->andWhere('t.project = :project')
                 ->setParameter('project', $project->getId(), UlidType::NAME);
         }
 
-        if ($from !== null) {
+        if ($from instanceof DateTimeInterface) {
             $qb->andWhere('t.dateStart >= :from')
                 ->setParameter('from', $from);
         }
 
-        if ($to !== null) {
+        if ($to instanceof DateTimeInterface) {
             $qb->andWhere('t.dateStart <= :to')
                 ->setParameter('to', $to);
         }
 
-        return $qb->getQuery()->getResult();
+        return $qb->getQuery()
+            ->getResult();
     }
 
     /**
@@ -313,7 +316,8 @@ final class TimeEntryRepository extends EntityRepository
                 ->setMaxResults($perPage);
         }
 
-        return $qb->getQuery()->getResult();
+        return $qb->getQuery()
+            ->getResult();
     }
 
     public function countForReport(User $user, ReportFilter $filter): int
@@ -336,18 +340,19 @@ final class TimeEntryRepository extends EntityRepository
             ->setParameter('from', $filter->from)
             ->setParameter('to', $filter->to);
 
-        if ($filter->projectId !== null) {
+        if ($filter->projectId instanceof Ulid) {
             $qb->andWhere('t.project = :projectId')
                 ->setParameter('projectId', $filter->projectId, UlidType::NAME);
         }
 
-        if ($filter->clientId !== null) {
+        if ($filter->clientId instanceof Ulid) {
             $qb->andWhere('p.client = :clientId')
                 ->setParameter('clientId', $filter->clientId, UlidType::NAME);
         }
 
         if ($filter->tagIds !== []) {
-            $sub = $this->getEntityManager()->createQueryBuilder()
+            $sub = $this->getEntityManager()
+                ->createQueryBuilder()
                 ->select('t2.id')
                 ->from(TimeEntry::class, 't2')
                 ->join('t2.tags', 'tg2')

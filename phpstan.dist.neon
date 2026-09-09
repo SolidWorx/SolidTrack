@@ -9,9 +9,37 @@ parameters:
 
     treatPhpDocTypesAsCertain: false
 
+    excludePaths:
+        analyseAndScan:
+            # Generated IDE helper for platform.yaml. Symfony rewrites it on a cold
+            # cache warmup with only the bundles of whichever env booted last, so
+            # analysing it makes the result depend on cache state, not on the code.
+            - config/reference.php
+
+    doctrine:
+        objectManagerLoader: tests/object-manager.php
+        # Entities follow the Symfony maker idiom: required columns are backed by
+        # nullable properties so a freshly constructed entity can be read by the
+        # form component before it is filled in.
+        allowNullablePropertyForRequiredField: true
+
     symfony:
-        container_xml_path: var/cache/dev/App_KernelDevDebugContainer.xml
+        containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
         consoleApplicationLoader: tests/console-application.php
+
+services:
+    # config/packages/doctrine.yaml overrides the datetime types with Carbon's,
+    # so teach PHPStan that those columns hydrate to Carbon instances.
+    -
+        class: PHPStan\Type\Doctrine\Descriptors\ReflectionDescriptor
+        arguments:
+            type: Carbon\Doctrine\DateTimeImmutableType
+        tags: [phpstan.doctrine.typeDescriptor]
+    -
+        class: PHPStan\Type\Doctrine\Descriptors\ReflectionDescriptor
+        arguments:
+            type: Carbon\Doctrine\DateTimeType
+        tags: [phpstan.doctrine.typeDescriptor]
 
 includes:
     - phar://phpstan.phar/conf/bleedingEdge.neon

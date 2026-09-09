@@ -58,7 +58,7 @@ class User extends PlatformUser
     public function removeTimeEntry(TimeEntry $timeEntry): static
     {
         if ($this->timeEntries->removeElement($timeEntry) && $timeEntry->getUser() === $this) {
-            $timeEntry->setUser(null);
+            $timeEntry->setUser(user: null);
         }
 
         return $this;

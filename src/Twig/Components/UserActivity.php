@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of SolidTrack project.
  *
@@ -44,8 +46,11 @@ final class UserActivity extends AbstractController
     ) {
     }
 
+    /**
+     * @return iterable<string, array{total: CarbonInterval, entries: list<TimeEntry>}>
+     */
     #[ExposeInTemplate]
-    #[LiveListener('timer-stopped')]
+    #[LiveListener(eventName: 'timer-stopped')]
     public function userActivity(): iterable
     {
         $groups = [];
@@ -53,14 +58,15 @@ final class UserActivity extends AbstractController
         $user = $this->currentUser();
         foreach ($this->timeEntryRepository->findCompleteTrackersForUser($user) as $tracker) {
             $duration = $tracker->getDuration();
-            if ($duration === null) {
+            $dateStart = $tracker->getDateStart();
+            if ($duration === null || $dateStart === null) {
                 continue;
             }
 
             $group = match (true) {
-                $tracker->getDateStart()?->isToday() => $this->translator->trans('Today'),
-                $tracker->getDateStart()?->isYesterday() => $this->translator->trans('Yesterday'),
-                default => $tracker->getDateStart()?->format('D d M Y'),
+                $dateStart->isToday() => $this->translator->trans('Today'),
+                $dateStart->isYesterday() => $this->translator->trans('Yesterday'),
+                default => $dateStart->format('D d M Y'),
             };
 
             $groups[$group] ??= [
@@ -76,7 +82,7 @@ final class UserActivity extends AbstractController
     }
 
     #[LiveAction]
-    public function removeItem(#[LiveArg('id')] TimeEntry $entry): void
+    public function removeItem(#[LiveArg(name: 'id')] TimeEntry $entry): void
     {
         $this->assertOwnedByCurrentUser($entry);
 
@@ -85,7 +91,7 @@ final class UserActivity extends AbstractController
     }
 
     #[LiveAction]
-    public function toggleBillable(#[LiveArg('id')] TimeEntry $entry): void
+    public function toggleBillable(#[LiveArg(name: 'id')] TimeEntry $entry): void
     {
         $this->assertOwnedByCurrentUser($entry);
 
@@ -108,7 +114,7 @@ final class UserActivity extends AbstractController
      * live morph cannot show the carried-over project. A full render can.
      */
     #[LiveAction]
-    public function resumeEntry(#[LiveArg('id')] TimeEntry $entry): RedirectResponse
+    public function resumeEntry(#[LiveArg(name: 'id')] TimeEntry $entry): RedirectResponse
     {
         $this->assertOwnedByCurrentUser($entry);
 
@@ -116,7 +122,7 @@ final class UserActivity extends AbstractController
         $now = CarbonImmutable::instance($this->clock->now());
 
         $running = $this->timeEntryRepository->findActiveTrackersForUser($user);
-        if ($running !== null) {
+        if ($running instanceof TimeEntry) {
             $running
                 ->setDateEnd($now)
                 ->setStatus(TimeEntryStatus::COMPLETED);
@@ -143,8 +149,8 @@ final class UserActivity extends AbstractController
         // Rendered by the layout's flash block as a Tabler alert, which is what
         // announces the state change to screen readers after the redirect.
         $this->addFlash(
-            $running !== null ? 'info' : 'success',
-            $running !== null
+            $running instanceof TimeEntry ? 'info' : 'success',
+            $running instanceof TimeEntry
                 ? $this->translator->trans('Previous timer stopped. Now tracking: %entry%', ['%entry%' => (string) $resumed])
                 : $this->translator->trans('Now tracking: %entry%', ['%entry%' => (string) $resumed]),
         );

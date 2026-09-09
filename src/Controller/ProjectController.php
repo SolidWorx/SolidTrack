@@ -21,20 +21,21 @@ use App\Repository\TimeEntryRepository;
 use App\Time\Duration;
 use LogicException;
 use SolidWorx\Platform\PlatformBundle\Controller\BaseController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/projects')]
+#[Route(path: '/projects')]
 final class ProjectController extends BaseController
 {
-    #[Route('/', name: 'app_project_index', methods: ['GET'])]
+    #[Route(path: '/', name: 'app_project_index', methods: ['GET'])]
     public function index(): Response
     {
         return $this->render('project/index.html.twig');
     }
 
-    #[Route('/new', name: 'app_project_new', methods: ['GET', 'POST'])]
+    #[Route(path: '/new', name: 'app_project_new', methods: ['GET', 'POST'])]
     public function new(Request $request, ProjectRepository $projectRepository): Response
     {
         $project = new Project();
@@ -54,7 +55,7 @@ final class ProjectController extends BaseController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_project_show', methods: ['GET'])]
+    #[Route(path: '/{id}', name: 'app_project_show', methods: ['GET'])]
     public function show(Project $project, TimeEntryRepository $timeEntryRepository): Response
     {
         $user = $this->getUser();
@@ -75,7 +76,7 @@ final class ProjectController extends BaseController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_project_edit', methods: ['GET', 'POST'])]
+    #[Route(path: '/{id}/edit', name: 'app_project_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Project $project, ProjectRepository $projectRepository): Response
     {
         $form = $this->createForm(ProjectType::class, $project);
@@ -93,8 +94,8 @@ final class ProjectController extends BaseController
         ]);
     }
 
-    #[Route('/{id}/delete', name: 'app_project_delete', methods: ['POST'])]
-    public function delete(Request $request, Project $project, ProjectRepository $projectRepository): Response
+    #[Route(path: '/{id}/delete', name: 'app_project_delete', methods: ['POST'])]
+    public function delete(Request $request, Project $project, ProjectRepository $projectRepository): RedirectResponse
     {
         if ($this->isCsrfTokenValid('delete' . $project->getId(), $request->getPayload()->getString('_token'))) {
             $projectRepository->remove($project);

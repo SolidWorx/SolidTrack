@@ -54,10 +54,10 @@ final readonly class ReportFilter
         return new self(
             from: $start,
             to: $end,
-            projectId: $projectId !== null && $projectId !== '' && Ulid::isValid($projectId) ? Ulid::fromString($projectId) : null,
-            clientId: $clientId !== null && $clientId !== '' && Ulid::isValid($clientId) ? Ulid::fromString($clientId) : null,
+            projectId: $projectId !== null && $projectId !== '' && Ulid::isValid($projectId, Ulid::FORMAT_BASE_32) ? Ulid::fromString($projectId) : null,
+            clientId: $clientId !== null && $clientId !== '' && Ulid::isValid($clientId, Ulid::FORMAT_BASE_32) ? Ulid::fromString($clientId) : null,
             tagIds: array_values(array_filter(array_map(
-                static fn (string $id): ?Ulid => Ulid::isValid($id) ? Ulid::fromString($id) : null,
+                static fn (string $id): ?Ulid => Ulid::isValid($id, Ulid::FORMAT_BASE_32) ? Ulid::fromString($id) : null,
                 $tagIds,
             ))),
             billable: $resolvedBillable,

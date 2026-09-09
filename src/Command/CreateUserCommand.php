@@ -60,8 +60,8 @@ final class CreateUserCommand extends Command
         $user = new User();
         $user
             ->setEmail($email)
-            ->setEnabled(true)
-            ->setVerified(true)
+            ->setEnabled(enabled: true)
+            ->setVerified(verified: true)
             ->setRoles(['ROLE_ADMIN'])
         ;
         $user->setPassword($this->passwordHasher->hashPassword($user, $password));

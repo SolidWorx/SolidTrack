@@ -45,8 +45,7 @@ final class ManualTimeEntryType extends AbstractTimeEntryType
             // given the labels a stacked form needs (the tracker bar has none).
             ->add(
                 'description',
-                null,
-                [
+                options: [
                     'label' => $this->translator->trans('What did you work on?'),
                     'attr' => [
                         'placeholder' => $this->translator->trans('Description'),
@@ -62,7 +61,7 @@ final class ManualTimeEntryType extends AbstractTimeEntryType
                 EntityType::class,
                 [
                     'class' => Tag::class,
-                    'choice_label' => static fn (Tag $tag) => sprintf(
+                    'choice_label' => static fn (Tag $tag): string => sprintf(
                         '<span class="status-dot align-middle me-2" style="--swp-status-color: %s"></span>%s',
                         htmlspecialchars($tag->getColor(), \ENT_QUOTES),
                         htmlspecialchars($tag->getName(), \ENT_QUOTES),

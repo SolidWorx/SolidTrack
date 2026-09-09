@@ -56,7 +56,8 @@ final class ManualTimeEntryTest extends KernelTestCase
         self::bootKernel();
         $container = self::getContainer();
 
-        $manager = $container->get('doctrine')->getManager();
+        $manager = $container->get('doctrine')
+            ->getManager();
         \assert($manager instanceof EntityManagerInterface);
         $this->em = $manager;
         $this->repository = $this->em->getRepository(TimeEntry::class);
@@ -109,7 +110,10 @@ final class ManualTimeEntryTest extends KernelTestCase
         self::assertSame('2026-09-01 11:30', $entry->getDateEnd()?->format('Y-m-d H:i'));
         self::assertSame(150.0, $entry->getDuration()?->totalMinutes);
         self::assertCount(1, $entry->getTags());
-        self::assertSame($tag->getName(), $entry->getTags()->first()->getName());
+        $firstTag = $entry->getTags()
+            ->first();
+        self::assertInstanceOf(Tag::class, $firstTag);
+        self::assertSame($tag->getName(), $firstTag->getName());
     }
 
     public function testSaveCapturesAnEntryWithoutAProjectOrDescription(): void
@@ -260,7 +264,8 @@ final class ManualTimeEntryTest extends KernelTestCase
     private function createProject(string $name): Project
     {
         $client = new Client();
-        $client->setName('Acme')->setCurrency('USD');
+        $client->setName('Acme')
+            ->setCurrency('USD');
         $this->em->persist($client);
 
         $project = new Project();

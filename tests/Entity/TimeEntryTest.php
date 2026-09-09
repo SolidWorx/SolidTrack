@@ -84,7 +84,8 @@ final class TimeEntryTest extends TestCase
         // The manual-entry form maps an empty datetime field to null before the
         // NotNull constraint gets a chance to report it, so the setters must not
         // blow up on the way through.
-        $entry = (new TimeEntry())->setDateStart(null)->setDateEnd(null);
+        $entry = (new TimeEntry())->setDateStart(null)
+            ->setDateEnd(null);
 
         self::assertNull($entry->getDateStart());
         self::assertNull($entry->getDateEnd());
@@ -96,6 +97,9 @@ final class TimeEntryTest extends TestCase
 
         $entry = (new TimeEntry())->setDateStart($start);
 
-        self::assertTrue($start->equalTo($entry->getDateStart()));
+        $dateStart = $entry->getDateStart();
+
+        self::assertNotNull($dateStart);
+        self::assertTrue($start->equalTo($dateStart));
     }
 }

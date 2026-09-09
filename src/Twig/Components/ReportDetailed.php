@@ -13,6 +13,9 @@ declare(strict_types=1);
 
 namespace App\Twig\Components;
 
+use App\Entity\Client;
+use App\Entity\Project;
+use App\Entity\Tag;
 use App\Entity\TimeEntry;
 use App\Entity\User;
 use App\Report\ReportFilter;
@@ -38,7 +41,7 @@ final class ReportDetailed extends AbstractController
 {
     use DefaultActionTrait;
 
-    public const PER_PAGE = 50;
+    public const int PER_PAGE = 50;
 
     #[LiveProp(writable: true, url: true)]
     public string $from = '';
@@ -49,7 +52,7 @@ final class ReportDetailed extends AbstractController
     #[LiveProp(writable: true, url: true)]
     public string $projectId = '';
 
-    #[LiveProp(writable: true, url: true, onUpdated: 'onClientChanged')]
+    #[LiveProp(writable: true, onUpdated: 'onClientChanged', url: true)]
     public string $clientId = '';
 
     /**
@@ -75,17 +78,20 @@ final class ReportDetailed extends AbstractController
 
     public function onClientChanged(): void
     {
-        if ($this->projectId === '' || ! Ulid::isValid($this->projectId)) {
+        if ($this->projectId === '' || ! Ulid::isValid($this->projectId, Ulid::FORMAT_BASE_32)) {
             return;
         }
+
         $project = $this->projectRepository->find(Ulid::fromString($this->projectId));
         if ($project === null) {
             $this->projectId = '';
             return;
         }
+
         if ($this->clientId !== '' && $project->getClient()?->getId()?->toRfc4122() !== $this->clientId) {
             $this->projectId = '';
         }
+
         $this->page = 1;
     }
 
@@ -94,10 +100,13 @@ final class ReportDetailed extends AbstractController
         if ($this->from === '' || $this->to === '') {
             $now = CarbonImmutable::instance($this->clock->now());
             if ($this->from === '') {
-                $this->from = $now->startOfWeek()->format('Y-m-d');
+                $this->from = $now->startOfWeek()
+                    ->format('Y-m-d');
             }
+
             if ($this->to === '') {
-                $this->to = $now->endOfWeek()->format('Y-m-d');
+                $this->to = $now->endOfWeek()
+                    ->format('Y-m-d');
             }
         }
     }
@@ -145,6 +154,7 @@ final class ReportDetailed extends AbstractController
             if ($duration === null) {
                 continue;
             }
+
             $hours = $duration->totalHours;
             $total += $hours;
             if ($entry->isBillable()) {
@@ -168,13 +178,13 @@ final class ReportDetailed extends AbstractController
     }
 
     /**
-     * @return array{projects: list<\App\Entity\Project>, clients: list<\App\Entity\Client>, tags: list<\App\Entity\Tag>, groupByOptions: list<array{value: string, label: string}>}
+     * @return array{projects: list<Project>, clients: list<Client>, tags: list<Tag>, groupByOptions: list<array{value: string, label: string}>}
      */
     #[ExposeInTemplate(name: 'filterOptions')]
     public function filterOptions(): array
     {
         $projectCriteria = [];
-        if ($this->clientId !== '' && Ulid::isValid($this->clientId)) {
+        if ($this->clientId !== '' && Ulid::isValid($this->clientId, Ulid::FORMAT_BASE_32)) {
             $client = $this->clientRepository->find(Ulid::fromString($this->clientId));
             if ($client !== null) {
                 $projectCriteria['client'] = $client;

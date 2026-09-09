@@ -42,8 +42,8 @@ final class BillableSplit extends AbstractController
      * @return array{billable: CarbonInterval, nonBillable: CarbonInterval, billablePct: int}
      */
     #[ExposeInTemplate]
-    #[LiveListener('timer-stopped')]
-    #[LiveListener('entry-updated')]
+    #[LiveListener(eventName: 'timer-stopped')]
+    #[LiveListener(eventName: 'entry-updated')]
     public function split(): array
     {
         $user = $this->currentUser();

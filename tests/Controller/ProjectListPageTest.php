@@ -34,12 +34,16 @@ final class ProjectListPageTest extends WebTestCase
         \assert($em instanceof EntityManagerInterface);
 
         $user = new User();
-        $user->setEmail('owner@example.test')->setEnabled(true)->setVerified(true)->setRoles(['ROLE_USER']);
+        $user->setEmail('owner@example.test')
+            ->setEnabled(true)
+            ->setVerified(true)
+            ->setRoles(['ROLE_USER']);
         $user->setPassword('hashed');
         $em->persist($user);
 
         $clientEntity = new Client();
-        $clientEntity->setName('Acme')->setCurrency('USD');
+        $clientEntity->setName('Acme')
+            ->setCurrency('USD');
         $em->persist($clientEntity);
 
         $project = new Project();
@@ -60,7 +64,7 @@ final class ProjectListPageTest extends WebTestCase
         $em->flush();
 
         $client->loginUser($user);
-        $client->request('GET', '/projects');
+        $client->request('GET', '/projects/');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('body', 'Marketing Website');

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of SolidTrack project.
  *
@@ -55,7 +57,7 @@ class Project implements Stringable
     /**
      * @var Collection<int, TimeEntry>
      */
-    #[ORM\OneToMany(mappedBy: 'project', targetEntity: TimeEntry::class, cascade: ['remove'])]
+    #[ORM\OneToMany(targetEntity: TimeEntry::class, mappedBy: 'project', cascade: ['remove'])]
     private Collection $timeEntries;
 
     public function __construct()
@@ -136,13 +138,13 @@ class Project implements Stringable
     {
         // set the owning side to null (unless already changed)
         if ($this->timeEntries->removeElement($timeEntry) && $timeEntry->getProject() === $this) {
-            $timeEntry->setProject(null);
+            $timeEntry->setProject(project: null);
         }
 
         return $this;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->name;
     }

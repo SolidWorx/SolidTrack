@@ -241,7 +241,8 @@ final class TimeEntryAggregateTest extends KernelTestCase
     private function createClient(string $name, string $currency): Client
     {
         $client = new Client();
-        $client->setName($name)->setCurrency($currency);
+        $client->setName($name)
+            ->setCurrency($currency);
         $this->em->persist($client);
 
         return $client;

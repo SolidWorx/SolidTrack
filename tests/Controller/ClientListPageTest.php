@@ -29,12 +29,16 @@ final class ClientListPageTest extends WebTestCase
         \assert($em instanceof EntityManagerInterface);
 
         $user = new User();
-        $user->setEmail('owner@example.test')->setEnabled(true)->setVerified(true)->setRoles(['ROLE_USER']);
+        $user->setEmail('owner@example.test')
+            ->setEnabled(true)
+            ->setVerified(true)
+            ->setRoles(['ROLE_USER']);
         $user->setPassword('hashed');
         $em->persist($user);
 
         $clientEntity = new Client();
-        $clientEntity->setName('Globex Corp')->setCurrency('USD');
+        $clientEntity->setName('Globex Corp')
+            ->setCurrency('USD');
         $em->persist($clientEntity);
         $em->flush();
 

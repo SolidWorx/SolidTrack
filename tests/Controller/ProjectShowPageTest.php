@@ -35,12 +35,16 @@ final class ProjectShowPageTest extends WebTestCase
         \assert($em instanceof EntityManagerInterface);
 
         $user = new User();
-        $user->setEmail('owner@example.test')->setEnabled(true)->setVerified(true)->setRoles(['ROLE_USER']);
+        $user->setEmail('owner@example.test')
+            ->setEnabled(true)
+            ->setVerified(true)
+            ->setRoles(['ROLE_USER']);
         $user->setPassword('hashed');
         $em->persist($user);
 
         $clientEntity = new Client();
-        $clientEntity->setName('Acme')->setCurrency('USD');
+        $clientEntity->setName('Acme')
+            ->setCurrency('USD');
         $em->persist($clientEntity);
 
         $project = new Project();

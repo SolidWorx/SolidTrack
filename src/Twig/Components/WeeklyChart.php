@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Twig\Components;
 
 use App\Chart\BillableChartFactory;
+use App\Entity\TimeEntry;
 use App\Entity\User;
 use App\Repository\TimeEntryRepository;
 use App\Time\Duration;
@@ -91,8 +92,8 @@ final class WeeklyChart extends AbstractController
      * @return array{total: CarbonInterval, billable: CarbonInterval}
      */
     #[ExposeInTemplate(name: 'totals')]
-    #[LiveListener('timer-stopped')]
-    #[LiveListener('entry-updated')]
+    #[LiveListener(eventName: 'timer-stopped')]
+    #[LiveListener(eventName: 'entry-updated')]
     public function totals(): array
     {
         $billableHours = 0.0;
@@ -103,6 +104,7 @@ final class WeeklyChart extends AbstractController
             if ($duration === null) {
                 continue;
             }
+
             if ($entry->isBillable()) {
                 $billableHours += $duration->totalHours;
             } else {
@@ -121,11 +123,7 @@ final class WeeklyChart extends AbstractController
     {
         [$start] = $this->range();
 
-        /** @var array<int, array{billable: float, nonBillable: float}> $perDay */
-        $perDay = [];
-        for ($i = 0; $i < 7; ++$i) {
-            $perDay[$i] = ['billable' => 0.0, 'nonBillable' => 0.0];
-        }
+        $perDay = array_fill(0, 7, ['billable' => 0.0, 'nonBillable' => 0.0]);
 
         foreach ($this->loadEntries() as $entry) {
             $duration = $entry->getDuration();
@@ -134,7 +132,8 @@ final class WeeklyChart extends AbstractController
                 continue;
             }
 
-            $dayIndex = (int) $start->startOfDay()->diffInDays($dateStart->startOfDay(), absolute: false);
+            $dayIndex = (int) $start->startOfDay()
+                ->diffInDays($dateStart->startOfDay(), absolute: false);
             if ($dayIndex < 0 || $dayIndex > 6) {
                 continue;
             }
@@ -169,7 +168,7 @@ final class WeeklyChart extends AbstractController
     }
 
     /**
-     * @return iterable<\App\Entity\TimeEntry>
+     * @return iterable<TimeEntry>
      */
     private function loadEntries(): iterable
     {

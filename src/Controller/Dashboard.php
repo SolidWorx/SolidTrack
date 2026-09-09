@@ -16,13 +16,13 @@ namespace App\Controller;
 use Symfony\Bridge\Twig\Attribute\Template;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/dashboard', name: 'dashboard')]
+#[Route(path: '/dashboard', name: 'dashboard')]
 final class Dashboard
 {
     /**
      * @return array<string, mixed>
      */
-    #[Template('dashboard/index.html.twig')]
+    #[Template(template: 'dashboard/index.html.twig')]
     public function __invoke(): array
     {
         return [];

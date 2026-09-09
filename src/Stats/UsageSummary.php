@@ -35,12 +35,12 @@ final readonly class UsageSummary
             Duration::fromHours(0.0),
             0.0,
             $currency,
-            null,
+            lastActivity: null,
         );
     }
 
     public function hasActivity(): bool
     {
-        return $this->lastActivity !== null;
+        return $this->lastActivity instanceof CarbonImmutable;
     }
 }

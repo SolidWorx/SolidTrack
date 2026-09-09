@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of SolidTrack project.
  *
@@ -28,6 +30,9 @@ use Symfony\Bridge\Doctrine\Types\UlidType;
 use Symfony\Component\Uid\Ulid;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * @see \App\Test\Entity\TimeEntryTest
+ */
 #[ORM\Entity(repositoryClass: TimeEntryRepository::class)]
 #[ORM\Table(name: self::TABLE_NAME)]
 #[ApiResource]
@@ -108,7 +113,7 @@ class TimeEntry implements Stringable
 
     public function setDateStart(?DateTimeInterface $dateStart): static
     {
-        $this->dateStart = $dateStart === null ? null : CarbonImmutable::instance($dateStart);
+        $this->dateStart = $dateStart instanceof DateTimeInterface ? CarbonImmutable::instance($dateStart) : null;
 
         return $this;
     }
@@ -120,7 +125,7 @@ class TimeEntry implements Stringable
 
     public function setDateEnd(?DateTimeInterface $dateEnd): static
     {
-        $this->dateEnd = $dateEnd === null ? null : CarbonImmutable::instance($dateEnd);
+        $this->dateEnd = $dateEnd instanceof DateTimeInterface ? CarbonImmutable::instance($dateEnd) : null;
 
         return $this;
     }
@@ -191,7 +196,7 @@ class TimeEntry implements Stringable
 
     public function getDuration(): ?CarbonInterval
     {
-        if ($this->dateStart === null || $this->dateEnd === null) {
+        if (! $this->dateStart instanceof CarbonImmutable || ! $this->dateEnd instanceof CarbonImmutable) {
             return null;
         }
 

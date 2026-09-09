@@ -15,6 +15,7 @@ namespace App\Twig\Components;
 
 use App\Chart\BillableChartFactory;
 use App\Entity\Project;
+use App\Entity\Tag;
 use App\Entity\TimeEntry;
 use App\Entity\User;
 use App\Report\ReportFilter;
@@ -34,13 +35,14 @@ use Symfony\UX\LiveComponent\Attribute\LiveAction;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
 use Symfony\UX\TwigComponent\Attribute\ExposeInTemplate;
+use Symfony\UX\TwigComponent\Attribute\PostMount;
 
 #[AsLiveComponent]
 final class ProjectTimeEntries extends AbstractController
 {
     use DefaultActionTrait;
 
-    public const PER_PAGE = 50;
+    public const int PER_PAGE = 50;
 
     #[LiveProp]
     public string $projectId = '';
@@ -77,7 +79,14 @@ final class ProjectTimeEntries extends AbstractController
     ) {
     }
 
-    public function mount(): void
+    /**
+     * A PostMount hook rather than mount(): the default range depends on
+     * $projectId, and TwigComponent only writes the remaining props onto the
+     * component *after* mount() has run — so mount() would always see an empty
+     * project and fall back to the start of the month.
+     */
+    #[PostMount]
+    public function defaultRange(): void
     {
         if ($this->from !== '' && $this->to !== '') {
             return;
@@ -91,10 +100,11 @@ final class ProjectTimeEntries extends AbstractController
 
         if ($this->from === '') {
             $project = $this->resolveProject();
-            $earliest = $project !== null
+            $earliest = $project instanceof Project
                 ? $this->timeEntryRepository->earliestEntryDateForProjectAndUser($this->currentUser(), $project)
                 : null;
-            $this->from = ($earliest ?? $now->startOfMonth())->format('Y-m-d');
+            $this->from = ($earliest ?? $now->startOfMonth())
+                ->format('Y-m-d');
         }
     }
 
@@ -139,6 +149,7 @@ final class ProjectTimeEntries extends AbstractController
             if ($duration === null) {
                 continue;
             }
+
             $hours = $duration->totalHours;
             if ($entry->isBillable()) {
                 $billable += $hours;
@@ -175,14 +186,17 @@ final class ProjectTimeEntries extends AbstractController
         $cursor = $start->startOfDay();
         while ($cursor->lessThanOrEqualTo($end)) {
             if ($useWeekBuckets) {
-                $key = $cursor->startOfWeek()->format('Y-m-d');
-                $label = $cursor->startOfWeek()->format('M j');
+                $key = $cursor->startOfWeek()
+                    ->format('Y-m-d');
+                $label = $cursor->startOfWeek()
+                    ->format('M j');
                 $cursor = $cursor->addWeek();
             } else {
                 $key = $cursor->format('Y-m-d');
                 $label = $cursor->format('M j');
                 $cursor = $cursor->addDay();
             }
+
             $buckets[$key] ??= ['billable' => 0.0, 'nonBillable' => 0.0, 'label' => $label];
         }
 
@@ -192,18 +206,22 @@ final class ProjectTimeEntries extends AbstractController
             if ($duration === null || $dateStart === null) {
                 continue;
             }
+
             $key = $useWeekBuckets
-                ? $dateStart->startOfWeek()->format('Y-m-d')
+                ? $dateStart->startOfWeek()
+                    ->format('Y-m-d')
                 : $dateStart->format('Y-m-d');
             if (! isset($buckets[$key])) {
                 continue;
             }
+
             $bucket = &$buckets[$key];
             if ($entry->isBillable()) {
                 $bucket['billable'] += $duration->totalHours;
             } else {
                 $bucket['nonBillable'] += $duration->totalHours;
             }
+
             unset($bucket);
         }
 
@@ -220,7 +238,7 @@ final class ProjectTimeEntries extends AbstractController
     }
 
     /**
-     * @return array{tags: list<\App\Entity\Tag>}
+     * @return array{tags: list<Tag>}
      */
     #[ExposeInTemplate(name: 'filterOptions')]
     public function filterOptions(): array
@@ -244,7 +262,6 @@ final class ProjectTimeEntries extends AbstractController
             from: $this->from,
             to: $this->to,
             projectId: $this->projectId !== '' ? $this->projectId : null,
-            clientId: null,
             tagIds: array_values(array_filter($this->tagIds, static fn (string $id): bool => $id !== '')),
             billable: $this->billable !== '' ? $this->billable : null,
         );
@@ -263,7 +280,7 @@ final class ProjectTimeEntries extends AbstractController
 
     private function resolveProject(): ?Project
     {
-        if ($this->projectId === '' || ! Ulid::isValid($this->projectId)) {
+        if ($this->projectId === '' || ! Ulid::isValid($this->projectId, Ulid::FORMAT_BASE_32)) {
             return null;
         }
 

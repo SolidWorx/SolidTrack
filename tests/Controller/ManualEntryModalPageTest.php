@@ -78,7 +78,8 @@ final class ManualEntryModalPageTest extends WebTestCase
         self::assertCount(1, $crawler->filter('#manual-time-entry'));
         self::assertGreaterThanOrEqual(
             1,
-            $crawler->filter('button[data-bs-target="#manual-time-entry"][data-prefill-project]')->count()
+            $crawler->filter('button[data-bs-target="#manual-time-entry"][data-prefill-project]')
+                ->count()
         );
     }
 
@@ -96,7 +97,8 @@ final class ManualEntryModalPageTest extends WebTestCase
 
         // The narrowing is done in the browser, so the modal has to carry the
         // project => client map for the controller to work from.
-        $map = $crawler->filter('[data-project-clients]')->attr('data-project-clients');
+        $map = $crawler->filter('[data-project-clients]')
+            ->attr('data-project-clients');
         self::assertIsString($map);
 
         $decoded = json_decode($map, true, 512, \JSON_THROW_ON_ERROR);
@@ -112,12 +114,16 @@ final class ManualEntryModalPageTest extends WebTestCase
         \assert($em instanceof EntityManagerInterface);
 
         $user = new User();
-        $user->setEmail('owner@example.test')->setEnabled(true)->setVerified(true)->setRoles(['ROLE_USER']);
+        $user->setEmail('owner@example.test')
+            ->setEnabled(true)
+            ->setVerified(true)
+            ->setRoles(['ROLE_USER']);
         $user->setPassword('hashed');
         $em->persist($user);
 
         $client = new Client();
-        $client->setName('Acme')->setCurrency('USD');
+        $client->setName('Acme')
+            ->setCurrency('USD');
         $em->persist($client);
 
         $project = new Project();

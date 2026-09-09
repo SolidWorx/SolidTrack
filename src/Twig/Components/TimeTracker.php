@@ -26,6 +26,7 @@ use Psr\Clock\ClockInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Uid\Ulid;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
@@ -58,6 +59,9 @@ final class TimeTracker extends AbstractController
     ) {
     }
 
+    /**
+     * @return FormInterface<TimeEntry|null>
+     */
     #[Override]
     protected function instantiateForm(): FormInterface
     {
@@ -79,7 +83,7 @@ final class TimeTracker extends AbstractController
     #[PreReRender(priority: -100)]
     public function persistOnRender(): void
     {
-        if ($this->entry?->getId() === null) {
+        if (! $this->entry?->getId() instanceof Ulid) {
             return;
         }
 
@@ -89,14 +93,15 @@ final class TimeTracker extends AbstractController
     #[LiveAction]
     public function startTracker(): void
     {
-        if ($this->entry !== null) {
+        if ($this->entry instanceof TimeEntry) {
             return;
         }
 
         $this->submitForm();
 
         /** @var TimeEntry $entry */
-        $entry = $this->getForm()->getData();
+        $entry = $this->getForm()
+            ->getData();
         $entry
             ->setDateStart(CarbonImmutable::instance($this->clock->now()))
             ->setStatus(TimeEntryStatus::TRACKING)
@@ -111,18 +116,20 @@ final class TimeTracker extends AbstractController
     #[LiveAction]
     public function stopTimer(): void
     {
-        if ($this->entry === null) {
+        $entry = $this->entry;
+        if (! $entry instanceof TimeEntry) {
             return;
         }
 
         // Capture any final edits sitting in formValues before we close the entry.
+        // The form is bound to $entry, so it mutates that same instance in place.
         $this->submitForm();
 
-        $this->entry
+        $entry
             ->setDateEnd(CarbonImmutable::instance($this->clock->now()))
             ->setStatus(TimeEntryStatus::COMPLETED);
 
-        $this->timeEntryRepository->save($this->entry);
+        $this->timeEntryRepository->save($entry);
 
         $this->entry = null;
         $this->resetForm();

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of SolidTrack project.
  *
@@ -19,6 +21,9 @@ use Symfony\Component\Form\Extension\Core\Type\ColorType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * @extends AbstractType<Project>
+ */
 class ProjectType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -30,7 +35,7 @@ class ProjectType extends AbstractType
                 'choice_label' => 'name',
                 'autocomplete' => true,
             ])
-            ->add('hourlyRate', null, ['attr' => ['placeholder' => 'Workspace Default']])
+            ->add('hourlyRate', options: ['attr' => ['placeholder' => 'Workspace Default']])
             ->add('color', ColorType::class, [
                 'attr' => [
                     'data-controller' => 'color-picker',

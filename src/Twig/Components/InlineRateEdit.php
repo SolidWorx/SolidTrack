@@ -23,6 +23,9 @@ use Symfony\UX\LiveComponent\Attribute\LiveAction;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
 
+/**
+ * @see \App\Test\Twig\Components\InlineRateEditTest
+ */
 #[AsLiveComponent]
 final class InlineRateEdit extends AbstractController
 {

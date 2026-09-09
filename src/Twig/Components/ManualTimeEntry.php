@@ -21,6 +21,7 @@ use App\Form\ManualTimeEntryType;
 use App\Repository\ProjectRepository;
 use App\Repository\TimeEntryRepository;
 use App\Time\Duration;
+use Carbon\CarbonImmutable;
 use Carbon\CarbonInterval;
 use LogicException;
 use Override;
@@ -44,6 +45,7 @@ use Symfony\UX\TwigComponent\Attribute\ExposeInTemplate;
  * attribute of its own root element on every morph, which would strip the `show`
  * class Bootstrap puts on an open modal. Keeping the component root within the body
  * leaves open/close entirely to Bootstrap.
+ * @see \App\Test\Twig\Components\ManualTimeEntryTest
  */
 #[AsLiveComponent]
 final class ManualTimeEntry extends AbstractController
@@ -66,6 +68,9 @@ final class ManualTimeEntry extends AbstractController
     ) {
     }
 
+    /**
+     * @return FormInterface<TimeEntry>
+     */
     #[Override]
     protected function instantiateForm(): FormInterface
     {
@@ -107,7 +112,8 @@ final class ManualTimeEntry extends AbstractController
     #[ExposeInTemplate]
     public function duration(): ?CarbonInterval
     {
-        $entry = $this->getForm()->getData();
+        $entry = $this->getForm()
+            ->getData();
 
         if (! $entry instanceof TimeEntry) {
             return null;
@@ -116,7 +122,7 @@ final class ManualTimeEntry extends AbstractController
         $start = $entry->getDateStart();
         $end = $entry->getDateEnd();
 
-        if ($start === null || $end === null || $end <= $start) {
+        if (! $start instanceof CarbonImmutable || ! $end instanceof CarbonImmutable || $end <= $start) {
             return null;
         }
 
@@ -137,7 +143,8 @@ final class ManualTimeEntry extends AbstractController
         $this->submitForm();
 
         /** @var TimeEntry $entry */
-        $entry = $this->getForm()->getData();
+        $entry = $this->getForm()
+            ->getData();
         $entry
             ->setUser($user)
             ->setStatus(TimeEntryStatus::COMPLETED)
@@ -150,7 +157,7 @@ final class ManualTimeEntry extends AbstractController
             $this->translator->trans('Added %duration% to %entry%', [
                 // Same short rendering as the format_interval Twig helper, so the
                 // flash reads like the durations in the list behind it.
-                '%duration%' => Duration::fromHours($entry->getDuration()?->totalHours ?? 0.0)
+                '%duration%' => Duration::fromHours($entry->getDuration()->totalHours ?? 0.0)
                     ->forHumans(short: true, parts: 3),
                 '%entry%' => (string) $entry,
             ]),
