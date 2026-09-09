@@ -14,7 +14,9 @@
             >
             <button
                 type="button"
-                class="btn btn-sm btn-icon"
+                {# Not `btn-icon`: paired with `btn-sm` its min-width resolves to 0 and
+                   the button collapses to its borders (it works at the default size). #}
+                class="btn btn-sm"
                 data-action="mousedown.prevent live#action"
                 data-live-action-param="cancel"
                 aria-label="{{ 'Cancel'|trans }}"
