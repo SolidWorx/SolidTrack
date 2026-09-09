@@ -56,6 +56,11 @@
                             </td>
                             <td>
                                 <div class="btn-list flex-nowrap">
+                                    {{ include('components/_manual_entry_button.html.twig', {
+                                        'client': row.client,
+                                        'label': '',
+                                        'class': 'btn-sm btn-icon',
+                                    }) }}
                                     <a href="{{ path('app_client_edit', {'id': row.client.id}) }}" class="btn btn-sm">
                                         {{ ux_icon('tabler:pencil', {class: 'icon'}) }}
                                         {{ 'Edit'|trans }}

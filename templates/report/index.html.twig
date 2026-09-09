@@ -15,6 +15,7 @@
 {% endblock %}
 
 {% block page_title_actions %}
+    {{ include('components/_manual_entry_button.html.twig') }}
     <div class="btn-group" role="group" aria-label="{{ 'Report type'|trans }}">
         <a href="{{ path('app_report_index', app.request.query.all|merge({'type': 'summary'})) }}"
            class="btn {{ reportType.value == 'summary' ? 'btn-primary' : '' }}">
@@ -35,4 +36,6 @@
     {% else %}
         <twig:ReportSummary />
     {% endif %}
+
+    {{ include('components/_manual_entry_modal.html.twig') }}
 {% endblock %}

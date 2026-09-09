@@ -13,6 +13,7 @@
 {% block page_title %}{{ greeting }}, {{ display_name }}{% endblock %}
 
 {% block page_title_actions %}
+    {{ include('components/_manual_entry_button.html.twig') }}
     <a href="{{ path('app_report_index', {type: 'detailed', from: week_from, to: week_to}) }}"
        class="btn btn-primary">
         {{ ux_icon('tabler:calendar', {class: 'icon'}) }}
@@ -40,4 +41,6 @@
             </div>
         </div>
     </div>
+
+    {{ include('components/_manual_entry_modal.html.twig') }}
 {% endblock content %}
