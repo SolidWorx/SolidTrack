@@ -10,7 +10,7 @@
 <div {{ stimulus_controller('@solidworx/platform/modal-prefill')|stimulus_controller('manual-entry') }}>
     <twig:Ui:Modal
         id="manual-time-entry"
-        title="Add time entry"
+        :title="'Add time entry'|trans"
         size="lg"
     >
         <twig:ManualTimeEntry :returnUrl="app.request.requestUri" />

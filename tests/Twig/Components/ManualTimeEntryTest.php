@@ -107,7 +107,7 @@ final class ManualTimeEntryTest extends KernelTestCase
         self::assertSame(TimeEntryType::MANUAL, $entry->getEntryType());
         self::assertSame('2026-09-01 09:00', $entry->getDateStart()?->format('Y-m-d H:i'));
         self::assertSame('2026-09-01 11:30', $entry->getDateEnd()?->format('Y-m-d H:i'));
-        self::assertSame('2 hours 30 minutes', (string) $entry->getDuration());
+        self::assertSame(150.0, $entry->getDuration()?->totalMinutes);
         self::assertCount(1, $entry->getTags());
         self::assertSame($tag->getName(), $entry->getTags()->first()->getName());
     }
