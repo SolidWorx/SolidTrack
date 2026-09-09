@@ -64,7 +64,7 @@
                                     {{ include('components/_manual_entry_button.html.twig', {
                                         'project': row.project,
                                         'label': '',
-                                        'class': 'btn-sm btn-icon',
+                                        'class': 'btn-sm',
                                     }) }}
                                     <a href="{{ path('app_project_show', {'id': row.project.id}) }}" class="btn btn-sm">
                                         {{ ux_icon('tabler:eye', {class: 'icon'}) }}
