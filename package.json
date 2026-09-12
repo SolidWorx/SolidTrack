@@ -1,7 +1,7 @@
 {
   "devDependencies": {
     "@babel/preset-env": "^7.29.5",
-    "@codecov/webpack-plugin": "^1.9.1",
+    "@codecov/webpack-plugin": "^2.0.1",
     "@eslint/js": "^10.0.1",
     "@hotwired/stimulus": "^3.2.2",
     "@solidworx/platform": "file:vendor/solidworx/platform/assets",
